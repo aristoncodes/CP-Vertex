@@ -32,6 +32,15 @@ export async function GET(
           include: { tag: true },
           orderBy: { score: "desc" },
         },
+        roadmaps: {
+          include: {
+            weeks: {
+              orderBy: { weekNumber: "asc" },
+            },
+          },
+          orderBy: { generatedAt: "desc" },
+          take: 1,
+        },
       },
     })
 
@@ -65,6 +74,27 @@ export async function GET(
       where: { userId: user.id, verdict: "OK" },
     })
 
+    // Extract active weekly target
+    let weeklyTarget = null;
+    if (user.roadmaps.length > 0) {
+      const activeRoadmap = user.roadmaps[0];
+      // Find the first week that is not 100% complete
+      const activeWeek = activeRoadmap.weeks.find((w: any) => w.progress < w.targetCount) || activeRoadmap.weeks[activeRoadmap.weeks.length - 1];
+      if (activeWeek) {
+        // Tag name requires fetching the tag, but we only have tagId.
+        // Let's look up the tag name from topicScores if it exists there, or just pass the ID for now.
+        const tagObj = user.topicScores.find(ts => ts.tagId === activeWeek.tagId);
+        weeklyTarget = {
+          weekNumber: activeWeek.weekNumber,
+          tag: tagObj ? tagObj.tag.name : "Target Topic",
+          progress: activeWeek.progress,
+          targetCount: activeWeek.targetCount,
+          minRating: activeWeek.minRating,
+          maxRating: activeWeek.maxRating,
+        };
+      }
+    }
+
     return Response.json({
       name: user.name,
       image: user.image,
@@ -74,6 +104,7 @@ export async function GET(
       level: user.level,
       createdAt: user.createdAt,
       totalSolved,
+      weeklyTarget,
       badges: user.badges.map((ub) => ({
         slug: ub.badge.slug,
         name: ub.badge.name,

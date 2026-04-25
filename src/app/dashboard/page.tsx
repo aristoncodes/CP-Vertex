@@ -12,22 +12,11 @@ import { MissionMap } from "@/components/ui/MissionMap";
 import { useStore } from "@/store/useStore";
 import { useSession } from "next-auth/react";
 
-function DashboardMain() {
+function DashboardMain({ profile }: { profile: any }) {
   const { topics, fetchInsights } = useStore();
   const { data: session } = useSession();
-  const [profile, setProfile] = useState<any>(null);
 
   useEffect(() => { fetchInsights(); }, [fetchInsights]);
-
-  useEffect(() => {
-    if (session?.user?.cfHandle || session?.user?.name) {
-      fetch(`/api/user/${session.user.cfHandle || session.user.name}`)
-        .then(res => res.json())
-        .then(data => {
-          if (!data.error) setProfile(data);
-        });
-    }
-  }, [session]);
 
   const user = {
     name: profile?.name || session?.user?.name || "Guest",
@@ -157,7 +146,7 @@ function DashboardMain() {
   );
 }
 
-function IntelPanel() {
+function IntelPanel({ profile }: { profile: any }) {
   const { insights, missions, completeMission, gainXP, generateRecommendation, setActiveMission } = useStore();
 
   const handleComplete = (id: string) => {
@@ -168,6 +157,8 @@ function IntelPanel() {
       setActiveMission(null);
     }
   };
+
+  const wt = profile?.weeklyTarget;
 
   return (
     <>
@@ -199,15 +190,24 @@ function IntelPanel() {
       <div>
         <div className="n-section-label">Weekly Target</div>
         <div className="n-card" style={{ padding: "16px 18px" }}>
-          <div style={{ fontSize: 14, lineHeight: 2, color: "var(--text-secondary)" }}>
-            <span style={{ color: "var(--text-muted)", fontSize: 12 }}>Target:</span>{" "}
-            <span style={{ color: "var(--primary)", fontWeight: 600 }}>Binary Search</span>
-            <br />
-            <span style={{ color: "var(--text-muted)", fontSize: 12 }}>Objective:</span> 15 problems (1400–1700)
-            <br />
-            <span style={{ color: "var(--text-muted)", fontSize: 12 }}>Progress:</span>{" "}
-            <span style={{ color: "var(--success)", fontWeight: 600 }}>3 / 15</span>
-          </div>
+          {wt ? (
+            <div style={{ fontSize: 14, lineHeight: 2, color: "var(--text-secondary)" }}>
+              <span style={{ color: "var(--text-muted)", fontSize: 12 }}>Target:</span>{" "}
+              <span style={{ color: "var(--primary)", fontWeight: 600, textTransform: "capitalize" }}>{wt.tag}</span>
+              <br />
+              <span style={{ color: "var(--text-muted)", fontSize: 12 }}>Objective:</span> {wt.targetCount} problems ({wt.minRating}–{wt.maxRating})
+              <br />
+              <span style={{ color: "var(--text-muted)", fontSize: 12 }}>Progress:</span>{" "}
+              <span style={{ color: wt.progress >= wt.targetCount ? "var(--success)" : "var(--primary)", fontWeight: 600 }}>
+                {wt.progress} / {wt.targetCount}
+              </span>
+            </div>
+          ) : (
+            <div style={{ fontSize: 13, color: "var(--text-muted)", textAlign: "center", padding: "12px 0" }}>
+              No active target.<br/>
+              <span style={{ fontSize: 12 }}>Generate a Learning Roadmap to get started.</span>
+            </div>
+          )}
         </div>
       </div>
     </>
@@ -215,9 +215,22 @@ function IntelPanel() {
 }
 
 export default function DashboardPage() {
+  const { data: session } = useSession();
+  const [profile, setProfile] = useState<any>(null);
+
+  useEffect(() => {
+    if (session?.user?.cfHandle || session?.user?.name) {
+      fetch(`/api/user/${session.user.cfHandle || session.user.name}`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data.error) setProfile(data);
+        });
+    }
+  }, [session]);
+
   return (
-    <DashboardLayout rightPanel={<IntelPanel />}>
-      <DashboardMain />
+    <DashboardLayout rightPanel={<IntelPanel profile={profile} />}>
+      <DashboardMain profile={profile} />
     </DashboardLayout>
   );
 }
