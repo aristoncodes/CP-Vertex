@@ -216,7 +216,6 @@ async function importSubmissions(userId: string, handle: string) {
   }
 
   for (const sub of submissions) {
-    if (!sub.problem.rating) continue
     const cfId = `${sub.problem.contestId}${sub.problem.index}`
 
     let problem = await prisma.problem.findUnique({ where: { cfId } })
@@ -226,7 +225,7 @@ async function importSubmissions(userId: string, handle: string) {
           cfId,
           cfLink: `https://codeforces.com/problemset/problem/${sub.problem.contestId}/${sub.problem.index}`,
           title: sub.problem.name,
-          rating: sub.problem.rating,
+          rating: sub.problem.rating || 0,
           contestId: sub.problem.contestId,
         },
       })

@@ -43,8 +43,6 @@ export async function POST(request: NextRequest) {
           // Skip if before last sync
           const subDate = new Date(sub.creationTimeSeconds * 1000)
           if (user.cfLastSync && subDate <= user.cfLastSync) continue
-          if (!sub.problem.rating) continue
-
           const cfId = `${sub.problem.contestId}${sub.problem.index}`
 
           // Ensure problem exists
@@ -59,7 +57,7 @@ export async function POST(request: NextRequest) {
                 cfId,
                 cfLink: `https://codeforces.com/problemset/problem/${sub.problem.contestId}/${sub.problem.index}`,
                 title: sub.problem.name,
-                rating: sub.problem.rating,
+                rating: sub.problem.rating || 0,
                 contestId: sub.problem.contestId,
               },
               include: { tags: true },
@@ -91,7 +89,7 @@ export async function POST(request: NextRequest) {
             const waCount = await getWACountBeforeAC(user.id, problem.id)
             const isClean = waCount === 0
             const weakTag = await isWeakTag(user.id, tagIds)
-            const xp = calculateXP(sub.problem.rating, user.level, isClean, weakTag)
+            const xp = calculateXP(sub.problem.rating || 0, user.level, isClean, weakTag)
 
             const { xpAwarded, newLevel, leveledUp } = await awardXP(
               user.id,

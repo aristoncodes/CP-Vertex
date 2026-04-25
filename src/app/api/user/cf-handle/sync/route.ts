@@ -33,7 +33,6 @@ export async function POST(request: NextRequest) {
     const tagsToRecompute = new Set<string>();
 
     for (const sub of submissions) {
-      if (!sub.problem.rating) continue;
       const subDate = new Date(sub.creationTimeSeconds * 1000);
       if (user.cfLastSync && subDate <= user.cfLastSync) continue;
 
@@ -46,7 +45,7 @@ export async function POST(request: NextRequest) {
             cfId,
             cfLink: `https://codeforces.com/problemset/problem/${sub.problem.contestId}/${sub.problem.index}`,
             title: sub.problem.name,
-            rating: sub.problem.rating,
+            rating: sub.problem.rating || 0,
             contestId: sub.problem.contestId,
           },
         });

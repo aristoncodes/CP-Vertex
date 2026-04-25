@@ -70,9 +70,12 @@ export async function GET(
       if (sub.xpAwarded > 0) heatmap[dateKey].xpCount += 1
     }
 
-    const totalSolved = await prisma.submission.count({
+    const uniqueSolved = await prisma.submission.findMany({
       where: { userId: user.id, verdict: "OK" },
+      select: { problemId: true },
+      distinct: ['problemId'],
     })
+    const totalSolved = uniqueSolved.length;
 
     // Extract active weekly target
     let weeklyTarget = null;
