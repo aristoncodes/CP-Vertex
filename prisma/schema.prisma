@@ -1,0 +1,403 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── User ─────────────────────────────────────────────
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Auth
+  passwordHash  String?
+
+  // Codeforces integration
+  cfHandle      String?   @unique
+  cfRating      Int?      @default(0)
+  cfSynced      Boolean   @default(false)
+  cfLastSync    DateTime?
+  cfVerified    Boolean   @default(false)
+
+  // Game layer
+  xp            Int       @default(0)
+  level         Int       @default(1)
+  streakCurrent Int       @default(0)
+  streakLongest Int       @default(0)
+  streakLastDay DateTime?
+  streakFreezes Int       @default(1)
+
+  // Online presence
+  lastSeen      DateTime?
+
+  // Relations
+  accounts       Account[]
+  sessions       Session[]
+  submissions    Submission[]
+  topicScores    TopicScore[]
+  postMortems    PostMortem[]
+  journalEntries JournalEntry[]
+  missions       UserMission[]
+  badges         UserBadge[]
+  coachInsights  CoachInsight[]
+  duelsAsP1      Duel[]         @relation("DuelPlayer1")
+  duelsAsP2      Duel[]         @relation("DuelPlayer2")
+  teamMembers    TeamMember[]
+  roadmaps       Roadmap[]
+  weeklyReviews  WeeklyReview[]
+  virtualContests VirtualContest[]
+  notifications  Notification[]
+
+  @@index([cfHandle])
+  @@index([xp])
+  @@index([lastSeen])
+}
+
+// ─── NextAuth Adapter Models ──────────────────────────
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  access_token      String? @db.Text
+  refresh_token     String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── Problem + Tag ────────────────────────────────────
+model Problem {
+  id           String   @id @default(cuid())
+  cfId         String   @unique
+  cfLink       String
+  title        String
+  rating       Int
+  solvedCount  Int      @default(0)
+  contestId    Int?
+  editorialUrl String?
+  createdAt    DateTime @default(now())
+
+  tags         ProblemTag[]
+  submissions  Submission[]
+  duels        Duel[]
+
+  @@index([rating])
+}
+
+model Tag {
+  id       String       @id @default(cuid())
+  name     String       @unique
+  category String
+  problems ProblemTag[]
+  scores   TopicScore[]
+}
+
+model ProblemTag {
+  problemId String
+  tagId     String
+  problem   Problem @relation(fields: [problemId], references: [id])
+  tag       Tag     @relation(fields: [tagId], references: [id])
+
+  @@id([problemId, tagId])
+}
+
+model Submission {
+  id             String      @id @default(cuid())
+  userId         String
+  problemId      String
+  cfSubmissionId String      @unique
+  verdict        String
+  language       String?
+  timeMs         Int?
+  memoryKb       Int?
+  xpAwarded      Int         @default(0)
+  submittedAt    DateTime
+  createdAt      DateTime    @default(now())
+
+  user           User        @relation(fields: [userId], references: [id])
+  problem        Problem     @relation(fields: [problemId], references: [id])
+  postMortem     PostMortem?
+
+  @@index([userId, submittedAt])
+  @@index([userId, verdict])
+}
+
+// ─── Intelligence Layer ───────────────────────────────
+model TopicScore {
+  id            String   @id @default(cuid())
+  userId        String
+  tagId         String
+  score         Float    @default(0)
+  trend         String   @default("stable")
+  acCount       Int      @default(0)
+  totalAttempts Int      @default(0)
+  avgAttempts   Float    @default(0)
+  lastUpdated   DateTime @default(now())
+
+  user          User     @relation(fields: [userId], references: [id])
+  tag           Tag      @relation(fields: [tagId], references: [id])
+
+  @@unique([userId, tagId])
+  @@index([userId, score])
+}
+
+model PostMortem {
+  id             String   @id @default(cuid())
+  userId         String
+  submissionId   String   @unique
+  failureReasons String[]
+  howFixed       String?  @db.Text
+  difficultyFelt Int
+  confidenceNext String
+  xpAwarded      Int      @default(30)
+  createdAt      DateTime @default(now())
+
+  user           User       @relation(fields: [userId], references: [id])
+  submission     Submission @relation(fields: [submissionId], references: [id])
+}
+
+model CoachInsight {
+  id        String    @id @default(cuid())
+  userId    String
+  type      String
+  tagId     String?
+  message   String    @db.Text
+  isRead    Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  expiresAt DateTime?
+
+  user      User      @relation(fields: [userId], references: [id])
+
+  @@index([userId, isRead])
+}
+
+model Roadmap {
+  id          String        @id @default(cuid())
+  userId      String        @unique
+  weeks       RoadmapWeek[]
+  generatedAt DateTime      @default(now())
+  user        User          @relation(fields: [userId], references: [id])
+}
+
+model RoadmapWeek {
+  id          String  @id @default(cuid())
+  roadmapId   String
+  weekNumber  Int
+  tagId       String
+  targetCount Int
+  minRating   Int
+  maxRating   Int
+  progress    Int     @default(0)
+  roadmap     Roadmap @relation(fields: [roadmapId], references: [id])
+}
+
+// ─── Game Layer ───────────────────────────────────────
+model Mission {
+  id           String        @id @default(cuid())
+  type         String
+  title        String
+  description  String
+  xpReward     Int
+  difficulty   String        @default("normal")
+  userMissions UserMission[]
+}
+
+model UserMission {
+  id          String    @id @default(cuid())
+  userId      String
+  missionId   String
+  date        DateTime  @db.Date
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  progress    Int       @default(0)
+  target      Int       @default(1)
+  xpAwarded   Int       @default(0)
+
+  user        User      @relation(fields: [userId], references: [id])
+  mission     Mission   @relation(fields: [missionId], references: [id])
+
+  @@unique([userId, missionId, date])
+  @@index([userId, date])
+}
+
+model Badge {
+  id          String      @id @default(cuid())
+  slug        String      @unique
+  name        String
+  description String
+  category    String
+  iconEmoji   String
+  userBadges  UserBadge[]
+}
+
+model UserBadge {
+  id       String   @id @default(cuid())
+  userId   String
+  badgeId  String
+  earnedAt DateTime @default(now())
+  user     User     @relation(fields: [userId], references: [id])
+  badge    Badge    @relation(fields: [badgeId], references: [id])
+
+  @@unique([userId, badgeId])
+}
+
+model JournalEntry {
+  id             String   @id @default(cuid())
+  userId         String
+  problemId      String
+  coreIdea       String   @db.Text
+  approach       String   @db.Text
+  personalRating Int
+  isPublic       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id])
+}
+
+// ─── Competitive Layer ────────────────────────────────
+model Duel {
+  id            String    @id @default(cuid())
+  player1Id     String
+  player2Id     String
+  problemId     String
+  status        String    @default("pending")
+  winnerId      String?
+  questionCount Int       @default(1)
+  startedAt     DateTime  @default(now())
+  endsAt        DateTime
+  p1WaCount     Int       @default(0)
+  p2WaCount     Int       @default(0)
+  p1AcAt        DateTime?
+  p2AcAt        DateTime?
+
+  player1   User      @relation("DuelPlayer1", fields: [player1Id], references: [id])
+  player2   User      @relation("DuelPlayer2", fields: [player2Id], references: [id])
+  problem   Problem   @relation(fields: [problemId], references: [id])
+
+  @@index([player1Id, status])
+  @@index([player2Id, status])
+}
+
+model Team {
+  id        String       @id @default(cuid())
+  name      String       @unique
+  createdAt DateTime     @default(now())
+  members   TeamMember[]
+}
+
+model TeamMember {
+  teamId   String
+  userId   String
+  role     String   @default("member")
+  joinedAt DateTime @default(now())
+  team     Team     @relation(fields: [teamId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+
+  @@id([teamId, userId])
+}
+
+model WeeklyReview {
+  id             String   @id @default(cuid())
+  userId         String
+  weekStart      DateTime @db.Date
+  totalXp        Int
+  problemsSolved Int
+  bestTag        String?
+  worstTag       String?
+  streakStatus   String
+  data           Json
+  createdAt      DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, weekStart])
+}
+
+model VirtualContest {
+  id        String   @id @default(cuid())
+  userId    String
+  contestId Int
+  startTime DateTime @default(now())
+  duration  Int      // in seconds
+  status    String   @default("active") // active, completed
+  xpAwarded Int      @default(0)
+  score     Int      @default(0)
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId, status])
+}
+
+// ─── Intel Database (Algorithms) ──────────────────────
+model AlgorithmArticle {
+  id           String   @id @default(cuid())
+  slug         String   @unique  // "graph/dijkstra"
+  title        String
+  category     String   // "Graphs"
+  subcategory  String   // "Single-Source Shortest Paths"
+  content      String   @db.Text // full markdown content
+  difficulty   Int      // estimated CF rating equiv
+  tags         String[] // ["graphs", "shortest-path"]
+  problems     AlgorithmProblem[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([category])
+}
+
+model AlgorithmProblem {
+  id          String   @id @default(cuid())
+  articleId   String
+  article     AlgorithmArticle @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  name        String
+  platform    String   // "Codeforces", "SPOJ", etc.
+  link        String
+  rating      Int?
+  
+  @@index([articleId])
+}
+
+// ─── Notifications ────────────────────────────────────
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // "duel_challenge", "duel_accepted", "duel_declined", "duel_result"
+  title     String
+  message   String
+  data      Json?    // { duelId, challengerName, ... }
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+}

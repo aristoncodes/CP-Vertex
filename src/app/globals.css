@@ -1,26 +1,363 @@
 @import "tailwindcss";
 
+/* ════════════════════════════════════════════════════════════════
+   CODEARENA — NEXUS ACADEMIC DESIGN SYSTEM
+   Clean light-mode. Inter typography. Blue accents. Tonal layering.
+════════════════════════════════════════════════════════════════ */
+
+/* ── 01. COLOR TOKENS ── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Surface system — tonal layering */
+  --surface: #f7fafe;
+  --surface-low: #f1f4f8;
+  --surface-card: #ffffff;
+  --surface-high: #ebeef2;
+  --surface-highest: #e0e3e7;
+
+  /* Text hierarchy */
+  --text-primary: #181c1f;
+  --text-secondary: #424753;
+  --text-muted: #727785;
+  --text-faint: #9ca3af;
+
+  /* Primary accent — Academic Blue */
+  --primary: #0366d6;
+  --primary-hover: #004fa8;
+  --primary-light: rgba(3, 102, 214, 0.08);
+  --primary-lighter: rgba(3, 102, 214, 0.04);
+
+  /* Functional colors */
+  --success: #059669;
+  --success-light: rgba(5, 150, 105, 0.08);
+  --warning: #d97706;
+  --warning-light: rgba(217, 119, 6, 0.08);
+  --danger: #dc2626;
+  --danger-light: rgba(220, 38, 38, 0.08);
+  --info: #0891b2;
+  --info-light: rgba(8, 145, 178, 0.08);
+
+  /* Category accent colors */
+  --cat-algebra: #4f46e5;
+  --cat-ds: #0891b2;
+  --cat-dp: #d97706;
+  --cat-graphs: #059669;
+  --cat-combi: #dc2626;
+  --cat-geo: #7c3aed;
+  --cat-strings: #0d9488;
+
+  /* Borders — ghost borders only */
+  --border: rgba(194, 198, 214, 0.3);
+  --border-hover: rgba(3, 102, 214, 0.3);
+  --border-strong: rgba(194, 198, 214, 0.5);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.08);
+
+  /* Spacing — 8px base grid */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 20px; --sp-6: 24px; --sp-8: 32px; --sp-12: 48px;
+  --sp-16: 64px;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
 }
 
+/* ── 02. TAILWIND V4 THEME ── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-surface: var(--surface);
+  --color-surface-low: var(--surface-low);
+  --color-surface-card: var(--surface-card);
+  --color-surface-high: var(--surface-high);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-light: var(--primary-light);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-border: var(--border);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --animate-fade-in: fade-in 0.5s ease-out;
+  --animate-slide-up: slide-up 0.4s ease-out;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
   }
 }
 
+/* ════════════════════════════════════════════════════════════════
+   03. RESET & BASE
+════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--surface);
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection { background: rgba(3, 102, 214, 0.15); color: var(--text-primary); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+a { text-decoration: none; color: inherit; }
+
+/* ════════════════════════════════════════════════════════════════
+   04. CARD SYSTEM
+════════════════════════════════════════════════════════════════ */
+.n-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.n-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-md);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   05. BUTTON SYSTEM
+════════════════════════════════════════════════════════════════ */
+.n-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 24px;
+  background: linear-gradient(135deg, var(--primary-hover), var(--primary));
+  color: white;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+  box-shadow: 0 2px 8px rgba(3, 102, 214, 0.25);
+}
+.n-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(3, 102, 214, 0.35);
+  filter: brightness(1.05);
+}
+
+.n-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 24px;
+  background: transparent;
+  color: var(--primary);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.n-btn-secondary:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   06. TABLE SYSTEM
+════════════════════════════════════════════════════════════════ */
+.n-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Inter', sans-serif;
+}
+.n-table thead {
+  background: var(--surface-low);
+}
+.n-table th {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-strong);
+}
+.n-table td {
+  font-size: 14px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+.n-table tbody tr {
+  transition: background 0.1s;
+}
+.n-table tbody tr:hover {
+  background: var(--primary-lighter);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   07. TAG & BADGE SYSTEM
+════════════════════════════════════════════════════════════════ */
+.n-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  background: var(--surface-low);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+}
+
+.n-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+}
+.n-badge--easy { background: var(--success-light); color: var(--success); }
+.n-badge--medium { background: var(--warning-light); color: var(--warning); }
+.n-badge--hard { background: var(--danger-light); color: var(--danger); }
+
+/* ════════════════════════════════════════════════════════════════
+   08. XP / PROGRESS BAR
+════════════════════════════════════════════════════════════════ */
+.n-progress-track {
+  width: 100%;
+  height: 8px;
+  background: var(--surface-high);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+.n-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), #60a5fa);
+  border-radius: var(--radius-full);
+  transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   09. NAV SYSTEM
+════════════════════════════════════════════════════════════════ */
+.n-nav-item {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  transition: color 0.15s, background 0.15s;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.n-nav-item:hover {
+  color: var(--text-primary);
+  background: var(--primary-lighter);
+}
+.n-nav-item--active {
+  color: var(--primary);
+  background: var(--primary-light);
+  font-weight: 600;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   10. HEATMAP CELLS (blue tonal)
+════════════════════════════════════════════════════════════════ */
+.heat-0 { background: var(--surface-high); }
+.heat-1 { background: rgba(3, 102, 214, 0.12); }
+.heat-2 { background: rgba(3, 102, 214, 0.28); }
+.heat-3 { background: rgba(3, 102, 214, 0.50); }
+.heat-4 { background: rgba(3, 102, 214, 0.75); }
+
+/* ════════════════════════════════════════════════════════════════
+   11. INPUT SYSTEM
+════════════════════════════════════════════════════════════════ */
+.n-input {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.n-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1);
+}
+.n-input::placeholder {
+  color: var(--text-faint);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   12. SECTION LABEL
+════════════════════════════════════════════════════════════════ */
+.n-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   13. MATERIAL SYMBOLS (loaded by pages that need them)
+════════════════════════════════════════════════════════════════ */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   14. UTILITY HELPERS
+════════════════════════════════════════════════════════════════ */
+.n-glass {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Smooth skeleton loader */
+.n-skeleton {
+  background: linear-gradient(90deg, var(--surface-high) 25%, var(--surface-low) 50%, var(--surface-high) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
 }
