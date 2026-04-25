@@ -73,20 +73,12 @@ export function Heatmap({ data = [] }: { data?: HeatmapEntry[] }) {
   const totalSolves = data.reduce((sum, d) => sum + d.count, 0);
   const arenaSolves = data.reduce((sum, d) => sum + (d.xpCount || 0), 0);
 
-  // Color logic: CodeArena solves = green, CF-only = blue
+  // Color logic: Classic green gradient
   const getCellColor = (cell: CellData) => {
     if (cell.isFuture || cell.count === 0) return "#ebedf0";
-    const isArena = cell.xpCount > 0;
     const intensity = Math.min(cell.count, 6);
-    if (isArena) {
-      // Green gradient for CodeArena solves
-      const greens = ["#9be9a8", "#40c463", "#30a14e", "#216e39", "#0d4821"];
-      return greens[Math.min(Math.floor(intensity / 1.2), 4)];
-    } else {
-      // Blue gradient for Codeforces synced solves
-      const blues = ["#bee3f8", "#63b3ed", "#3182ce", "#2b6cb0", "#1a365d"];
-      return blues[Math.min(Math.floor(intensity / 1.2), 4)];
-    }
+    const greens = ["#9be9a8", "#40c463", "#30a14e", "#216e39", "#0d4821"];
+    return greens[Math.min(Math.floor(intensity / 1.2), 4)];
   };
 
   const formatDate = (dateStr: string) => {
@@ -108,14 +100,6 @@ export function Heatmap({ data = [] }: { data?: HeatmapEntry[] }) {
         <div className="n-section-label" style={{ marginBottom: 0 }}>Activity</div>
         <div style={{ display: "flex", gap: 16, fontSize: 11, color: "var(--text-muted)" }}>
           <span><strong style={{ color: "var(--text-primary)" }}>{totalSolves.toLocaleString()}</strong> solves this year</span>
-          <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <span style={{ width: 8, height: 8, borderRadius: 2, background: "#30a14e", display: "inline-block" }} />
-            <span style={{ color: "var(--text-muted)" }}>CP Vertex</span>
-          </span>
-          <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <span style={{ width: 8, height: 8, borderRadius: 2, background: "#3182ce", display: "inline-block" }} />
-            <span style={{ color: "var(--text-muted)" }}>Codeforces</span>
-          </span>
         </div>
       </div>
 
