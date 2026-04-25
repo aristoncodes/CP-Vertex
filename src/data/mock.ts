@@ -63,7 +63,7 @@ export interface MockMission {
 
 export const mockMissions: MockMission[] = [
   { id: "m1", label: "Solve 2 Binary Search problems", type: "WEAK ZONE · 42% AC RATE", xp: 100, done: false },
-  { id: "m2", label: "Submit a post-mortem", type: "REFLECTION REWARD", xp: 50, done: true },
+  { id: "m2", label: "Win your first 1v1 Duel", type: "COMBAT REWARD", xp: 150, done: false },
   { id: "m3", label: "Beat a Boss Fight", type: "RATED 400 ABOVE YOUR LEVEL", xp: 500, done: false },
 ];
 
