@@ -38,7 +38,7 @@ export function Footer() {
           marginBottom: "16px",
           fontWeight: 500
         }}>
-          <a href="#" style={{ color: "var(--text-secondary)", textDecoration: "none" }}>CodeArena © {new Date().getFullYear()}</a>
+          <a href="#" style={{ color: "var(--text-secondary)", textDecoration: "none" }}>CP Vertex © {new Date().getFullYear()}</a>
           <a href="#" style={{ color: "var(--text-secondary)", textDecoration: "none" }}>Rules</a>
           <a href="#" style={{ color: "var(--text-secondary)", textDecoration: "none" }}>About</a>
           <a href="#" style={{ color: "var(--text-secondary)", textDecoration: "none" }}>Privacy</a>

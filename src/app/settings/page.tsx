@@ -8,13 +8,13 @@ type SettingKey = "particles" | "scenes3d" | "smoothScroll" | "notifDigest" | "n
 
 function getStoredSetting(key: SettingKey, fallback: boolean = true): boolean {
   if (typeof window === "undefined") return fallback;
-  const val = localStorage.getItem(`codearena:${key}`);
+  const val = localStorage.getItem(`cp-vertex:${key}`);
   if (val === null) return fallback;
   return val === "1";
 }
 
 function setStoredSetting(key: SettingKey, val: boolean) {
-  localStorage.setItem(`codearena:${key}`, val ? "1" : "0");
+  localStorage.setItem(`cp-vertex:${key}`, val ? "1" : "0");
 }
 
 interface ChallengeInfo {

@@ -1,9 +1,9 @@
-# CodeArena — Project Architecture
+# CP Vertex — Project Architecture
 
 ## Directory Structure
 
 ```
-codearena/
+cp-vertex/
 ├── prisma/
 │   └── schema.prisma           # Database schema (PostgreSQL)
 │

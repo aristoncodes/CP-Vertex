@@ -16,7 +16,7 @@ import "./strength-scores"
 import "./coach-insights"
 import "./weekly-digest"
 
-console.log("🚀 CodeArena workers started")
+console.log("🚀 CP Vertex workers started")
 console.log("   ├── cf-sync")
 console.log("   ├── strength-scores")
 console.log("   ├── coach-insights")

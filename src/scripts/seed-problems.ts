@@ -51,7 +51,7 @@ interface CFProblemStats {
 }
 
 async function main() {
-  console.log("🌱 Starting FAST CodeArena problem seed from Codeforces...")
+  console.log("🌱 Starting FAST CP Vertex problem seed from Codeforces...")
 
   // Fetch all problems
   const res = await fetch(`${CF_BASE}/problemset.problems`)

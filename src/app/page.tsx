@@ -261,7 +261,7 @@ export default function LandingPage() {
           color: "#727785",
         }}
       >
-        © 2026 CodeArena · Built for competitive programmers
+        © 2026 CP Vertex · Built for competitive programmers
       </footer>
     </div>
   );

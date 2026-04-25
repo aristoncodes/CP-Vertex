@@ -110,7 +110,7 @@ export function Heatmap({ data = [] }: { data?: HeatmapEntry[] }) {
           <span><strong style={{ color: "var(--text-primary)" }}>{totalSolves.toLocaleString()}</strong> solves this year</span>
           <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
             <span style={{ width: 8, height: 8, borderRadius: 2, background: "#30a14e", display: "inline-block" }} />
-            <span style={{ color: "var(--text-muted)" }}>CodeArena</span>
+            <span style={{ color: "var(--text-muted)" }}>CP Vertex</span>
           </span>
           <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
             <span style={{ width: 8, height: 8, borderRadius: 2, background: "#3182ce", display: "inline-block" }} />
@@ -175,7 +175,7 @@ export function Heatmap({ data = [] }: { data?: HeatmapEntry[] }) {
                       const rect = (e.target as HTMLElement).getBoundingClientRect();
                       const container = (e.target as HTMLElement).closest(".n-card")!.getBoundingClientRect();
                       const sourceLabel = cell.xpCount > 0
-                        ? `${cell.xpCount} CodeArena + ${cell.count - cell.xpCount} CF`
+                        ? `${cell.xpCount} CP Vertex + ${cell.count - cell.xpCount} CF`
                         : `${cell.count} Codeforces`;
                       setTooltip({
                         text: cell.count === 0

@@ -164,7 +164,7 @@ export default function LearnPage() {
                 />
               </div>
               <Link href="/dashboard" style={{ fontSize: 13, fontWeight: 600, color: "#0366d6", textDecoration: "none", whiteSpace: "nowrap" }}>
-                ← CodeArena
+                ← CP Vertex
               </Link>
             </div>
           </div>
@@ -409,10 +409,10 @@ export default function LearnPage() {
           }}>
             <div>
               <div style={{ fontSize: 15, fontWeight: 700, color: "#181c1f", marginBottom: 4 }}>Intel Database</div>
-              <div style={{ fontSize: 12, color: "#727785" }}>© 2026 CodeArena · The Curated Scholar</div>
+              <div style={{ fontSize: 12, color: "#727785" }}>© 2026 CP Vertex · The Curated Scholar</div>
             </div>
             <Link href="/" style={{ fontSize: 13, fontWeight: 600, color: "#0366d6", textDecoration: "none" }}>
-              Back to CodeArena →
+              Back to CP Vertex →
             </Link>
           </div>
         </footer>

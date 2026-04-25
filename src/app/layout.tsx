@@ -11,7 +11,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "CodeArena — Competitive Programming Platform",
+  title: "CP Vertex — Competitive Programming Platform",
   description:
     "Train, compete, and master algorithms with a gamified competitive programming platform.",
   keywords: ["competitive programming", "algorithms", "training", "gamified", "codeforces"],
