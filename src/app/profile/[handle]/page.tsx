@@ -3,7 +3,7 @@
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { SkillBar } from "@/components/ui/SkillBar";
+import { SkillChart } from "@/components/ui/SkillChart";
 import { RatingChart } from "@/components/ui/RatingChart";
 import { Heatmap } from "@/components/ui/Heatmap";
 import { StreakDisplay } from "@/components/ui/StreakDisplay";
@@ -99,16 +99,11 @@ export default function ProfilePage() {
         <Heatmap data={profile.heatmap || []} />
       </div>
 
-      {/* Skill + Rating */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
-        <div className="n-card" style={{ padding: "20px 24px" }}>
-          <div className="n-section-label">Skill Assessment</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            {(profile.topicScores || []).map((t: any, i: number) => <SkillBar key={t.tag} topic={t} delay={i * 80} />)}
-          </div>
-        </div>
-
+      {/* Rating & Skill Assessment */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
         <RatingChart data={profile.ratingHistory || []} />
+        
+        <SkillChart topics={profile.topicScores || []} />
       </div>
 
       {/* Topic Breakdown */}
