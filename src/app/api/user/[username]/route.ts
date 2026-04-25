@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma"
 import { NextRequest } from "next/server"
 import { getCFRatingHistory } from "@/lib/cf-api"
+import { getLevelFromXP } from "@/lib/xp-math"
 
 export const dynamic = "force-dynamic"
 
@@ -109,7 +110,7 @@ export async function GET(
       cfHandle: user.cfHandle,
       cfRating: user.cfRating,
       xp: user.xp,
-      level: user.level,
+      level: getLevelFromXP(user.xp),
       streak: user.streakCurrent,
       streakLongest: user.streakLongest,
       createdAt: user.createdAt,
