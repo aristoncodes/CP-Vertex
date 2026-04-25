@@ -67,8 +67,10 @@ export function MissionCard({ mission, onComplete }: { mission: Mission; onCompl
                 setActiveMission(mission.id);
                 if (mission.label.toLowerCase().includes("boss")) {
                   router.push('/arena/boss');
+                } else if (mission.label.toLowerCase().includes("duel")) {
+                  router.push('/arena');
                 } else if (mission.label.toLowerCase().includes("post-mortem")) {
-                  router.push('/problems'); // We don't have a post-mortem page yet, fallback to problems
+                  router.push('/problems');
                 } else {
                   router.push('/problems');
                 }
