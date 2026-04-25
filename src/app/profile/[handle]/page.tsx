@@ -108,7 +108,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <RatingChart />
+        <RatingChart data={profile.ratingHistory || []} />
       </div>
 
       {/* Topic Breakdown */}

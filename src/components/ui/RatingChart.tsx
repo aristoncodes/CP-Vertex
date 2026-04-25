@@ -1,38 +1,121 @@
 "use client";
 
-export function RatingChart() {
-  // Simplified mock data — just show a visual representation
-  const points = [1200, 1280, 1350, 1310, 1400, 1420, 1380, 1450, 1500, 1480, 1550, 1520];
-  const max = Math.max(...points);
-  const min = Math.min(...points);
-  const range = max - min || 1;
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  ReferenceLine
+} from "recharts";
+
+interface CFRatingChange {
+  contestId: number;
+  contestName: string;
+  handle: string;
+  rank: number;
+  ratingUpdateTimeSeconds: number;
+  oldRating: number;
+  newRating: number;
+}
+
+export function RatingChart({ data = [] }: { data?: CFRatingChange[] }) {
+  if (!data || data.length === 0) {
+    return (
+      <div className="n-card" style={{ padding: "18px 22px", height: "100%", display: "flex", flexDirection: "column" }}>
+        <div className="n-section-label">Rating History</div>
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-muted)" }}>
+          No rating history available.
+        </div>
+      </div>
+    );
+  }
+
+  const chartData = data.map((d) => ({
+    date: new Date(d.ratingUpdateTimeSeconds * 1000).toLocaleDateString(undefined, { month: "short", year: "numeric" }),
+    rating: d.newRating,
+    oldRating: d.oldRating,
+    contest: d.contestName,
+    rank: d.rank,
+    delta: d.newRating - d.oldRating,
+  }));
+
+  const maxRating = Math.max(...chartData.map(d => d.rating));
+  const minRating = Math.min(...chartData.map(d => d.rating));
+
+  // Determine standard CF color bands based on max rating for Y axis domain
+  const yMax = Math.ceil((maxRating + 100) / 100) * 100;
+  const yMin = Math.max(0, Math.floor((minRating - 100) / 100) * 100);
+
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const d = payload[0].payload;
+      const isPositive = d.delta >= 0;
+      return (
+        <div style={{
+          background: "var(--surface-card)",
+          border: "1px solid var(--border)",
+          padding: "10px",
+          borderRadius: "8px",
+          fontSize: "12px",
+          color: "var(--text-primary)",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+          maxWidth: "250px"
+        }}>
+          <div style={{ fontWeight: 800, marginBottom: "4px" }}>{d.contest}</div>
+          <div style={{ color: "var(--text-muted)", marginBottom: "8px" }}>{d.date} • Rank {d.rank}</div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span>Rating: <strong>{d.rating}</strong></span>
+            <span style={{ color: isPositive ? "var(--success)" : "var(--danger)", fontWeight: "bold" }}>
+              {isPositive ? "+" : ""}{d.delta}
+            </span>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
-    <div className="n-card" style={{ padding: "18px 22px" }}>
-      <div className="n-section-label">Rating History</div>
-      <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 120, paddingTop: 8 }}>
-        {points.map((p, i) => {
-          const pct = ((p - min) / range) * 100;
-          return (
-            <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-              <div
-                style={{
-                  width: "100%",
-                  height: `${Math.max(8, pct)}%`,
-                  background: `linear-gradient(180deg, var(--primary), rgba(3,102,214,0.3))`,
-                  borderRadius: "4px 4px 0 0",
-                  transition: "height 0.6s ease",
-                  minHeight: 8,
-                }}
-                title={`Rating: ${p}`}
-              />
-            </div>
-          );
-        })}
+    <div className="n-card" style={{ padding: "18px 22px", height: "100%", display: "flex", flexDirection: "column" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+        <div className="n-section-label" style={{ margin: 0 }}>Rating History</div>
+        <div style={{ fontSize: "12px", color: "var(--text-muted)" }}>
+          Max: <strong style={{ color: "var(--text-primary)" }}>{maxRating}</strong>
+        </div>
       </div>
-      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-        <span style={{ fontSize: 11, color: "var(--text-muted)" }}>12 months ago</span>
-        <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Now</span>
+      
+      <div style={{ flex: 1, minHeight: 200, position: "relative" }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+            <XAxis 
+              dataKey="date" 
+              tick={{ fontSize: 10, fill: "var(--text-muted)" }} 
+              tickLine={false}
+              axisLine={false}
+              minTickGap={30}
+            />
+            <YAxis 
+              domain={[yMin, yMax]} 
+              tick={{ fontSize: 10, fill: "var(--text-muted)" }} 
+              tickLine={false}
+              axisLine={false}
+            />
+            <Tooltip content={<CustomTooltip />} />
+            <Line 
+              type="monotone" 
+              dataKey="rating" 
+              stroke="var(--info)" 
+              strokeWidth={3}
+              dot={{ r: 3, fill: "var(--info)", strokeWidth: 0 }}
+              activeDot={{ r: 5, fill: "white", stroke: "var(--info)", strokeWidth: 2 }}
+              animationDuration={1000}
+            />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );

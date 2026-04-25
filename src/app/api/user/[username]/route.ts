@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { NextRequest } from "next/server"
+import { getCFRatingHistory } from "@/lib/cf-api"
 
 export const dynamic = "force-dynamic"
 
@@ -128,6 +129,7 @@ export async function GET(
         attempted: ts.totalAttempts,
       })),
       heatmap: Object.entries(heatmap).map(([date, { count, xpCount }]) => ({ date, count, xpCount })),
+      ratingHistory: user.cfHandle ? await getCFRatingHistory(user.cfHandle).catch(() => []) : [],
     })
   } catch (error) {
     console.error("GET /api/user/[username] error:", error)
