@@ -120,15 +120,15 @@ export function Heatmap({ data = [] }: { data?: HeatmapEntry[] }) {
       </div>
 
       {/* Heatmap grid */}
-      <div style={{ overflowX: "auto", paddingBottom: 4 }}>
-        <div style={{ display: "inline-flex", flexDirection: "column", position: "relative" }}>
+      <div style={{ width: "100%", paddingBottom: 4 }}>
+        <div style={{ display: "flex", flexDirection: "column", position: "relative", width: "100%" }}>
 
           {/* Month labels */}
           <div style={{ display: "flex", marginLeft: 28, marginBottom: 4 }}>
             {weeks.map((_, wi) => {
               const label = monthLabels.find(m => m.weekIndex === wi);
               return (
-                <div key={wi} style={{ width: STEP, flexShrink: 0, fontSize: 10, color: "var(--text-muted)", fontWeight: 600 }}>
+                <div key={wi} style={{ flex: 1, fontSize: 10, color: "var(--text-muted)", fontWeight: 600 }}>
                   {label ? label.label : ""}
                 </div>
               );
@@ -136,12 +136,12 @@ export function Heatmap({ data = [] }: { data?: HeatmapEntry[] }) {
           </div>
 
           {/* Day labels + cells */}
-          <div style={{ display: "flex", gap: 0 }}>
+          <div style={{ display: "flex", width: "100%" }}>
             {/* Day-of-week axis */}
-            <div style={{ display: "flex", flexDirection: "column", gap: GAP, marginRight: 4, width: 24 }}>
+            <div style={{ display: "flex", flexDirection: "column", marginRight: 4, width: 24, flexShrink: 0 }}>
               {[0, 1, 2, 3, 4, 5, 6].map(d => (
                 <div key={d} style={{
-                  height: CELL,
+                  flex: 1,
                   fontSize: 9,
                   color: "var(--text-muted)",
                   display: "flex",
@@ -156,40 +156,42 @@ export function Heatmap({ data = [] }: { data?: HeatmapEntry[] }) {
             </div>
 
             {/* Columns of cells */}
-            {weeks.map((week, wi) => (
-              <div key={wi} style={{ display: "flex", flexDirection: "column", gap: GAP, marginRight: GAP }}>
-                {week.map((cell, di) => (
-                  <div
-                    key={di}
-                    style={{
-                      width: CELL,
-                      height: CELL,
-                      borderRadius: 2,
-                      background: getCellColor(cell),
-                      cursor: cell.count > 0 ? "pointer" : "default",
-                      transition: "transform 0.1s, opacity 0.1s",
-                      border: cell.count > 0 ? "none" : "1px solid rgba(0,0,0,0.06)",
-                    }}
-                    onMouseEnter={(e) => {
-                      if (cell.isFuture) return;
-                      const rect = (e.target as HTMLElement).getBoundingClientRect();
-                      const container = (e.target as HTMLElement).closest(".n-card")!.getBoundingClientRect();
-                      const sourceLabel = cell.xpCount > 0
-                        ? `${cell.xpCount} CP Vertex + ${cell.count - cell.xpCount} CF`
-                        : `${cell.count} Codeforces`;
-                      setTooltip({
-                        text: cell.count === 0
-                          ? `No solves on ${formatDate(cell.date)}`
-                          : `${cell.count} solve${cell.count !== 1 ? "s" : ""} on ${formatDate(cell.date)} (${sourceLabel})`,
-                        x: rect.left - container.left + CELL / 2,
-                        y: rect.top - container.top - 8,
-                      });
-                    }}
-                    onMouseLeave={() => setTooltip(null)}
-                  />
-                ))}
-              </div>
-            ))}
+            <div style={{ display: "flex", flex: 1, gap: "3px" }}>
+              {weeks.map((week, wi) => (
+                <div key={wi} style={{ display: "flex", flexDirection: "column", gap: "3px", flex: 1 }}>
+                  {week.map((cell, di) => (
+                    <div
+                      key={di}
+                      style={{
+                        width: "100%",
+                        aspectRatio: "1 / 1",
+                        borderRadius: 2,
+                        background: getCellColor(cell),
+                        cursor: cell.count > 0 ? "pointer" : "default",
+                        transition: "transform 0.1s, opacity 0.1s",
+                        border: cell.count > 0 ? "none" : "1px solid rgba(0,0,0,0.06)",
+                      }}
+                      onMouseEnter={(e) => {
+                        if (cell.isFuture) return;
+                        const rect = (e.target as HTMLElement).getBoundingClientRect();
+                        const container = (e.target as HTMLElement).closest(".n-card")!.getBoundingClientRect();
+                        const sourceLabel = cell.xpCount > 0
+                          ? `${cell.xpCount} CP Vertex + ${cell.count - cell.xpCount} CF`
+                          : `${cell.count} Codeforces`;
+                        setTooltip({
+                          text: cell.count === 0
+                            ? `No solves on ${formatDate(cell.date)}`
+                            : `${cell.count} solve${cell.count !== 1 ? "s" : ""} on ${formatDate(cell.date)} (${sourceLabel})`,
+                          x: rect.left - container.left + (rect.width / 2),
+                          y: rect.top - container.top - 8,
+                        });
+                      }}
+                      onMouseLeave={() => setTooltip(null)}
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
