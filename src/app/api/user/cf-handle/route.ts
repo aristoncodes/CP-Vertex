@@ -183,8 +183,37 @@ export async function POST(request: Request) {
 
 // ─── Background import ───
 async function importSubmissions(userId: string, handle: string) {
-  const { fetchAllSubmissions } = await import("@/lib/cf-api")
+  const { fetchAllSubmissions, getCFUser } = await import("@/lib/cf-api")
   const submissions = await fetchAllSubmissions(handle)
+
+  const uniqueDates = Array.from(new Set(
+    submissions.filter(s => s.verdict === "OK").map(s => {
+      const d = new Date(s.creationTimeSeconds * 1000)
+      return d.toISOString().split("T")[0]
+    })
+  )).sort((a, b) => b.localeCompare(a))
+
+  let currentStreak = 0;
+  let lastActiveDay: Date | null = null;
+  const todayDate = new Date();
+  const today = todayDate.toISOString().split("T")[0];
+  const yesterdayDate = new Date(todayDate);
+  yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+  const yesterday = yesterdayDate.toISOString().split("T")[0];
+
+  if (uniqueDates.includes(today) || uniqueDates.includes(yesterday)) {
+    let checkDate = uniqueDates.includes(today) ? new Date() : yesterdayDate;
+    lastActiveDay = new Date(checkDate);
+    while (true) {
+      const dateStr = checkDate.toISOString().split("T")[0];
+      if (uniqueDates.includes(dateStr)) {
+        currentStreak++;
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+  }
 
   for (const sub of submissions) {
     if (!sub.problem.rating) continue
@@ -219,8 +248,27 @@ async function importSubmissions(userId: string, handle: string) {
     })
   }
 
+  let cfRating = 0;
+  try {
+    const userInfo = await getCFUser(handle);
+    if (userInfo && userInfo.length > 0 && userInfo[0].rating) {
+      cfRating = userInfo[0].rating;
+    }
+  } catch (err) {
+    console.error("Failed to fetch CF rating during bg import:", err);
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { streakLongest: true } });
+
   await prisma.user.update({
     where: { id: userId },
-    data: { cfSynced: true, cfLastSync: new Date() },
+    data: { 
+      cfSynced: true, 
+      cfLastSync: new Date(),
+      cfRating,
+      streakCurrent: currentStreak,
+      streakLongest: Math.max(user?.streakLongest || 0, currentStreak),
+      ...(lastActiveDay ? { streakLastDay: lastActiveDay } : {})
+    },
   })
 }
