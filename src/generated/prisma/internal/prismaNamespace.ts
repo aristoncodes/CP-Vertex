@@ -2638,7 +2638,7 @@ export const DuelScalarFieldEnum = {
   id: 'id',
   player1Id: 'player1Id',
   player2Id: 'player2Id',
-  problemId: 'problemId',
+  problemIds: 'problemIds',
   status: 'status',
   winnerId: 'winnerId',
   questionCount: 'questionCount',
@@ -2646,6 +2646,8 @@ export const DuelScalarFieldEnum = {
   endsAt: 'endsAt',
   p1WaCount: 'p1WaCount',
   p2WaCount: 'p2WaCount',
+  p1Progress: 'p1Progress',
+  p2Progress: 'p2Progress',
   p1AcAt: 'p1AcAt',
   p2AcAt: 'p2AcAt'
 } as const

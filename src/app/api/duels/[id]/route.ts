@@ -18,7 +18,6 @@ export async function GET(
       include: {
         player1: { select: { id: true, name: true, cfHandle: true } },
         player2: { select: { id: true, name: true, cfHandle: true } },
-        problem: { select: { id: true, title: true, rating: true, cfLink: true } },
       },
     })
 
@@ -26,22 +25,28 @@ export async function GET(
       return Response.json({ error: "Duel not found" }, { status: 404 })
     }
 
-    // Optional: Only allow participants to view the duel
-    // if (duel.player1Id !== session.user.id && duel.player2Id !== session.user.id) {
-    //   return Response.json({ error: "Forbidden" }, { status: 403 })
-    // }
+    const problems = await prisma.problem.findMany({
+      where: { id: { in: duel.problemIds } },
+      select: { id: true, title: true, rating: true, cfLink: true },
+    })
+    
+    // Sort problems to match the order in problemIds
+    const sortedProblems = duel.problemIds.map(id => problems.find(p => p.id === id)).filter(Boolean)
 
     return Response.json({
       duel: {
         id: duel.id,
         status: duel.status,
-        problemId: duel.problemId,
+        problemIds: duel.problemIds,
+        questionCount: duel.questionCount,
         endsAt: duel.endsAt,
         player1: duel.player1,
         player2: duel.player2,
-        problem: duel.problem,
+        problems: sortedProblems,
         p1WaCount: duel.p1WaCount,
         p2WaCount: duel.p2WaCount,
+        p1Progress: duel.p1Progress,
+        p2Progress: duel.p2Progress,
         winnerId: duel.winnerId,
         player1Id: duel.player1Id,
         player2Id: duel.player2Id,

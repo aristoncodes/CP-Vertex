@@ -30,19 +30,22 @@ export type DuelAvgAggregateOutputType = {
   questionCount: number | null
   p1WaCount: number | null
   p2WaCount: number | null
+  p1Progress: number | null
+  p2Progress: number | null
 }
 
 export type DuelSumAggregateOutputType = {
   questionCount: number | null
   p1WaCount: number | null
   p2WaCount: number | null
+  p1Progress: number | null
+  p2Progress: number | null
 }
 
 export type DuelMinAggregateOutputType = {
   id: string | null
   player1Id: string | null
   player2Id: string | null
-  problemId: string | null
   status: string | null
   winnerId: string | null
   questionCount: number | null
@@ -50,6 +53,8 @@ export type DuelMinAggregateOutputType = {
   endsAt: Date | null
   p1WaCount: number | null
   p2WaCount: number | null
+  p1Progress: number | null
+  p2Progress: number | null
   p1AcAt: Date | null
   p2AcAt: Date | null
 }
@@ -58,7 +63,6 @@ export type DuelMaxAggregateOutputType = {
   id: string | null
   player1Id: string | null
   player2Id: string | null
-  problemId: string | null
   status: string | null
   winnerId: string | null
   questionCount: number | null
@@ -66,6 +70,8 @@ export type DuelMaxAggregateOutputType = {
   endsAt: Date | null
   p1WaCount: number | null
   p2WaCount: number | null
+  p1Progress: number | null
+  p2Progress: number | null
   p1AcAt: Date | null
   p2AcAt: Date | null
 }
@@ -74,7 +80,7 @@ export type DuelCountAggregateOutputType = {
   id: number
   player1Id: number
   player2Id: number
-  problemId: number
+  problemIds: number
   status: number
   winnerId: number
   questionCount: number
@@ -82,6 +88,8 @@ export type DuelCountAggregateOutputType = {
   endsAt: number
   p1WaCount: number
   p2WaCount: number
+  p1Progress: number
+  p2Progress: number
   p1AcAt: number
   p2AcAt: number
   _all: number
@@ -92,19 +100,22 @@ export type DuelAvgAggregateInputType = {
   questionCount?: true
   p1WaCount?: true
   p2WaCount?: true
+  p1Progress?: true
+  p2Progress?: true
 }
 
 export type DuelSumAggregateInputType = {
   questionCount?: true
   p1WaCount?: true
   p2WaCount?: true
+  p1Progress?: true
+  p2Progress?: true
 }
 
 export type DuelMinAggregateInputType = {
   id?: true
   player1Id?: true
   player2Id?: true
-  problemId?: true
   status?: true
   winnerId?: true
   questionCount?: true
@@ -112,6 +123,8 @@ export type DuelMinAggregateInputType = {
   endsAt?: true
   p1WaCount?: true
   p2WaCount?: true
+  p1Progress?: true
+  p2Progress?: true
   p1AcAt?: true
   p2AcAt?: true
 }
@@ -120,7 +133,6 @@ export type DuelMaxAggregateInputType = {
   id?: true
   player1Id?: true
   player2Id?: true
-  problemId?: true
   status?: true
   winnerId?: true
   questionCount?: true
@@ -128,6 +140,8 @@ export type DuelMaxAggregateInputType = {
   endsAt?: true
   p1WaCount?: true
   p2WaCount?: true
+  p1Progress?: true
+  p2Progress?: true
   p1AcAt?: true
   p2AcAt?: true
 }
@@ -136,7 +150,7 @@ export type DuelCountAggregateInputType = {
   id?: true
   player1Id?: true
   player2Id?: true
-  problemId?: true
+  problemIds?: true
   status?: true
   winnerId?: true
   questionCount?: true
@@ -144,6 +158,8 @@ export type DuelCountAggregateInputType = {
   endsAt?: true
   p1WaCount?: true
   p2WaCount?: true
+  p1Progress?: true
+  p2Progress?: true
   p1AcAt?: true
   p2AcAt?: true
   _all?: true
@@ -239,7 +255,7 @@ export type DuelGroupByOutputType = {
   id: string
   player1Id: string
   player2Id: string
-  problemId: string
+  problemIds: string[]
   status: string
   winnerId: string | null
   questionCount: number
@@ -247,6 +263,8 @@ export type DuelGroupByOutputType = {
   endsAt: Date
   p1WaCount: number
   p2WaCount: number
+  p1Progress: number
+  p2Progress: number
   p1AcAt: Date | null
   p2AcAt: Date | null
   _count: DuelCountAggregateOutputType | null
@@ -278,7 +296,7 @@ export type DuelWhereInput = {
   id?: Prisma.StringFilter<"Duel"> | string
   player1Id?: Prisma.StringFilter<"Duel"> | string
   player2Id?: Prisma.StringFilter<"Duel"> | string
-  problemId?: Prisma.StringFilter<"Duel"> | string
+  problemIds?: Prisma.StringNullableListFilter<"Duel">
   status?: Prisma.StringFilter<"Duel"> | string
   winnerId?: Prisma.StringNullableFilter<"Duel"> | string | null
   questionCount?: Prisma.IntFilter<"Duel"> | number
@@ -286,18 +304,19 @@ export type DuelWhereInput = {
   endsAt?: Prisma.DateTimeFilter<"Duel"> | Date | string
   p1WaCount?: Prisma.IntFilter<"Duel"> | number
   p2WaCount?: Prisma.IntFilter<"Duel"> | number
+  p1Progress?: Prisma.IntFilter<"Duel"> | number
+  p2Progress?: Prisma.IntFilter<"Duel"> | number
   p1AcAt?: Prisma.DateTimeNullableFilter<"Duel"> | Date | string | null
   p2AcAt?: Prisma.DateTimeNullableFilter<"Duel"> | Date | string | null
   player1?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   player2?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  problem?: Prisma.XOR<Prisma.ProblemScalarRelationFilter, Prisma.ProblemWhereInput>
 }
 
 export type DuelOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   player1Id?: Prisma.SortOrder
   player2Id?: Prisma.SortOrder
-  problemId?: Prisma.SortOrder
+  problemIds?: Prisma.SortOrder
   status?: Prisma.SortOrder
   winnerId?: Prisma.SortOrderInput | Prisma.SortOrder
   questionCount?: Prisma.SortOrder
@@ -305,11 +324,12 @@ export type DuelOrderByWithRelationInput = {
   endsAt?: Prisma.SortOrder
   p1WaCount?: Prisma.SortOrder
   p2WaCount?: Prisma.SortOrder
+  p1Progress?: Prisma.SortOrder
+  p2Progress?: Prisma.SortOrder
   p1AcAt?: Prisma.SortOrderInput | Prisma.SortOrder
   p2AcAt?: Prisma.SortOrderInput | Prisma.SortOrder
   player1?: Prisma.UserOrderByWithRelationInput
   player2?: Prisma.UserOrderByWithRelationInput
-  problem?: Prisma.ProblemOrderByWithRelationInput
 }
 
 export type DuelWhereUniqueInput = Prisma.AtLeast<{
@@ -319,7 +339,7 @@ export type DuelWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.DuelWhereInput | Prisma.DuelWhereInput[]
   player1Id?: Prisma.StringFilter<"Duel"> | string
   player2Id?: Prisma.StringFilter<"Duel"> | string
-  problemId?: Prisma.StringFilter<"Duel"> | string
+  problemIds?: Prisma.StringNullableListFilter<"Duel">
   status?: Prisma.StringFilter<"Duel"> | string
   winnerId?: Prisma.StringNullableFilter<"Duel"> | string | null
   questionCount?: Prisma.IntFilter<"Duel"> | number
@@ -327,18 +347,19 @@ export type DuelWhereUniqueInput = Prisma.AtLeast<{
   endsAt?: Prisma.DateTimeFilter<"Duel"> | Date | string
   p1WaCount?: Prisma.IntFilter<"Duel"> | number
   p2WaCount?: Prisma.IntFilter<"Duel"> | number
+  p1Progress?: Prisma.IntFilter<"Duel"> | number
+  p2Progress?: Prisma.IntFilter<"Duel"> | number
   p1AcAt?: Prisma.DateTimeNullableFilter<"Duel"> | Date | string | null
   p2AcAt?: Prisma.DateTimeNullableFilter<"Duel"> | Date | string | null
   player1?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   player2?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  problem?: Prisma.XOR<Prisma.ProblemScalarRelationFilter, Prisma.ProblemWhereInput>
 }, "id">
 
 export type DuelOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   player1Id?: Prisma.SortOrder
   player2Id?: Prisma.SortOrder
-  problemId?: Prisma.SortOrder
+  problemIds?: Prisma.SortOrder
   status?: Prisma.SortOrder
   winnerId?: Prisma.SortOrderInput | Prisma.SortOrder
   questionCount?: Prisma.SortOrder
@@ -346,6 +367,8 @@ export type DuelOrderByWithAggregationInput = {
   endsAt?: Prisma.SortOrder
   p1WaCount?: Prisma.SortOrder
   p2WaCount?: Prisma.SortOrder
+  p1Progress?: Prisma.SortOrder
+  p2Progress?: Prisma.SortOrder
   p1AcAt?: Prisma.SortOrderInput | Prisma.SortOrder
   p2AcAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.DuelCountOrderByAggregateInput
@@ -362,7 +385,7 @@ export type DuelScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Duel"> | string
   player1Id?: Prisma.StringWithAggregatesFilter<"Duel"> | string
   player2Id?: Prisma.StringWithAggregatesFilter<"Duel"> | string
-  problemId?: Prisma.StringWithAggregatesFilter<"Duel"> | string
+  problemIds?: Prisma.StringNullableListFilter<"Duel">
   status?: Prisma.StringWithAggregatesFilter<"Duel"> | string
   winnerId?: Prisma.StringNullableWithAggregatesFilter<"Duel"> | string | null
   questionCount?: Prisma.IntWithAggregatesFilter<"Duel"> | number
@@ -370,12 +393,15 @@ export type DuelScalarWhereWithAggregatesInput = {
   endsAt?: Prisma.DateTimeWithAggregatesFilter<"Duel"> | Date | string
   p1WaCount?: Prisma.IntWithAggregatesFilter<"Duel"> | number
   p2WaCount?: Prisma.IntWithAggregatesFilter<"Duel"> | number
+  p1Progress?: Prisma.IntWithAggregatesFilter<"Duel"> | number
+  p2Progress?: Prisma.IntWithAggregatesFilter<"Duel"> | number
   p1AcAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Duel"> | Date | string | null
   p2AcAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Duel"> | Date | string | null
 }
 
 export type DuelCreateInput = {
   id?: string
+  problemIds?: Prisma.DuelCreateproblemIdsInput | string[]
   status?: string
   winnerId?: string | null
   questionCount?: number
@@ -383,18 +409,19 @@ export type DuelCreateInput = {
   endsAt: Date | string
   p1WaCount?: number
   p2WaCount?: number
+  p1Progress?: number
+  p2Progress?: number
   p1AcAt?: Date | string | null
   p2AcAt?: Date | string | null
   player1: Prisma.UserCreateNestedOneWithoutDuelsAsP1Input
   player2: Prisma.UserCreateNestedOneWithoutDuelsAsP2Input
-  problem: Prisma.ProblemCreateNestedOneWithoutDuelsInput
 }
 
 export type DuelUncheckedCreateInput = {
   id?: string
   player1Id: string
   player2Id: string
-  problemId: string
+  problemIds?: Prisma.DuelCreateproblemIdsInput | string[]
   status?: string
   winnerId?: string | null
   questionCount?: number
@@ -402,12 +429,15 @@ export type DuelUncheckedCreateInput = {
   endsAt: Date | string
   p1WaCount?: number
   p2WaCount?: number
+  p1Progress?: number
+  p2Progress?: number
   p1AcAt?: Date | string | null
   p2AcAt?: Date | string | null
 }
 
 export type DuelUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  problemIds?: Prisma.DuelUpdateproblemIdsInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -415,18 +445,19 @@ export type DuelUpdateInput = {
   endsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   p1WaCount?: Prisma.IntFieldUpdateOperationsInput | number
   p2WaCount?: Prisma.IntFieldUpdateOperationsInput | number
+  p1Progress?: Prisma.IntFieldUpdateOperationsInput | number
+  p2Progress?: Prisma.IntFieldUpdateOperationsInput | number
   p1AcAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   p2AcAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   player1?: Prisma.UserUpdateOneRequiredWithoutDuelsAsP1NestedInput
   player2?: Prisma.UserUpdateOneRequiredWithoutDuelsAsP2NestedInput
-  problem?: Prisma.ProblemUpdateOneRequiredWithoutDuelsNestedInput
 }
 
 export type DuelUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   player1Id?: Prisma.StringFieldUpdateOperationsInput | string
   player2Id?: Prisma.StringFieldUpdateOperationsInput | string
-  problemId?: Prisma.StringFieldUpdateOperationsInput | string
+  problemIds?: Prisma.DuelUpdateproblemIdsInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -434,6 +465,8 @@ export type DuelUncheckedUpdateInput = {
   endsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   p1WaCount?: Prisma.IntFieldUpdateOperationsInput | number
   p2WaCount?: Prisma.IntFieldUpdateOperationsInput | number
+  p1Progress?: Prisma.IntFieldUpdateOperationsInput | number
+  p2Progress?: Prisma.IntFieldUpdateOperationsInput | number
   p1AcAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   p2AcAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -442,7 +475,7 @@ export type DuelCreateManyInput = {
   id?: string
   player1Id: string
   player2Id: string
-  problemId: string
+  problemIds?: Prisma.DuelCreateproblemIdsInput | string[]
   status?: string
   winnerId?: string | null
   questionCount?: number
@@ -450,12 +483,15 @@ export type DuelCreateManyInput = {
   endsAt: Date | string
   p1WaCount?: number
   p2WaCount?: number
+  p1Progress?: number
+  p2Progress?: number
   p1AcAt?: Date | string | null
   p2AcAt?: Date | string | null
 }
 
 export type DuelUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  problemIds?: Prisma.DuelUpdateproblemIdsInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -463,6 +499,8 @@ export type DuelUpdateManyMutationInput = {
   endsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   p1WaCount?: Prisma.IntFieldUpdateOperationsInput | number
   p2WaCount?: Prisma.IntFieldUpdateOperationsInput | number
+  p1Progress?: Prisma.IntFieldUpdateOperationsInput | number
+  p2Progress?: Prisma.IntFieldUpdateOperationsInput | number
   p1AcAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   p2AcAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -471,7 +509,7 @@ export type DuelUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   player1Id?: Prisma.StringFieldUpdateOperationsInput | string
   player2Id?: Prisma.StringFieldUpdateOperationsInput | string
-  problemId?: Prisma.StringFieldUpdateOperationsInput | string
+  problemIds?: Prisma.DuelUpdateproblemIdsInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -479,6 +517,8 @@ export type DuelUncheckedUpdateManyInput = {
   endsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   p1WaCount?: Prisma.IntFieldUpdateOperationsInput | number
   p2WaCount?: Prisma.IntFieldUpdateOperationsInput | number
+  p1Progress?: Prisma.IntFieldUpdateOperationsInput | number
+  p2Progress?: Prisma.IntFieldUpdateOperationsInput | number
   p1AcAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   p2AcAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -497,7 +537,7 @@ export type DuelCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   player1Id?: Prisma.SortOrder
   player2Id?: Prisma.SortOrder
-  problemId?: Prisma.SortOrder
+  problemIds?: Prisma.SortOrder
   status?: Prisma.SortOrder
   winnerId?: Prisma.SortOrder
   questionCount?: Prisma.SortOrder
@@ -505,6 +545,8 @@ export type DuelCountOrderByAggregateInput = {
   endsAt?: Prisma.SortOrder
   p1WaCount?: Prisma.SortOrder
   p2WaCount?: Prisma.SortOrder
+  p1Progress?: Prisma.SortOrder
+  p2Progress?: Prisma.SortOrder
   p1AcAt?: Prisma.SortOrder
   p2AcAt?: Prisma.SortOrder
 }
@@ -513,13 +555,14 @@ export type DuelAvgOrderByAggregateInput = {
   questionCount?: Prisma.SortOrder
   p1WaCount?: Prisma.SortOrder
   p2WaCount?: Prisma.SortOrder
+  p1Progress?: Prisma.SortOrder
+  p2Progress?: Prisma.SortOrder
 }
 
 export type DuelMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   player1Id?: Prisma.SortOrder
   player2Id?: Prisma.SortOrder
-  problemId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   winnerId?: Prisma.SortOrder
   questionCount?: Prisma.SortOrder
@@ -527,6 +570,8 @@ export type DuelMaxOrderByAggregateInput = {
   endsAt?: Prisma.SortOrder
   p1WaCount?: Prisma.SortOrder
   p2WaCount?: Prisma.SortOrder
+  p1Progress?: Prisma.SortOrder
+  p2Progress?: Prisma.SortOrder
   p1AcAt?: Prisma.SortOrder
   p2AcAt?: Prisma.SortOrder
 }
@@ -535,7 +580,6 @@ export type DuelMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   player1Id?: Prisma.SortOrder
   player2Id?: Prisma.SortOrder
-  problemId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   winnerId?: Prisma.SortOrder
   questionCount?: Prisma.SortOrder
@@ -543,6 +587,8 @@ export type DuelMinOrderByAggregateInput = {
   endsAt?: Prisma.SortOrder
   p1WaCount?: Prisma.SortOrder
   p2WaCount?: Prisma.SortOrder
+  p1Progress?: Prisma.SortOrder
+  p2Progress?: Prisma.SortOrder
   p1AcAt?: Prisma.SortOrder
   p2AcAt?: Prisma.SortOrder
 }
@@ -551,6 +597,8 @@ export type DuelSumOrderByAggregateInput = {
   questionCount?: Prisma.SortOrder
   p1WaCount?: Prisma.SortOrder
   p2WaCount?: Prisma.SortOrder
+  p1Progress?: Prisma.SortOrder
+  p2Progress?: Prisma.SortOrder
 }
 
 export type DuelCreateNestedManyWithoutPlayer1Input = {
@@ -637,50 +685,18 @@ export type DuelUncheckedUpdateManyWithoutPlayer2NestedInput = {
   deleteMany?: Prisma.DuelScalarWhereInput | Prisma.DuelScalarWhereInput[]
 }
 
-export type DuelCreateNestedManyWithoutProblemInput = {
-  create?: Prisma.XOR<Prisma.DuelCreateWithoutProblemInput, Prisma.DuelUncheckedCreateWithoutProblemInput> | Prisma.DuelCreateWithoutProblemInput[] | Prisma.DuelUncheckedCreateWithoutProblemInput[]
-  connectOrCreate?: Prisma.DuelCreateOrConnectWithoutProblemInput | Prisma.DuelCreateOrConnectWithoutProblemInput[]
-  createMany?: Prisma.DuelCreateManyProblemInputEnvelope
-  connect?: Prisma.DuelWhereUniqueInput | Prisma.DuelWhereUniqueInput[]
+export type DuelCreateproblemIdsInput = {
+  set: string[]
 }
 
-export type DuelUncheckedCreateNestedManyWithoutProblemInput = {
-  create?: Prisma.XOR<Prisma.DuelCreateWithoutProblemInput, Prisma.DuelUncheckedCreateWithoutProblemInput> | Prisma.DuelCreateWithoutProblemInput[] | Prisma.DuelUncheckedCreateWithoutProblemInput[]
-  connectOrCreate?: Prisma.DuelCreateOrConnectWithoutProblemInput | Prisma.DuelCreateOrConnectWithoutProblemInput[]
-  createMany?: Prisma.DuelCreateManyProblemInputEnvelope
-  connect?: Prisma.DuelWhereUniqueInput | Prisma.DuelWhereUniqueInput[]
-}
-
-export type DuelUpdateManyWithoutProblemNestedInput = {
-  create?: Prisma.XOR<Prisma.DuelCreateWithoutProblemInput, Prisma.DuelUncheckedCreateWithoutProblemInput> | Prisma.DuelCreateWithoutProblemInput[] | Prisma.DuelUncheckedCreateWithoutProblemInput[]
-  connectOrCreate?: Prisma.DuelCreateOrConnectWithoutProblemInput | Prisma.DuelCreateOrConnectWithoutProblemInput[]
-  upsert?: Prisma.DuelUpsertWithWhereUniqueWithoutProblemInput | Prisma.DuelUpsertWithWhereUniqueWithoutProblemInput[]
-  createMany?: Prisma.DuelCreateManyProblemInputEnvelope
-  set?: Prisma.DuelWhereUniqueInput | Prisma.DuelWhereUniqueInput[]
-  disconnect?: Prisma.DuelWhereUniqueInput | Prisma.DuelWhereUniqueInput[]
-  delete?: Prisma.DuelWhereUniqueInput | Prisma.DuelWhereUniqueInput[]
-  connect?: Prisma.DuelWhereUniqueInput | Prisma.DuelWhereUniqueInput[]
-  update?: Prisma.DuelUpdateWithWhereUniqueWithoutProblemInput | Prisma.DuelUpdateWithWhereUniqueWithoutProblemInput[]
-  updateMany?: Prisma.DuelUpdateManyWithWhereWithoutProblemInput | Prisma.DuelUpdateManyWithWhereWithoutProblemInput[]
-  deleteMany?: Prisma.DuelScalarWhereInput | Prisma.DuelScalarWhereInput[]
-}
-
-export type DuelUncheckedUpdateManyWithoutProblemNestedInput = {
-  create?: Prisma.XOR<Prisma.DuelCreateWithoutProblemInput, Prisma.DuelUncheckedCreateWithoutProblemInput> | Prisma.DuelCreateWithoutProblemInput[] | Prisma.DuelUncheckedCreateWithoutProblemInput[]
-  connectOrCreate?: Prisma.DuelCreateOrConnectWithoutProblemInput | Prisma.DuelCreateOrConnectWithoutProblemInput[]
-  upsert?: Prisma.DuelUpsertWithWhereUniqueWithoutProblemInput | Prisma.DuelUpsertWithWhereUniqueWithoutProblemInput[]
-  createMany?: Prisma.DuelCreateManyProblemInputEnvelope
-  set?: Prisma.DuelWhereUniqueInput | Prisma.DuelWhereUniqueInput[]
-  disconnect?: Prisma.DuelWhereUniqueInput | Prisma.DuelWhereUniqueInput[]
-  delete?: Prisma.DuelWhereUniqueInput | Prisma.DuelWhereUniqueInput[]
-  connect?: Prisma.DuelWhereUniqueInput | Prisma.DuelWhereUniqueInput[]
-  update?: Prisma.DuelUpdateWithWhereUniqueWithoutProblemInput | Prisma.DuelUpdateWithWhereUniqueWithoutProblemInput[]
-  updateMany?: Prisma.DuelUpdateManyWithWhereWithoutProblemInput | Prisma.DuelUpdateManyWithWhereWithoutProblemInput[]
-  deleteMany?: Prisma.DuelScalarWhereInput | Prisma.DuelScalarWhereInput[]
+export type DuelUpdateproblemIdsInput = {
+  set?: string[]
+  push?: string | string[]
 }
 
 export type DuelCreateWithoutPlayer1Input = {
   id?: string
+  problemIds?: Prisma.DuelCreateproblemIdsInput | string[]
   status?: string
   winnerId?: string | null
   questionCount?: number
@@ -688,16 +704,17 @@ export type DuelCreateWithoutPlayer1Input = {
   endsAt: Date | string
   p1WaCount?: number
   p2WaCount?: number
+  p1Progress?: number
+  p2Progress?: number
   p1AcAt?: Date | string | null
   p2AcAt?: Date | string | null
   player2: Prisma.UserCreateNestedOneWithoutDuelsAsP2Input
-  problem: Prisma.ProblemCreateNestedOneWithoutDuelsInput
 }
 
 export type DuelUncheckedCreateWithoutPlayer1Input = {
   id?: string
   player2Id: string
-  problemId: string
+  problemIds?: Prisma.DuelCreateproblemIdsInput | string[]
   status?: string
   winnerId?: string | null
   questionCount?: number
@@ -705,6 +722,8 @@ export type DuelUncheckedCreateWithoutPlayer1Input = {
   endsAt: Date | string
   p1WaCount?: number
   p2WaCount?: number
+  p1Progress?: number
+  p2Progress?: number
   p1AcAt?: Date | string | null
   p2AcAt?: Date | string | null
 }
@@ -721,6 +740,7 @@ export type DuelCreateManyPlayer1InputEnvelope = {
 
 export type DuelCreateWithoutPlayer2Input = {
   id?: string
+  problemIds?: Prisma.DuelCreateproblemIdsInput | string[]
   status?: string
   winnerId?: string | null
   questionCount?: number
@@ -728,16 +748,17 @@ export type DuelCreateWithoutPlayer2Input = {
   endsAt: Date | string
   p1WaCount?: number
   p2WaCount?: number
+  p1Progress?: number
+  p2Progress?: number
   p1AcAt?: Date | string | null
   p2AcAt?: Date | string | null
   player1: Prisma.UserCreateNestedOneWithoutDuelsAsP1Input
-  problem: Prisma.ProblemCreateNestedOneWithoutDuelsInput
 }
 
 export type DuelUncheckedCreateWithoutPlayer2Input = {
   id?: string
   player1Id: string
-  problemId: string
+  problemIds?: Prisma.DuelCreateproblemIdsInput | string[]
   status?: string
   winnerId?: string | null
   questionCount?: number
@@ -745,6 +766,8 @@ export type DuelUncheckedCreateWithoutPlayer2Input = {
   endsAt: Date | string
   p1WaCount?: number
   p2WaCount?: number
+  p1Progress?: number
+  p2Progress?: number
   p1AcAt?: Date | string | null
   p2AcAt?: Date | string | null
 }
@@ -782,7 +805,7 @@ export type DuelScalarWhereInput = {
   id?: Prisma.StringFilter<"Duel"> | string
   player1Id?: Prisma.StringFilter<"Duel"> | string
   player2Id?: Prisma.StringFilter<"Duel"> | string
-  problemId?: Prisma.StringFilter<"Duel"> | string
+  problemIds?: Prisma.StringNullableListFilter<"Duel">
   status?: Prisma.StringFilter<"Duel"> | string
   winnerId?: Prisma.StringNullableFilter<"Duel"> | string | null
   questionCount?: Prisma.IntFilter<"Duel"> | number
@@ -790,6 +813,8 @@ export type DuelScalarWhereInput = {
   endsAt?: Prisma.DateTimeFilter<"Duel"> | Date | string
   p1WaCount?: Prisma.IntFilter<"Duel"> | number
   p2WaCount?: Prisma.IntFilter<"Duel"> | number
+  p1Progress?: Prisma.IntFilter<"Duel"> | number
+  p2Progress?: Prisma.IntFilter<"Duel"> | number
   p1AcAt?: Prisma.DateTimeNullableFilter<"Duel"> | Date | string | null
   p2AcAt?: Prisma.DateTimeNullableFilter<"Duel"> | Date | string | null
 }
@@ -810,66 +835,10 @@ export type DuelUpdateManyWithWhereWithoutPlayer2Input = {
   data: Prisma.XOR<Prisma.DuelUpdateManyMutationInput, Prisma.DuelUncheckedUpdateManyWithoutPlayer2Input>
 }
 
-export type DuelCreateWithoutProblemInput = {
-  id?: string
-  status?: string
-  winnerId?: string | null
-  questionCount?: number
-  startedAt?: Date | string
-  endsAt: Date | string
-  p1WaCount?: number
-  p2WaCount?: number
-  p1AcAt?: Date | string | null
-  p2AcAt?: Date | string | null
-  player1: Prisma.UserCreateNestedOneWithoutDuelsAsP1Input
-  player2: Prisma.UserCreateNestedOneWithoutDuelsAsP2Input
-}
-
-export type DuelUncheckedCreateWithoutProblemInput = {
-  id?: string
-  player1Id: string
-  player2Id: string
-  status?: string
-  winnerId?: string | null
-  questionCount?: number
-  startedAt?: Date | string
-  endsAt: Date | string
-  p1WaCount?: number
-  p2WaCount?: number
-  p1AcAt?: Date | string | null
-  p2AcAt?: Date | string | null
-}
-
-export type DuelCreateOrConnectWithoutProblemInput = {
-  where: Prisma.DuelWhereUniqueInput
-  create: Prisma.XOR<Prisma.DuelCreateWithoutProblemInput, Prisma.DuelUncheckedCreateWithoutProblemInput>
-}
-
-export type DuelCreateManyProblemInputEnvelope = {
-  data: Prisma.DuelCreateManyProblemInput | Prisma.DuelCreateManyProblemInput[]
-  skipDuplicates?: boolean
-}
-
-export type DuelUpsertWithWhereUniqueWithoutProblemInput = {
-  where: Prisma.DuelWhereUniqueInput
-  update: Prisma.XOR<Prisma.DuelUpdateWithoutProblemInput, Prisma.DuelUncheckedUpdateWithoutProblemInput>
-  create: Prisma.XOR<Prisma.DuelCreateWithoutProblemInput, Prisma.DuelUncheckedCreateWithoutProblemInput>
-}
-
-export type DuelUpdateWithWhereUniqueWithoutProblemInput = {
-  where: Prisma.DuelWhereUniqueInput
-  data: Prisma.XOR<Prisma.DuelUpdateWithoutProblemInput, Prisma.DuelUncheckedUpdateWithoutProblemInput>
-}
-
-export type DuelUpdateManyWithWhereWithoutProblemInput = {
-  where: Prisma.DuelScalarWhereInput
-  data: Prisma.XOR<Prisma.DuelUpdateManyMutationInput, Prisma.DuelUncheckedUpdateManyWithoutProblemInput>
-}
-
 export type DuelCreateManyPlayer1Input = {
   id?: string
   player2Id: string
-  problemId: string
+  problemIds?: Prisma.DuelCreateproblemIdsInput | string[]
   status?: string
   winnerId?: string | null
   questionCount?: number
@@ -877,6 +846,8 @@ export type DuelCreateManyPlayer1Input = {
   endsAt: Date | string
   p1WaCount?: number
   p2WaCount?: number
+  p1Progress?: number
+  p2Progress?: number
   p1AcAt?: Date | string | null
   p2AcAt?: Date | string | null
 }
@@ -884,7 +855,7 @@ export type DuelCreateManyPlayer1Input = {
 export type DuelCreateManyPlayer2Input = {
   id?: string
   player1Id: string
-  problemId: string
+  problemIds?: Prisma.DuelCreateproblemIdsInput | string[]
   status?: string
   winnerId?: string | null
   questionCount?: number
@@ -892,12 +863,15 @@ export type DuelCreateManyPlayer2Input = {
   endsAt: Date | string
   p1WaCount?: number
   p2WaCount?: number
+  p1Progress?: number
+  p2Progress?: number
   p1AcAt?: Date | string | null
   p2AcAt?: Date | string | null
 }
 
 export type DuelUpdateWithoutPlayer1Input = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  problemIds?: Prisma.DuelUpdateproblemIdsInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -905,16 +879,17 @@ export type DuelUpdateWithoutPlayer1Input = {
   endsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   p1WaCount?: Prisma.IntFieldUpdateOperationsInput | number
   p2WaCount?: Prisma.IntFieldUpdateOperationsInput | number
+  p1Progress?: Prisma.IntFieldUpdateOperationsInput | number
+  p2Progress?: Prisma.IntFieldUpdateOperationsInput | number
   p1AcAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   p2AcAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   player2?: Prisma.UserUpdateOneRequiredWithoutDuelsAsP2NestedInput
-  problem?: Prisma.ProblemUpdateOneRequiredWithoutDuelsNestedInput
 }
 
 export type DuelUncheckedUpdateWithoutPlayer1Input = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   player2Id?: Prisma.StringFieldUpdateOperationsInput | string
-  problemId?: Prisma.StringFieldUpdateOperationsInput | string
+  problemIds?: Prisma.DuelUpdateproblemIdsInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -922,6 +897,8 @@ export type DuelUncheckedUpdateWithoutPlayer1Input = {
   endsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   p1WaCount?: Prisma.IntFieldUpdateOperationsInput | number
   p2WaCount?: Prisma.IntFieldUpdateOperationsInput | number
+  p1Progress?: Prisma.IntFieldUpdateOperationsInput | number
+  p2Progress?: Prisma.IntFieldUpdateOperationsInput | number
   p1AcAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   p2AcAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -929,7 +906,7 @@ export type DuelUncheckedUpdateWithoutPlayer1Input = {
 export type DuelUncheckedUpdateManyWithoutPlayer1Input = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   player2Id?: Prisma.StringFieldUpdateOperationsInput | string
-  problemId?: Prisma.StringFieldUpdateOperationsInput | string
+  problemIds?: Prisma.DuelUpdateproblemIdsInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -937,12 +914,15 @@ export type DuelUncheckedUpdateManyWithoutPlayer1Input = {
   endsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   p1WaCount?: Prisma.IntFieldUpdateOperationsInput | number
   p2WaCount?: Prisma.IntFieldUpdateOperationsInput | number
+  p1Progress?: Prisma.IntFieldUpdateOperationsInput | number
+  p2Progress?: Prisma.IntFieldUpdateOperationsInput | number
   p1AcAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   p2AcAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type DuelUpdateWithoutPlayer2Input = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  problemIds?: Prisma.DuelUpdateproblemIdsInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -950,16 +930,17 @@ export type DuelUpdateWithoutPlayer2Input = {
   endsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   p1WaCount?: Prisma.IntFieldUpdateOperationsInput | number
   p2WaCount?: Prisma.IntFieldUpdateOperationsInput | number
+  p1Progress?: Prisma.IntFieldUpdateOperationsInput | number
+  p2Progress?: Prisma.IntFieldUpdateOperationsInput | number
   p1AcAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   p2AcAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   player1?: Prisma.UserUpdateOneRequiredWithoutDuelsAsP1NestedInput
-  problem?: Prisma.ProblemUpdateOneRequiredWithoutDuelsNestedInput
 }
 
 export type DuelUncheckedUpdateWithoutPlayer2Input = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   player1Id?: Prisma.StringFieldUpdateOperationsInput | string
-  problemId?: Prisma.StringFieldUpdateOperationsInput | string
+  problemIds?: Prisma.DuelUpdateproblemIdsInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -967,6 +948,8 @@ export type DuelUncheckedUpdateWithoutPlayer2Input = {
   endsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   p1WaCount?: Prisma.IntFieldUpdateOperationsInput | number
   p2WaCount?: Prisma.IntFieldUpdateOperationsInput | number
+  p1Progress?: Prisma.IntFieldUpdateOperationsInput | number
+  p2Progress?: Prisma.IntFieldUpdateOperationsInput | number
   p1AcAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   p2AcAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -974,7 +957,7 @@ export type DuelUncheckedUpdateWithoutPlayer2Input = {
 export type DuelUncheckedUpdateManyWithoutPlayer2Input = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   player1Id?: Prisma.StringFieldUpdateOperationsInput | string
-  problemId?: Prisma.StringFieldUpdateOperationsInput | string
+  problemIds?: Prisma.DuelUpdateproblemIdsInput | string[]
   status?: Prisma.StringFieldUpdateOperationsInput | string
   winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   questionCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -982,66 +965,8 @@ export type DuelUncheckedUpdateManyWithoutPlayer2Input = {
   endsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   p1WaCount?: Prisma.IntFieldUpdateOperationsInput | number
   p2WaCount?: Prisma.IntFieldUpdateOperationsInput | number
-  p1AcAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  p2AcAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-}
-
-export type DuelCreateManyProblemInput = {
-  id?: string
-  player1Id: string
-  player2Id: string
-  status?: string
-  winnerId?: string | null
-  questionCount?: number
-  startedAt?: Date | string
-  endsAt: Date | string
-  p1WaCount?: number
-  p2WaCount?: number
-  p1AcAt?: Date | string | null
-  p2AcAt?: Date | string | null
-}
-
-export type DuelUpdateWithoutProblemInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  questionCount?: Prisma.IntFieldUpdateOperationsInput | number
-  startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  endsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  p1WaCount?: Prisma.IntFieldUpdateOperationsInput | number
-  p2WaCount?: Prisma.IntFieldUpdateOperationsInput | number
-  p1AcAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  p2AcAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  player1?: Prisma.UserUpdateOneRequiredWithoutDuelsAsP1NestedInput
-  player2?: Prisma.UserUpdateOneRequiredWithoutDuelsAsP2NestedInput
-}
-
-export type DuelUncheckedUpdateWithoutProblemInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  player1Id?: Prisma.StringFieldUpdateOperationsInput | string
-  player2Id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  questionCount?: Prisma.IntFieldUpdateOperationsInput | number
-  startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  endsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  p1WaCount?: Prisma.IntFieldUpdateOperationsInput | number
-  p2WaCount?: Prisma.IntFieldUpdateOperationsInput | number
-  p1AcAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  p2AcAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-}
-
-export type DuelUncheckedUpdateManyWithoutProblemInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  player1Id?: Prisma.StringFieldUpdateOperationsInput | string
-  player2Id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  winnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  questionCount?: Prisma.IntFieldUpdateOperationsInput | number
-  startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  endsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  p1WaCount?: Prisma.IntFieldUpdateOperationsInput | number
-  p2WaCount?: Prisma.IntFieldUpdateOperationsInput | number
+  p1Progress?: Prisma.IntFieldUpdateOperationsInput | number
+  p2Progress?: Prisma.IntFieldUpdateOperationsInput | number
   p1AcAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   p2AcAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -1052,7 +977,7 @@ export type DuelSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   id?: boolean
   player1Id?: boolean
   player2Id?: boolean
-  problemId?: boolean
+  problemIds?: boolean
   status?: boolean
   winnerId?: boolean
   questionCount?: boolean
@@ -1060,18 +985,19 @@ export type DuelSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   endsAt?: boolean
   p1WaCount?: boolean
   p2WaCount?: boolean
+  p1Progress?: boolean
+  p2Progress?: boolean
   p1AcAt?: boolean
   p2AcAt?: boolean
   player1?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   player2?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  problem?: boolean | Prisma.ProblemDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["duel"]>
 
 export type DuelSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   player1Id?: boolean
   player2Id?: boolean
-  problemId?: boolean
+  problemIds?: boolean
   status?: boolean
   winnerId?: boolean
   questionCount?: boolean
@@ -1079,18 +1005,19 @@ export type DuelSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   endsAt?: boolean
   p1WaCount?: boolean
   p2WaCount?: boolean
+  p1Progress?: boolean
+  p2Progress?: boolean
   p1AcAt?: boolean
   p2AcAt?: boolean
   player1?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   player2?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  problem?: boolean | Prisma.ProblemDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["duel"]>
 
 export type DuelSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   player1Id?: boolean
   player2Id?: boolean
-  problemId?: boolean
+  problemIds?: boolean
   status?: boolean
   winnerId?: boolean
   questionCount?: boolean
@@ -1098,18 +1025,19 @@ export type DuelSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   endsAt?: boolean
   p1WaCount?: boolean
   p2WaCount?: boolean
+  p1Progress?: boolean
+  p2Progress?: boolean
   p1AcAt?: boolean
   p2AcAt?: boolean
   player1?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   player2?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  problem?: boolean | Prisma.ProblemDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["duel"]>
 
 export type DuelSelectScalar = {
   id?: boolean
   player1Id?: boolean
   player2Id?: boolean
-  problemId?: boolean
+  problemIds?: boolean
   status?: boolean
   winnerId?: boolean
   questionCount?: boolean
@@ -1117,25 +1045,24 @@ export type DuelSelectScalar = {
   endsAt?: boolean
   p1WaCount?: boolean
   p2WaCount?: boolean
+  p1Progress?: boolean
+  p2Progress?: boolean
   p1AcAt?: boolean
   p2AcAt?: boolean
 }
 
-export type DuelOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "player1Id" | "player2Id" | "problemId" | "status" | "winnerId" | "questionCount" | "startedAt" | "endsAt" | "p1WaCount" | "p2WaCount" | "p1AcAt" | "p2AcAt", ExtArgs["result"]["duel"]>
+export type DuelOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "player1Id" | "player2Id" | "problemIds" | "status" | "winnerId" | "questionCount" | "startedAt" | "endsAt" | "p1WaCount" | "p2WaCount" | "p1Progress" | "p2Progress" | "p1AcAt" | "p2AcAt", ExtArgs["result"]["duel"]>
 export type DuelInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   player1?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   player2?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  problem?: boolean | Prisma.ProblemDefaultArgs<ExtArgs>
 }
 export type DuelIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   player1?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   player2?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  problem?: boolean | Prisma.ProblemDefaultArgs<ExtArgs>
 }
 export type DuelIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   player1?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   player2?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  problem?: boolean | Prisma.ProblemDefaultArgs<ExtArgs>
 }
 
 export type $DuelPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1143,13 +1070,12 @@ export type $DuelPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   objects: {
     player1: Prisma.$UserPayload<ExtArgs>
     player2: Prisma.$UserPayload<ExtArgs>
-    problem: Prisma.$ProblemPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     player1Id: string
     player2Id: string
-    problemId: string
+    problemIds: string[]
     status: string
     winnerId: string | null
     questionCount: number
@@ -1157,6 +1083,8 @@ export type $DuelPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     endsAt: Date
     p1WaCount: number
     p2WaCount: number
+    p1Progress: number
+    p2Progress: number
     p1AcAt: Date | null
     p2AcAt: Date | null
   }, ExtArgs["result"]["duel"]>
@@ -1555,7 +1483,6 @@ export interface Prisma__DuelClient<T, Null = never, ExtArgs extends runtime.Typ
   readonly [Symbol.toStringTag]: "PrismaPromise"
   player1<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   player2<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  problem<T extends Prisma.ProblemDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProblemDefaultArgs<ExtArgs>>): Prisma.Prisma__ProblemClient<runtime.Types.Result.GetResult<Prisma.$ProblemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1588,7 +1515,7 @@ export interface DuelFieldRefs {
   readonly id: Prisma.FieldRef<"Duel", 'String'>
   readonly player1Id: Prisma.FieldRef<"Duel", 'String'>
   readonly player2Id: Prisma.FieldRef<"Duel", 'String'>
-  readonly problemId: Prisma.FieldRef<"Duel", 'String'>
+  readonly problemIds: Prisma.FieldRef<"Duel", 'String[]'>
   readonly status: Prisma.FieldRef<"Duel", 'String'>
   readonly winnerId: Prisma.FieldRef<"Duel", 'String'>
   readonly questionCount: Prisma.FieldRef<"Duel", 'Int'>
@@ -1596,6 +1523,8 @@ export interface DuelFieldRefs {
   readonly endsAt: Prisma.FieldRef<"Duel", 'DateTime'>
   readonly p1WaCount: Prisma.FieldRef<"Duel", 'Int'>
   readonly p2WaCount: Prisma.FieldRef<"Duel", 'Int'>
+  readonly p1Progress: Prisma.FieldRef<"Duel", 'Int'>
+  readonly p2Progress: Prisma.FieldRef<"Duel", 'Int'>
   readonly p1AcAt: Prisma.FieldRef<"Duel", 'DateTime'>
   readonly p2AcAt: Prisma.FieldRef<"Duel", 'DateTime'>
 }

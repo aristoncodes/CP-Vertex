@@ -1,6 +1,6 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
-import { getCFSubmissions } from "@/lib/cf-api"
+import { getCFSubmissions, getCFUser } from "@/lib/cf-api"
 import { NextRequest } from "next/server"
 import { recomputeTopicScore } from "@/lib/strength"
 
@@ -95,9 +95,58 @@ export async function POST(request: NextRequest) {
       await recomputeTopicScore(user.id, tagId);
     }
 
+    // Sync CF Rating
+    let cfRating = user.cfRating;
+    try {
+      const userInfo = await getCFUser(user.cfHandle);
+      if (userInfo && userInfo.length > 0 && userInfo[0].rating) {
+        cfRating = userInfo[0].rating;
+      }
+    } catch (e) {
+      console.warn("Could not fetch CF user info for rating", e);
+    }
+
+    // Recompute streak
+    const allOKSubmissions = await prisma.submission.findMany({
+      where: { userId: user.id, verdict: "OK" },
+      select: { submittedAt: true },
+      orderBy: { submittedAt: "desc" }
+    });
+    
+    // Group by unique date strings (local or UTC, let's use YYYY-MM-DD UTC)
+    const uniqueDates = Array.from(new Set(allOKSubmissions.map(s => s.submittedAt.toISOString().split("T")[0])));
+    
+    let currentStreak = 0;
+    const today = new Date().toISOString().split("T")[0];
+    const yesterdayDate = new Date();
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    const yesterday = yesterdayDate.toISOString().split("T")[0];
+
+    // Check if streak is active (today or yesterday)
+    let lastActiveDay: Date | null = null;
+    if (uniqueDates.includes(today) || uniqueDates.includes(yesterday)) {
+      let checkDate = uniqueDates.includes(today) ? new Date() : yesterdayDate;
+      lastActiveDay = new Date(checkDate);
+      while (true) {
+        const dateStr = checkDate.toISOString().split("T")[0];
+        if (uniqueDates.includes(dateStr)) {
+          currentStreak++;
+          checkDate.setDate(checkDate.getDate() - 1);
+        } else {
+          break;
+        }
+      }
+    }
+
     await prisma.user.update({
       where: { id: user.id },
-      data: { cfLastSync: new Date() }
+      data: { 
+        cfLastSync: new Date(),
+        cfRating: cfRating,
+        streakCurrent: currentStreak,
+        streakLongest: Math.max(user.streakLongest, currentStreak),
+        ...(lastActiveDay ? { streakLastDay: lastActiveDay } : {})
+      }
     });
 
     return Response.json({ message: "Sync complete", imported });

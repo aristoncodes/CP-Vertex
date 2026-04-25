@@ -29,7 +29,8 @@ export async function GET() {
       duels: duels.map((d) => ({
         id: d.id,
         challenger: playerMap.get(d.player1Id),
-        problemId: d.problemId,
+        problemIds: d.problemIds,
+        questionCount: d.questionCount,
         status: d.status,
         startedAt: d.startedAt,
         endsAt: d.endsAt,

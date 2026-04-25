@@ -63,19 +63,26 @@ export async function POST(request: Request) {
       finalMax = avgRating + 100
     }
 
-    // Find a problem in the rating range
+    // Find problems in the rating range
     const problems = await prisma.problem.findMany({
       where: {
         rating: { gte: finalMin, lte: finalMax },
       },
-      take: 50,
+      take: 200,
       orderBy: { solvedCount: "desc" },
     })
 
-    const problem = problems.length > 0 ? problems[Math.floor(Math.random() * problems.length)] : null
+    if (problems.length < questionCount) {
+      return Response.json({ error: `Not enough problems found in rating range. Found ${problems.length}, needed ${questionCount}.` }, { status: 404 })
+    }
 
-    if (!problem) {
-      return Response.json({ error: "No suitable problem found" }, { status: 404 })
+    // Pick unique problems randomly
+    const selectedProblems = [];
+    const available = [...problems];
+    for (let i = 0; i < questionCount; i++) {
+      const idx = Math.floor(Math.random() * available.length);
+      selectedProblems.push(available[idx].id);
+      available.splice(idx, 1);
     }
 
     // Create duel (expires in 2 hours)
@@ -86,7 +93,7 @@ export async function POST(request: Request) {
       data: {
         player1Id: session.user.id,
         player2Id: opponentId,
-        problemId: problem.id,
+        problemIds: selectedProblems,
         questionCount,
         endsAt,
       },
@@ -113,7 +120,7 @@ export async function POST(request: Request) {
     return Response.json({
       duel: {
         id: duel.id,
-        problemId: problem.id,
+        problemIds: selectedProblems,
         status: duel.status,
         questionCount: duel.questionCount,
         endsAt: duel.endsAt,
@@ -145,7 +152,6 @@ export async function GET(request: Request) {
       include: {
         player1: { select: { id: true, name: true, cfHandle: true } },
         player2: { select: { id: true, name: true, cfHandle: true } },
-        problem: { select: { title: true, rating: true } },
       },
       orderBy: { startedAt: "desc" },
       take: history ? 20 : 50,
