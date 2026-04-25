@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma"
 import { NextRequest } from "next/server"
 import { getCFRatingHistory } from "@/lib/cf-api"
 import { getLevelFromXP } from "@/lib/xp-math"
+import { auth } from "@/auth"
 
 export const dynamic = "force-dynamic"
 
@@ -104,6 +105,25 @@ export async function GET(
       }
     }
 
+    // Friendship status relative to logged-in viewer
+    let friendshipStatus: "none" | "pending_sent" | "pending_received" | "friends" = "none"
+    const session = await auth()
+    if (session?.user?.id && session.user.id !== user.id) {
+      const friendship = await prisma.friendship.findFirst({
+        where: {
+          OR: [
+            { senderId: session.user.id, receiverId: user.id },
+            { senderId: user.id, receiverId: session.user.id },
+          ],
+        },
+      })
+      if (friendship) {
+        if (friendship.status === "accepted") friendshipStatus = "friends"
+        else if (friendship.status === "pending" && friendship.senderId === session.user.id) friendshipStatus = "pending_sent"
+        else if (friendship.status === "pending" && friendship.receiverId === session.user.id) friendshipStatus = "pending_received"
+      }
+    }
+
     return Response.json({
       name: user.name,
       image: user.image,
@@ -114,8 +134,10 @@ export async function GET(
       streak: user.streakCurrent,
       streakLongest: user.streakLongest,
       createdAt: user.createdAt,
+      userId: user.id,
       totalSolved,
       weeklyTarget,
+      friendshipStatus,
       badges: user.badges.map((ub) => ({
         slug: ub.badge.slug,
         name: ub.badge.name,

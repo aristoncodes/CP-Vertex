@@ -171,3 +171,8 @@ export type AlgorithmProblem = Prisma.AlgorithmProblemModel
  * 
  */
 export type Notification = Prisma.NotificationModel
+/**
+ * Model Friendship
+ * 
+ */
+export type Friendship = Prisma.FriendshipModel

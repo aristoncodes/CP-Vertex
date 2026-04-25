@@ -7,10 +7,13 @@ import { SkillChart } from "@/components/ui/SkillChart";
 import { RatingChart } from "@/components/ui/RatingChart";
 import { Heatmap } from "@/components/ui/Heatmap";
 import { StreakDisplay } from "@/components/ui/StreakDisplay";
+import { FriendButton } from "@/components/ui/FriendButton";
+import { useSession } from "next-auth/react";
 
 export default function ProfilePage() {
   const params = useParams();
   const handle = params.handle as string;
+  const { data: session } = useSession();
 
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -72,7 +75,13 @@ export default function ProfilePage() {
           {profile.level >= 40 ? "Gold I" : profile.level >= 20 ? "Silver I" : "Bronze I"}
         </div>
         
-        <div style={{ marginLeft: "auto" }}>
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
+          {profile.friendshipStatus !== undefined && session?.user?.id !== profile.userId && (
+            <FriendButton
+              userId={profile.userId}
+              friendshipStatus={profile.friendshipStatus}
+            />
+          )}
           <StreakDisplay count={profile.streak || 0} />
         </div>
       </div>

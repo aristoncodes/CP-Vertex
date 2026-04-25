@@ -39,22 +39,24 @@ model User {
   lastSeen      DateTime?
 
   // Relations
-  accounts       Account[]
-  sessions       Session[]
-  submissions    Submission[]
-  topicScores    TopicScore[]
-  postMortems    PostMortem[]
-  journalEntries JournalEntry[]
-  missions       UserMission[]
-  badges         UserBadge[]
-  coachInsights  CoachInsight[]
-  duelsAsP1      Duel[]         @relation("DuelPlayer1")
-  duelsAsP2      Duel[]         @relation("DuelPlayer2")
-  teamMembers    TeamMember[]
-  roadmaps       Roadmap[]
-  weeklyReviews  WeeklyReview[]
-  virtualContests VirtualContest[]
-  notifications  Notification[]
+  accounts               Account[]
+  sessions               Session[]
+  submissions            Submission[]
+  topicScores            TopicScore[]
+  postMortems            PostMortem[]
+  journalEntries         JournalEntry[]
+  missions               UserMission[]
+  badges                 UserBadge[]
+  coachInsights          CoachInsight[]
+  duelsAsP1              Duel[]         @relation("DuelPlayer1")
+  duelsAsP2              Duel[]         @relation("DuelPlayer2")
+  teamMembers            TeamMember[]
+  roadmaps               Roadmap[]
+  weeklyReviews          WeeklyReview[]
+  virtualContests        VirtualContest[]
+  notifications          Notification[]
+  sentFriendRequests     Friendship[]   @relation("SentFriendRequests")
+  receivedFriendRequests Friendship[]   @relation("ReceivedFriendRequests")
 
   @@index([cfHandle])
   @@index([xp])
@@ -400,4 +402,21 @@ model Notification {
 
   @@index([userId, isRead])
   @@index([userId, createdAt])
+}
+
+// ─── Social Layer ─────────────────────────────────────
+model Friendship {
+  id         String   @id @default(cuid())
+  senderId   String
+  receiverId String
+  status     String   @default("pending") // "pending" | "accepted" | "declined"
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  sender     User @relation("SentFriendRequests",     fields: [senderId],   references: [id], onDelete: Cascade)
+  receiver   User @relation("ReceivedFriendRequests", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId])
+  @@index([senderId, status])
+  @@index([receiverId, status])
 }

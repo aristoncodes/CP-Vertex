@@ -76,7 +76,8 @@ export const ModelName = {
   VirtualContest: 'VirtualContest',
   AlgorithmArticle: 'AlgorithmArticle',
   AlgorithmProblem: 'AlgorithmProblem',
-  Notification: 'Notification'
+  Notification: 'Notification',
+  Friendship: 'Friendship'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -447,6 +448,18 @@ export const NotificationScalarFieldEnum = {
 } as const
 
 export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
+
+
+export const FriendshipScalarFieldEnum = {
+  id: 'id',
+  senderId: 'senderId',
+  receiverId: 'receiverId',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FriendshipScalarFieldEnum = (typeof FriendshipScalarFieldEnum)[keyof typeof FriendshipScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -13,6 +13,7 @@ const navItems = [
   { label: "Contests", href: "/contests", icon: "emoji_events" },
   { label: "Leaderboard", href: "/leaderboard", icon: "leaderboard" },
   { label: "Intel", href: "/learn", icon: "menu_book" },
+  { label: "Friends", href: "/friends", icon: "group" },
 ];
 
 interface Notification {
