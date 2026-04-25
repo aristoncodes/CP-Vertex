@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { SkillBar } from "@/components/ui/SkillBar";
 import { RatingChart } from "@/components/ui/RatingChart";
+import { Heatmap } from "@/components/ui/Heatmap";
+import { StreakDisplay } from "@/components/ui/StreakDisplay";
 
 export default function ProfilePage() {
   const params = useParams();
@@ -69,6 +71,10 @@ export default function ProfilePage() {
         <div className="n-badge" style={{ background: "var(--warning-light)", color: "var(--warning)", padding: "6px 16px", fontSize: 13, fontWeight: 700 }}>
           {profile.level >= 40 ? "Gold I" : profile.level >= 20 ? "Silver I" : "Bronze I"}
         </div>
+        
+        <div style={{ marginLeft: "auto" }}>
+          <StreakDisplay count={profile.streak || 0} />
+        </div>
       </div>
 
       {/* Stats Grid */}
@@ -86,6 +92,11 @@ export default function ProfilePage() {
             <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", letterSpacing: "0.05em", textTransform: "uppercase", marginTop: 4 }}>{stat.label}</div>
           </div>
         ))}
+      </div>
+
+      {/* Activity Heatmap */}
+      <div style={{ position: "relative", marginTop: "16px", marginBottom: "16px" }}>
+        <Heatmap data={profile.heatmap || []} />
       </div>
 
       {/* Skill + Rating */}

@@ -23,6 +23,8 @@ export async function GET(
         cfRating: true,
         xp: true,
         level: true,
+        streakCurrent: true,
+        streakLongest: true,
         createdAt: true,
         badges: {
           include: { badge: true },
@@ -105,6 +107,8 @@ export async function GET(
       cfRating: user.cfRating,
       xp: user.xp,
       level: user.level,
+      streak: user.streakCurrent,
+      streakLongest: user.streakLongest,
       createdAt: user.createdAt,
       totalSolved,
       weeklyTarget,
