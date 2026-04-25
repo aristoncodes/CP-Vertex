@@ -181,7 +181,7 @@ export function TopBar() {
               letterSpacing: "-0.02em",
             }}
           >
-            CA
+            CV
           </div>
           <span
             style={{
@@ -191,7 +191,7 @@ export function TopBar() {
               letterSpacing: "-0.03em",
             }}
           >
-            Code<span style={{ color: "var(--primary)" }}>Arena</span>
+            CP <span style={{ color: "var(--primary)" }}>Vertex</span>
           </span>
         </Link>
 

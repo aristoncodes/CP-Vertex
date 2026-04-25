@@ -61,10 +61,10 @@ export default function LandingPage() {
               fontWeight: 800,
             }}
           >
-            CA
+            CV
           </div>
           <span style={{ fontSize: 22, fontWeight: 800, color: "#181c1f", letterSpacing: "-0.03em" }}>
-            Code<span style={{ color: "#0366d6" }}>Arena</span>
+            CP <span style={{ color: "#0366d6" }}>Vertex</span>
           </span>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
