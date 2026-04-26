@@ -361,3 +361,149 @@ a { text-decoration: none; color: inherit; }
   animation: shimmer 1.5s infinite;
   border-radius: var(--radius-sm);
 }
+
+/* ════════════════════════════════════════════════════════════════
+   15. MOBILE RESPONSIVE SYSTEM
+════════════════════════════════════════════════════════════════ */
+
+/* ─── Tablet (≤ 1024px) ─── */
+@media (max-width: 1024px) {
+  /* Hide right sidebar panel */
+  .layout-aside {
+    display: none !important;
+  }
+}
+
+/* ─── Mobile (≤ 768px) ─── */
+@media (max-width: 768px) {
+  /* TopBar Row 1: compress padding */
+  .topbar-row1 {
+    padding: 10px 16px !important;
+  }
+
+  /* Hide username text in topbar */
+  .topbar-username {
+    display: none !important;
+  }
+
+  /* Nav row: make it horizontally scrollable with hidden scrollbar */
+  .topbar-nav-scroll {
+    padding: 0 12px !important;
+    gap: 0 !important;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .topbar-nav-scroll::-webkit-scrollbar {
+    display: none;
+  }
+  .topbar-nav-scroll a {
+    padding: 8px 10px !important;
+    font-size: 12px !important;
+  }
+  /* Hide nav labels on mobile, show only icons */
+  .nav-label {
+    display: none !important;
+  }
+
+  /* DashboardLayout main area */
+  .layout-wrapper {
+    padding-top: 96px !important;
+    gap: 0 !important;
+  }
+  .layout-main {
+    padding: 16px 14px 80px !important;
+    gap: 16px !important;
+  }
+
+  /* Stats grids: 2 columns */
+  .stats-grid-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  /* Profile header: stack vertically */
+  .profile-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+  .profile-header-actions {
+    margin-left: 0 !important;
+    width: 100% !important;
+    justify-content: flex-start !important;
+  }
+
+  /* Friend cards: stack actions vertically */
+  .friend-card-actions {
+    flex-direction: column !important;
+    gap: 6px !important;
+  }
+
+  /* Charts: full width and reduce height */
+  .chart-container {
+    height: 250px !important;
+  }
+
+  /* Footer */
+  .footer-links {
+    flex-wrap: wrap !important;
+    gap: 16px !important;
+  }
+
+  /* Notification dropdown: full width on mobile */
+  .notif-dropdown {
+    width: calc(100vw - 32px) !important;
+    right: -60px !important;
+    max-height: 60vh !important;
+  }
+
+  /* Dashboard greeting */
+  .dash-greeting h1 {
+    font-size: 22px !important;
+  }
+
+  /* n-card padding reduction */
+  .n-card {
+    border-radius: var(--radius-md);
+  }
+
+  /* Heatmap container responsiveness */
+  .heatmap-container {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ─── Small Phone (≤ 480px) ─── */
+@media (max-width: 480px) {
+  .topbar-row1 {
+    padding: 8px 12px !important;
+  }
+
+  .topbar-logo-text {
+    display: none !important;
+  }
+
+  .layout-main {
+    padding: 12px 10px 80px !important;
+    gap: 12px !important;
+  }
+
+  .stats-grid-4 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .n-card {
+    border-radius: var(--radius-sm);
+  }
+
+  .topbar-nav-scroll a {
+    padding: 8px 8px !important;
+  }
+}
+
+/* Spin animation for loading indicators */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

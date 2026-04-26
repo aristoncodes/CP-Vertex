@@ -148,6 +148,7 @@ export function TopBar() {
     >
       {/* Row 1: Logo + User */}
       <div
+        className="topbar-row1"
         style={{
           maxWidth: 1200,
           margin: "0 auto",
@@ -185,6 +186,7 @@ export function TopBar() {
             CV
           </div>
           <span
+            className="topbar-logo-text"
             style={{
               fontSize: 20,
               fontWeight: 800,
@@ -250,6 +252,7 @@ export function TopBar() {
             {/* Notification Dropdown */}
             {showNotifs && (
               <div
+                className="notif-dropdown"
                 style={{
                   position: "absolute",
                   top: "calc(100% + 8px)",
@@ -415,7 +418,7 @@ export function TopBar() {
                 person
               </span>
             </div>
-            {displayHandle}
+            <span className="topbar-username">{displayHandle}</span>
           </Link>
           <Link
             href="/settings"
@@ -467,6 +470,7 @@ export function TopBar() {
         }}
       >
         <div
+          className="topbar-nav-scroll"
           style={{
             maxWidth: 1200,
             margin: "0 auto",
@@ -505,9 +509,9 @@ export function TopBar() {
                     fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0",
                   }}
                 >
-                  {item.icon}
+                {item.icon}
                 </span>
-                {item.label}
+                <span className="nav-label">{item.label}</span>
               </Link>
             );
           })}

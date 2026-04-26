@@ -27,6 +27,7 @@ export function DashboardLayout({
 
       {/* Centered content wrapper */}
       <div
+        className="layout-wrapper"
         style={{
           maxWidth: 1200,
           margin: "0 auto",
@@ -40,6 +41,7 @@ export function DashboardLayout({
       >
         {/* Main content area */}
         <main
+          className="layout-main"
           style={{
             flex: 1,
             minWidth: 0,
@@ -55,6 +57,7 @@ export function DashboardLayout({
         {/* Right panel */}
         {rightPanel && (
           <aside
+            className="layout-aside"
             style={{
               display: "flex",
               flexDirection: "column",

@@ -223,7 +223,7 @@ export default function FriendsPage() {
                     <span>Active {timeAgo(f.lastSeen)}</span>
                   </div>
                 </div>
-                <div style={{ display: "flex", gap: 8 }}>
+                <div className="friend-card-actions" style={{ display: "flex", gap: 8 }}>
                   <button
                     onClick={() => router.push(`/profile/${f.cfHandle || f.id}`)}
                     style={{ padding: "6px 14px", background: "var(--surface-high)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: "pointer", color: "var(--text-secondary)" }}
@@ -267,7 +267,7 @@ export default function FriendsPage() {
                     <span>{timeAgo(r.createdAt)}</span>
                   </div>
                 </div>
-                <div style={{ display: "flex", gap: 8 }}>
+                <div className="friend-card-actions" style={{ display: "flex", gap: 8 }}>
                   <button
                     onClick={() => handleAccept(r.id)}
                     style={{ padding: "7px 16px", background: "var(--success)", color: "white", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer" }}

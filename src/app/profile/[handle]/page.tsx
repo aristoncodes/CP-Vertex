@@ -51,7 +51,7 @@ export default function ProfilePage() {
   return (
     <DashboardLayout>
       {/* Profile Header */}
-      <div className="n-card" style={{ padding: "28px", display: "flex", alignItems: "center", gap: 24 }}>
+      <div className="n-card profile-header" style={{ padding: "28px", display: "flex", alignItems: "center", gap: 24 }}>
         {/* Avatar */}
         <div style={{
           width: 72, height: 72, borderRadius: 20,
@@ -75,7 +75,7 @@ export default function ProfilePage() {
           {profile.level >= 40 ? "Gold I" : profile.level >= 20 ? "Silver I" : "Bronze I"}
         </div>
         
-        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
+        <div className="profile-header-actions" style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
           {profile.friendshipStatus !== undefined && session?.user?.id !== profile.userId && (
             <FriendButton
               userId={profile.userId}
@@ -87,7 +87,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Stats Grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 16 }}>
+      <div className="stats-grid-4" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 16 }}>
         {[
           { label: "CF Rating", value: (profile.cfRating || 0).toLocaleString(), color: "var(--info)", icon: "trending_up" },
           { label: "Problems", value: (profile.totalSolved || 0).toString(), color: "var(--success)", icon: "check_circle" },

@@ -31,7 +31,7 @@ export function Footer() {
       marginTop: "auto",
     }}>
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px" }}>
-        <div style={{ 
+        <div className="footer-links" style={{ 
           display: "flex", 
           justifyContent: "center", 
           gap: "32px", 

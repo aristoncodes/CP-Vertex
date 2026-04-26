@@ -46,7 +46,7 @@ function DashboardMain({ profile }: { profile: any }) {
       {/* Stats Row */}
       <div>
         <div className="n-section-label">Overview</div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+        <div className="stats-grid-4" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
           {[
             { label: "CF Rating", value: user.rating.toLocaleString(), color: "var(--info)", icon: "trending_up" },
             { label: "Problems Solved", value: user.totalSolved.toLocaleString(), color: "var(--success)", icon: "check_circle" },
