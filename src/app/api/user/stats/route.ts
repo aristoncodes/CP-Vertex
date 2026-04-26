@@ -24,10 +24,13 @@ export async function GET() {
       return Response.json({ error: "User not found" }, { status: 404 })
     }
 
-    // Total solved
-    const totalSolved = await prisma.submission.count({
+    // Total solved (unique problems, not total submissions)
+    const uniqueSolved = await prisma.submission.findMany({
       where: { userId: session.user.id, verdict: "OK" },
+      select: { problemId: true },
+      distinct: ['problemId'],
     })
+    const totalSolved = uniqueSolved.length
 
     // XP history (last 30 days)
     const thirtyDaysAgo = new Date()

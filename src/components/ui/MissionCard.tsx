@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useStore } from "@/store/useStore";
+import { useState } from "react";
 
 interface Mission {
   id: string;
@@ -14,6 +15,30 @@ interface Mission {
 export function MissionCard({ mission, onComplete }: { mission: Mission; onComplete: () => void }) {
   const router = useRouter();
   const { activeMissionId, setActiveMission } = useStore();
+  const [completing, setCompleting] = useState(false);
+
+  const handleAction = async () => {
+    if (activeMissionId === mission.id) {
+      // Verify / Complete the mission
+      setCompleting(true);
+      try {
+        await onComplete();
+      } finally {
+        setCompleting(false);
+      }
+    } else {
+      setActiveMission(mission.id);
+      if (mission.label.toLowerCase().includes("boss")) {
+        router.push('/arena/boss');
+      } else if (mission.label.toLowerCase().includes("duel")) {
+        router.push('/arena');
+      } else if (mission.label.toLowerCase().includes("post-mortem")) {
+        router.push('/problems');
+      } else {
+        router.push('/problems');
+      }
+    }
+  };
 
   return (
     <div style={{
@@ -56,28 +81,24 @@ export function MissionCard({ mission, onComplete }: { mission: Mission; onCompl
         }}>
           +{mission.xp} XP
         </span>
-        {!mission.done && (
+        {mission.done ? (
+          <span className="n-badge" style={{ 
+            background: "var(--success-light)", 
+            color: "var(--success)", 
+            padding: "4px 12px", 
+            fontSize: 12,
+            fontWeight: 700 
+          }}>
+            Done ✓
+          </span>
+        ) : (
           <button 
             className="n-btn-primary" 
             style={{ padding: "4px 12px", fontSize: 12 }} 
-            onClick={() => {
-              if (activeMissionId === mission.id) {
-                onComplete();
-              } else {
-                setActiveMission(mission.id);
-                if (mission.label.toLowerCase().includes("boss")) {
-                  router.push('/arena/boss');
-                } else if (mission.label.toLowerCase().includes("duel")) {
-                  router.push('/arena');
-                } else if (mission.label.toLowerCase().includes("post-mortem")) {
-                  router.push('/problems');
-                } else {
-                  router.push('/problems');
-                }
-              }
-            }}
+            onClick={handleAction}
+            disabled={completing}
           >
-            {activeMissionId === mission.id ? "Verify" : "Start"}
+            {completing ? "..." : activeMissionId === mission.id ? "Verify" : "Start"}
           </button>
         )}
       </div>

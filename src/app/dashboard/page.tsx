@@ -1,7 +1,7 @@
 "use client";
 
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { XPBar } from "@/components/ui/XPBar";
 import { Heatmap } from "@/components/ui/Heatmap";
 import { MissionCard } from "@/components/ui/MissionCard";
@@ -11,6 +11,18 @@ import { StreakDisplay } from "@/components/ui/StreakDisplay";
 import { MissionMap } from "@/components/ui/MissionMap";
 import { useStore } from "@/store/useStore";
 import { useSession } from "next-auth/react";
+
+interface ApiMission {
+  id: string;
+  type: string;
+  title: string;
+  description: string;
+  xpReward: number;
+  completed: boolean;
+  completedAt: string | null;
+  progress: number;
+  target: number;
+}
 
 function DashboardMain({ profile }: { profile: any }) {
   const { topics, fetchInsights } = useStore();
@@ -37,7 +49,7 @@ function DashboardMain({ profile }: { profile: any }) {
             Welcome back, <span style={{ color: "var(--primary)" }}>{user.name}</span>
           </h1>
           <p style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 6, fontWeight: 500 }}>
-            Level {user.level} · 2 missions remaining
+            Level {user.level} · {user.totalSolved} problems solved
           </p>
         </div>
         <StreakDisplay count={user.streak} />
@@ -147,16 +159,64 @@ function DashboardMain({ profile }: { profile: any }) {
 }
 
 function IntelPanel({ profile }: { profile: any }) {
-  const { insights, missions, completeMission, gainXP, generateRecommendation, setActiveMission } = useStore();
+  const { insights, missions: storeMissions, completeMission, gainXP, generateRecommendation, setActiveMission } = useStore();
+  const [apiMissions, setApiMissions] = useState<ApiMission[]>([]);
+  const [loadingMissions, setLoadingMissions] = useState(true);
 
-  const handleComplete = (id: string) => {
-    const m = missions.find((x) => x.id === id);
-    if (m && !m.done) {
-      completeMission(id);
-      gainXP(m.xp);
-      setActiveMission(null);
+  // Fetch real missions from the API
+  useEffect(() => {
+    fetch("/api/missions/today")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.missions && data.missions.length > 0) {
+          setApiMissions(data.missions);
+        }
+        setLoadingMissions(false);
+      })
+      .catch(() => setLoadingMissions(false));
+  }, []);
+
+  // Convert API missions to the format MissionCard expects
+  const displayMissions = apiMissions.length > 0
+    ? apiMissions.map((m) => ({
+        id: m.id,
+        label: m.title,
+        type: m.description.toUpperCase(),
+        xp: m.xpReward,
+        done: m.completed,
+      }))
+    : storeMissions; // Fallback to store mock missions if API returns nothing
+
+  const handleComplete = useCallback(async (id: string) => {
+    // Check if this is an API mission
+    const apiMission = apiMissions.find((m) => m.id === id);
+    if (apiMission) {
+      try {
+        const res = await fetch(`/api/missions/${id}/complete`, { method: "PATCH" });
+        const data = await res.json();
+        if (data.success) {
+          // Update the API mission in local state
+          setApiMissions((prev) =>
+            prev.map((m) => (m.id === id ? { ...m, completed: true } : m))
+          );
+          gainXP(data.xpAwarded || apiMission.xpReward);
+        } else {
+          alert(data.error || "Failed to complete mission");
+        }
+      } catch (e) {
+        console.error("Failed to complete mission:", e);
+        alert("Failed to complete mission. Please try again.");
+      }
+    } else {
+      // Fallback for store missions
+      const m = storeMissions.find((x) => x.id === id);
+      if (m && !m.done) {
+        completeMission(id);
+        gainXP(m.xp);
+        setActiveMission(null);
+      }
     }
-  };
+  }, [apiMissions, storeMissions, completeMission, gainXP, setActiveMission]);
 
   const wt = profile?.weeklyTarget;
 
@@ -180,11 +240,17 @@ function IntelPanel({ profile }: { profile: any }) {
 
       <div>
         <div className="n-section-label">Active Missions</div>
-        <div style={{ display: "flex", flexDirection: "column" as const, gap: 10 }}>
-          {missions.map((m) => (
-            <MissionCard key={m.id} mission={m} onComplete={() => handleComplete(m.id)} />
-          ))}
-        </div>
+        {loadingMissions ? (
+          <div style={{ color: "var(--text-muted)", fontSize: 13, padding: "12px 0", textAlign: "center" }}>
+            Loading missions...
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column" as const, gap: 10 }}>
+            {displayMissions.map((m) => (
+              <MissionCard key={m.id} mission={m} onComplete={() => handleComplete(m.id)} />
+            ))}
+          </div>
+        )}
       </div>
 
       <div>
