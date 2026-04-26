@@ -74,8 +74,29 @@ export async function GET(request: NextRequest) {
     const session = await auth()
     let whereClause = {}
     if (scope === "friends" && session?.user?.id) {
-      // Mock friends list: currently just the user until friends system is built
-      whereClause = { id: session.user.id }
+      // Get accepted friendships for the current user
+      const friendships = await prisma.friendship.findMany({
+        where: {
+          status: "accepted",
+          OR: [
+            { senderId: session.user.id },
+            { receiverId: session.user.id },
+          ],
+        },
+        select: { senderId: true, receiverId: true },
+      })
+
+      const friendIds = friendships.map(f =>
+        f.senderId === session.user.id ? f.receiverId : f.senderId
+      )
+      // Include the user themselves in the friends leaderboard
+      friendIds.push(session.user.id)
+
+      if (friendIds.length === 0) {
+        return Response.json({ leaderboard: [], period, scope })
+      }
+
+      whereClause = { id: { in: friendIds } }
     } else if (scope === "friends") {
       return Response.json({ leaderboard: [], period, scope })
     }
