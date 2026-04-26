@@ -35,13 +35,12 @@ export async function pickProblemForUser(userId: string) {
     select: { cfRating: true },
   })
   const userRating = user?.cfRating || 800
-  const target = userRating + 500
 
   const { solvedIds } = await getUserSolvedStatus(userId)
 
   const candidates = await prisma.problem.findMany({
     where: {
-      rating: { gte: target - 100, lte: target + 100 },
+      rating: { gte: userRating + 200, lte: userRating + 300 },
       id: { notIn: Array.from(solvedIds) },
     },
     include: { tags: { include: { tag: true } } },
