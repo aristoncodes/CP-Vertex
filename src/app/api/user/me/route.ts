@@ -1,15 +1,10 @@
-import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
+import { withAuth } from "@/lib/withAuth"
 
-export async function GET() {
+export const GET = withAuth(async (req, userId) => {
   try {
-    const session = await auth()
-    if (!session?.user?.id) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 })
-    }
-
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: userId },
       select: {
         id: true,
         email: true,

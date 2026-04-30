@@ -3,6 +3,8 @@
 import { TopBar } from "./TopBar";
 import { Footer } from "./Footer";
 import { useEffect } from "react";
+import { useAutoSync } from "@/hooks/useAutoSync";
+import { LinkCFPrompt } from "@/components/ui/LinkCFPrompt";
 
 export function DashboardLayout({
   children,
@@ -11,6 +13,9 @@ export function DashboardLayout({
   children: React.ReactNode;
   rightPanel?: React.ReactNode;
 }) {
+  // Auto-sync Codeforces submissions every 10 minutes in the background
+  useAutoSync();
+
   // Heartbeat for online presence — sends every 60 seconds
   useEffect(() => {
     const sendHeartbeat = () => {
@@ -24,6 +29,7 @@ export function DashboardLayout({
   return (
     <div style={{ background: "var(--surface)", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <TopBar />
+      <LinkCFPrompt />
 
       {/* Centered content wrapper */}
       <div

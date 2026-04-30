@@ -8,6 +8,16 @@ export async function GET() {
       return Response.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    // Auto-expire pending duels older than 2 minutes
+    const twoMinAgo = new Date(Date.now() - 2 * 60 * 1000)
+    await prisma.duel.updateMany({
+      where: {
+        status: "pending",
+        startedAt: { lt: twoMinAgo },
+      },
+      data: { status: "expired" },
+    })
+
     const duels = await prisma.duel.findMany({
       where: {
         player2Id: session.user.id,

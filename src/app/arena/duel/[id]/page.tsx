@@ -8,6 +8,7 @@ interface DuelData {
   id: string;
   status: string;
   problemIds: string[];
+  startedAt: string;
   endsAt: string;
   questionCount: number;
   player1: { name: string; cfHandle: string };
@@ -29,6 +30,8 @@ export default function DuelCombatPage() {
   const [loading, setLoading] = useState(true);
   const [verifying, setVerifying] = useState(false);
   const [declining, setDeclining] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const [countdown, setCountdown] = useState<number | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -90,6 +93,47 @@ export default function DuelCombatPage() {
     finally { setDeclining(false); }
   };
 
+  const handleCancel = async () => {
+    if (!window.confirm("Cancel this duel challenge?")) return;
+    setCancelling(true);
+    try {
+      const res = await fetch(`/api/duels/${id}/cancel`, { method: "PATCH" });
+      if (res.ok) {
+        setDuel({ ...duel!, status: "cancelled" });
+      } else {
+        const d = await res.json();
+        alert("Error: " + d.error);
+      }
+    } catch { alert("Cancel failed."); }
+    finally { setCancelling(false); }
+  };
+
+  // Auto-cancel countdown timer for pending duels
+  useEffect(() => {
+    if (!duel || duel.status !== "pending") {
+      setCountdown(null);
+      return;
+    }
+
+    const updateCountdown = () => {
+      const elapsed = Date.now() - new Date(duel.startedAt).getTime();
+      const remaining = Math.max(0, 120 - Math.floor(elapsed / 1000));
+      setCountdown(remaining);
+
+      // Auto-expire on client side — refetch to get server-side expiry
+      if (remaining <= 0) {
+        fetch(`/api/duels/${id}`)
+          .then(r => r.json())
+          .then(d => { if (d.duel) setDuel(d.duel); })
+          .catch(() => {});
+      }
+    };
+
+    updateCountdown();
+    const timer = setInterval(updateCountdown, 1000);
+    return () => clearInterval(timer);
+  }, [duel?.status, duel?.startedAt, id]);
+
   if (loading) return <DashboardLayout><div style={{ padding: 48, textAlign: "center", color: "var(--text-muted)" }}>Loading duel...</div></DashboardLayout>;
   if (!duel) return null;
 
@@ -99,6 +143,8 @@ export default function DuelCombatPage() {
       case "pending": return { bg: "var(--warning-light)", color: "var(--warning)" };
       case "completed": return { bg: "var(--primary-light)", color: "var(--primary)" };
       case "declined": return { bg: "var(--danger-light)", color: "var(--danger)" };
+      case "cancelled": return { bg: "var(--danger-light)", color: "var(--danger)" };
+      case "expired": return { bg: "var(--surface-high)", color: "var(--text-muted)" };
       default: return { bg: "var(--surface-high)", color: "var(--text-muted)" };
     }
   };
@@ -215,11 +261,48 @@ export default function DuelCombatPage() {
             </div>
           </div>
         ) : duel.status === "pending" ? (
-          <div style={{ textAlign: "center", color: "var(--text-muted)", padding: "24px 0", fontSize: 14 }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 28, display: "block", margin: "0 auto 8px", animation: "pulse-dot 2s ease-in-out infinite" }}>
+          <div style={{ textAlign: "center", padding: "24px 0" }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 32, display: "block", margin: "0 auto 8px", animation: "pulse-dot 2s ease-in-out infinite", color: "var(--warning)" }}>
               hourglass_top
             </span>
-            Waiting for opponent to accept...
+            <p style={{ fontSize: 15, fontWeight: 600, color: "var(--text-primary)", marginBottom: 8 }}>
+              Waiting for opponent to accept...
+            </p>
+
+            {/* Countdown timer */}
+            {countdown !== null && (
+              <div style={{
+                display: "inline-flex", alignItems: "center", gap: 8,
+                padding: "8px 16px", borderRadius: 10,
+                background: countdown <= 30 ? "var(--danger-light)" : "var(--surface-high)",
+                fontSize: 13, fontWeight: 700,
+                color: countdown <= 30 ? "var(--danger)" : "var(--text-muted)",
+                marginBottom: 16,
+                transition: "all 0.3s ease",
+              }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 16 }}>timer</span>
+                Auto-expires in {Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, "0")}
+              </div>
+            )}
+
+            {/* Cancel button for challenger */}
+            {duel.player1Id === userId && (
+              <div style={{ marginTop: 8 }}>
+                <button
+                  className="n-btn-secondary"
+                  onClick={handleCancel}
+                  disabled={cancelling}
+                  style={{
+                    padding: "10px 24px",
+                    color: "var(--danger)",
+                    borderColor: "rgba(220,38,38,0.3)",
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: 16 }}>close</span>
+                  {cancelling ? "Cancelling..." : "Cancel Duel"}
+                </button>
+              </div>
+            )}
           </div>
         ) : duel.status === "declined" ? (
           <div style={{ textAlign: "center", color: "var(--text-muted)", padding: "24px 0", fontSize: 14 }}>
@@ -227,6 +310,20 @@ export default function DuelCombatPage() {
               block
             </span>
             This duel was declined.
+          </div>
+        ) : duel.status === "cancelled" ? (
+          <div style={{ textAlign: "center", color: "var(--text-muted)", padding: "24px 0", fontSize: 14 }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 28, display: "block", margin: "0 auto 8px", color: "var(--danger)" }}>
+              cancel
+            </span>
+            This duel was cancelled by the challenger.
+          </div>
+        ) : duel.status === "expired" ? (
+          <div style={{ textAlign: "center", color: "var(--text-muted)", padding: "24px 0", fontSize: 14 }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 28, display: "block", margin: "0 auto 8px", color: "var(--text-muted)" }}>
+              timer_off
+            </span>
+            This duel expired — opponent didn&apos;t respond in time.
           </div>
         ) : (
           <>
