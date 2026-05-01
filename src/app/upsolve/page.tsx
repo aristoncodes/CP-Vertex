@@ -57,16 +57,16 @@ function TargetBadge({ settings, onEdit }: { settings: Settings; onEdit: () => v
           key={label}
           style={{
             padding: "4px 12px",
-            background: "#111320",
-            border: "1px solid #1E2133",
+            background: "var(--surface-high)",
+            border: "1px solid var(--border)",
             borderRadius: 6,
             fontSize: 12,
-            fontFamily: "Courier New",
-            color: "#F2F4FF",
+            fontFamily: "'Courier New', monospace",
+            color: "var(--text-primary)",
           }}
         >
-          <span style={{ color: "#6B7280" }}>{label}: </span>
-          <span style={{ color: "#00F0FF", fontWeight: 700 }}>{value.toUpperCase()}</span>
+          <span style={{ color: "var(--text-muted)" }}>{label}: </span>
+          <span style={{ color: "var(--primary)", fontWeight: 700 }}>{value.toUpperCase()}</span>
         </span>
       ))}
       <button
@@ -74,18 +74,18 @@ function TargetBadge({ settings, onEdit }: { settings: Settings; onEdit: () => v
         style={{
           padding: "4px 12px",
           background: "transparent",
-          border: "1px solid #1E2133",
+          border: "1px solid var(--border)",
           borderRadius: 6,
           fontSize: 12,
-          fontFamily: "Courier New",
-          color: "#FF2040",
+          fontFamily: "'Courier New', monospace",
+          color: "var(--danger)",
           cursor: "pointer",
         }}
       >
         ✎ Edit Targets
       </button>
       {settings.autoAdjust && (
-        <span style={{ fontSize: 11, color: "#6B7280", fontFamily: "Courier New" }}>
+        <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'Courier New', monospace" }}>
           · auto-adjust on
         </span>
       )}
@@ -113,7 +113,8 @@ function SettingsPopover({
         position: "fixed",
         inset: 0,
         zIndex: 1000,
-        background: "rgba(6,6,10,0.8)",
+        background: "rgba(0,0,0,0.6)",
+        backdropFilter: "blur(4px)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -121,17 +122,15 @@ function SettingsPopover({
       onClick={onClose}
     >
       <div
+        className="n-card"
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: "#0C0D14",
-          border: "1px solid #1E2133",
-          borderRadius: 12,
           padding: 28,
           width: 380,
           maxWidth: "90vw",
         }}
       >
-        <div style={{ fontSize: 16, fontWeight: 700, color: "#F2F4FF", fontFamily: "Arial", marginBottom: 20 }}>
+        <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)", fontFamily: "Arial", marginBottom: 20 }}>
           Division Targets
         </div>
         {[
@@ -141,17 +140,17 @@ function SettingsPopover({
           { label: "Div 4", key: "div4Target" as const },
         ].map(({ label, key }) => (
           <div key={key} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-            <span style={{ fontSize: 13, color: "#F2F4FF", fontFamily: "Courier New" }}>{label}</span>
+            <span style={{ fontSize: 13, color: "var(--text-primary)", fontFamily: "'Courier New', monospace" }}>{label}</span>
             <select
               value={local[key]}
               onChange={(e) => setLocal((p) => ({ ...p, [key]: e.target.value }))}
               style={{
-                background: "#111320",
-                border: "1px solid #1E2133",
+                background: "var(--surface-highest)",
+                border: "1px solid var(--border)",
                 borderRadius: 6,
-                color: "#00F0FF",
+                color: "var(--primary)",
                 fontSize: 12,
-                fontFamily: "Courier New",
+                fontFamily: "'Courier New', monospace",
                 padding: "4px 8px",
                 cursor: "pointer",
               }}
@@ -169,20 +168,22 @@ function SettingsPopover({
             checked={local.autoAdjust}
             onChange={(e) => setLocal((p) => ({ ...p, autoAdjust: e.target.checked }))}
           />
-          <label htmlFor="autoAdjust" style={{ fontSize: 12, color: "#6B7280", fontFamily: "Courier New", cursor: "pointer" }}>
+          <label htmlFor="autoAdjust" style={{ fontSize: 12, color: "var(--text-secondary)", fontFamily: "'Courier New', monospace", cursor: "pointer" }}>
             Auto-adjust targets based on performance
           </label>
         </div>
         <div style={{ display: "flex", gap: 10 }}>
           <button
             onClick={() => onSave(local)}
-            style={{ flex: 1, padding: "8px 0", background: "#FF2040", border: "none", borderRadius: 6, color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
+            className="n-btn-primary"
+            style={{ flex: 1, padding: "8px 0" }}
           >
             Save
           </button>
           <button
             onClick={onClose}
-            style={{ flex: 1, padding: "8px 0", background: "#111320", border: "1px solid #1E2133", borderRadius: 6, color: "#6B7280", fontSize: 13, cursor: "pointer" }}
+            className="n-btn-secondary"
+            style={{ flex: 1, padding: "8px 0" }}
           >
             Cancel
           </button>
@@ -216,16 +217,16 @@ function ContestGroup({ participation, items, highlight }: {
   return (
     <div style={{ marginBottom: 24 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#F2F4FF", fontFamily: "Arial" }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)", fontFamily: "Arial" }}>
           {participation.contestName}
         </div>
         {participation.ratingChange !== null && (
           <span style={{
             fontSize: 11,
-            fontFamily: "Courier New",
-            color: (participation.ratingChange || 0) >= 0 ? "#10B981" : "#FF2040",
-            background: (participation.ratingChange || 0) >= 0 ? "#001A10" : "#1A0008",
-            border: `1px solid ${(participation.ratingChange || 0) >= 0 ? "#10B981" : "#FF2040"}`,
+            fontFamily: "'Courier New', monospace",
+            color: (participation.ratingChange || 0) >= 0 ? "var(--success)" : "var(--danger)",
+            background: (participation.ratingChange || 0) >= 0 ? "var(--success-light)" : "var(--danger-light)",
+            border: `1px solid ${(participation.ratingChange || 0) >= 0 ? "var(--success)" : "var(--danger)"}`,
             padding: "2px 8px",
             borderRadius: 4,
           }}>
@@ -233,11 +234,11 @@ function ContestGroup({ participation, items, highlight }: {
           </span>
         )}
         {participation.division && (
-          <span style={{ fontSize: 11, color: "#6B7280", fontFamily: "Courier New" }}>
+          <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'Courier New', monospace" }}>
             Div {participation.division}
           </span>
         )}
-        <span style={{ fontSize: 11, color: "#2A2D40", fontFamily: "Courier New", marginLeft: "auto" }}>{date}</span>
+        <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'Courier New', monospace", marginLeft: "auto" }}>{date}</span>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         {items.map((item) => (
@@ -309,11 +310,11 @@ function UpsolveContent() {
   const tabStyle = (t: Tab) => ({
     padding: "8px 20px",
     fontSize: 13,
-    fontFamily: "Courier New",
+    fontFamily: "'Courier New', monospace",
     fontWeight: tab === t ? 700 : 400,
-    color: tab === t ? "#F2F4FF" : "#6B7280",
-    background: tab === t ? "#111320" : "transparent",
-    border: tab === t ? "1px solid #1E2133" : "1px solid transparent",
+    color: tab === t ? "var(--text-primary)" : "var(--text-muted)",
+    background: tab === t ? "var(--surface-high)" : "transparent",
+    border: tab === t ? "1px solid var(--border)" : "1px solid transparent",
     borderRadius: 6,
     cursor: "pointer",
   })
@@ -333,10 +334,10 @@ function UpsolveContent() {
 
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 20 }}>
         <div>
-          <h1 style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.03em", color: "#F2F4FF", fontFamily: "Arial" }}>
+          <h1 style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text-primary)", fontFamily: "Arial" }}>
             ⏰ Upsolve Queue
           </h1>
-          <p style={{ fontSize: 13, color: "#6B7280", fontFamily: "Courier New", marginTop: 4 }}>
+          <p style={{ fontSize: 13, color: "var(--text-secondary)", fontFamily: "'Courier New', monospace", marginTop: 4 }}>
             Problems you didn't solve during rated contests — time-limited bonus XP.
           </p>
         </div>
@@ -360,15 +361,13 @@ function UpsolveContent() {
       </div>
 
       {loading ? (
-        <div style={{ color: "#6B7280", fontFamily: "Courier New", textAlign: "center", padding: "40px 0" }}>
+        <div style={{ color: "var(--text-muted)", fontFamily: "'Courier New', monospace", textAlign: "center", padding: "40px 0" }}>
           Loading...
         </div>
       ) : groups.length === 0 ? (
         <div
+          className="n-card"
           style={{
-            background: "#0C0D14",
-            border: "1px solid #1E2133",
-            borderRadius: 12,
             padding: "40px 24px",
             textAlign: "center",
           }}
@@ -376,14 +375,14 @@ function UpsolveContent() {
           <div style={{ fontSize: 32, marginBottom: 12 }}>
             {tab === "active" ? "🏆" : tab === "stretch" ? "🎯" : "💀"}
           </div>
-          <div style={{ fontSize: 15, color: "#F2F4FF", fontFamily: "Arial", fontWeight: 600, marginBottom: 8 }}>
+          <div style={{ fontSize: 15, color: "var(--text-primary)", fontFamily: "Arial", fontWeight: 600, marginBottom: 8 }}>
             {tab === "active"
               ? "Queue is empty"
               : tab === "stretch"
               ? "No stretch goals"
               : "Graveyard is empty"}
           </div>
-          <div style={{ fontSize: 13, color: "#6B7280", fontFamily: "Courier New" }}>
+          <div style={{ fontSize: 13, color: "var(--text-secondary)", fontFamily: "'Courier New', monospace" }}>
             {tab === "active"
               ? "Participate in a rated contest to fill your upsolve queue."
               : tab === "stretch"
@@ -397,13 +396,13 @@ function UpsolveContent() {
             <div
               style={{
                 padding: "10px 16px",
-                background: "#06060A",
-                border: "1px solid #2A2D40",
+                background: "var(--surface-high)",
+                border: "1px solid var(--border)",
                 borderRadius: 8,
                 marginBottom: 20,
                 fontSize: 12,
-                color: "#6B7280",
-                fontFamily: "Courier New",
+                color: "var(--text-secondary)",
+                fontFamily: "'Courier New', monospace",
               }}
             >
               💀 These problems expired after 14 days without being solved. They're still solvable — 0.5× XP applies.
@@ -413,13 +412,13 @@ function UpsolveContent() {
             <div
               style={{
                 padding: "10px 16px",
-                background: "#06060A",
-                border: "1px solid #2A2D40",
+                background: "var(--surface-high)",
+                border: "1px solid var(--border)",
                 borderRadius: 8,
                 marginBottom: 20,
                 fontSize: 12,
-                color: "#6B7280",
-                fontFamily: "Courier New",
+                color: "var(--text-secondary)",
+                fontFamily: "'Courier New', monospace",
               }}
             >
               🎯 These are above your current target — no timer or reminders. Solve them to push your target up.

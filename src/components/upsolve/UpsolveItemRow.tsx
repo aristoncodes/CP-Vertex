@@ -33,19 +33,19 @@ interface UpsolveItemProps {
 }
 
 function ratingColor(rating: number): string {
-  if (rating >= 2400) return "#FF2040"
-  if (rating >= 2100) return "#F97316"
+  if (rating >= 2400) return "var(--danger)"
+  if (rating >= 2100) return "var(--warning)"
   if (rating >= 1900) return "#F59E0B"
-  if (rating >= 1600) return "#10B981"
-  if (rating >= 1400) return "#00F0FF"
+  if (rating >= 1600) return "var(--success)"
+  if (rating >= 1400) return "var(--primary)"
   if (rating >= 1200) return "#8B5CF6"
-  return "#6B7280"
+  return "var(--text-muted)"
 }
 
 function verdictChip(type: string, lastVerdict: string | null, attemptCount: number) {
   if (type === "never_attempted") {
     return (
-      <span style={{ fontSize: 10, color: "#4B5563", background: "#111320", border: "1px solid #1E2133", padding: "1px 6px", borderRadius: 3, fontFamily: "Courier New" }}>
+      <span style={{ fontSize: 10, color: "var(--text-secondary)", background: "var(--surface-high)", border: "1px solid var(--border)", padding: "1px 6px", borderRadius: 3, fontFamily: "'Courier New', monospace" }}>
         never attempted
       </span>
     )
@@ -53,12 +53,12 @@ function verdictChip(type: string, lastVerdict: string | null, attemptCount: num
   const label = lastVerdict
     ? `${lastVerdict.replace("_", " ")} ×${attemptCount}`
     : `${attemptCount} attempts`
-  const color = lastVerdict === "TIME_LIMIT_EXCEEDED" ? "#F59E0B"
-    : lastVerdict === "WRONG_ANSWER" ? "#FF2040"
+  const color = lastVerdict === "TIME_LIMIT_EXCEEDED" ? "var(--warning)"
+    : lastVerdict === "WRONG_ANSWER" ? "var(--danger)"
     : lastVerdict === "MEMORY_LIMIT_EXCEEDED" ? "#8B5CF6"
-    : "#6B7280"
+    : "var(--text-muted)"
   return (
-    <span style={{ fontSize: 10, color, background: "#06060A", border: `1px solid ${color}33`, padding: "1px 6px", borderRadius: 3, fontFamily: "Courier New" }}>
+    <span style={{ fontSize: 10, color, background: "var(--surface-highest)", border: `1px solid ${color}`, padding: "1px 6px", borderRadius: 3, fontFamily: "'Courier New', monospace" }}>
       {label}
     </span>
   )
@@ -77,27 +77,27 @@ export function UpsolveItemRow({ item, showContest, onSkip, highlight }: Upsolve
         justifyContent: "space-between",
         gap: 12,
         padding: "10px 14px",
-        background: highlight ? "#0D1020" : "#0C0D14",
-        border: `1px solid ${highlight ? "#FF2040" : "#1E2133"}`,
-        borderLeft: `3px solid ${item.category === "target" ? "#FF2040" : "#8B5CF6"}`,
+        background: highlight ? "var(--primary-light)" : "var(--surface-card)",
+        border: `1px solid ${highlight ? "var(--primary)" : "var(--border)"}`,
+        borderLeft: `3px solid ${item.category === "target" ? "var(--danger)" : "#8B5CF6"}`,
         borderRadius: 6,
         cursor: "pointer",
         transition: "background 0.15s ease, border-color 0.15s ease",
       }}
       onMouseEnter={(e) => {
-        ;(e.currentTarget as HTMLElement).style.background = "#111320"
+        ;(e.currentTarget as HTMLElement).style.background = "var(--surface-hover)"
       }}
       onMouseLeave={(e) => {
-        ;(e.currentTarget as HTMLElement).style.background = highlight ? "#0D1020" : "#0C0D14"
+        ;(e.currentTarget as HTMLElement).style.background = highlight ? "var(--primary-light)" : "var(--surface-card)"
       }}
     >
       {/* Left */}
       <div style={{ flex: 1, minWidth: 0 }}>
         {showContest && (
-          <div style={{ fontSize: 10, color: "#6B7280", fontFamily: "Courier New", marginBottom: 3 }}>
+          <div style={{ fontSize: 10, color: "var(--text-muted)", fontFamily: "'Courier New', monospace", marginBottom: 3 }}>
             {item.contestParticipation.contestName}
             {item.contestParticipation.ratingChange !== null && (
-              <span style={{ color: (item.contestParticipation.ratingChange || 0) >= 0 ? "#10B981" : "#FF2040", marginLeft: 6 }}>
+              <span style={{ color: (item.contestParticipation.ratingChange || 0) >= 0 ? "var(--success)" : "var(--danger)", marginLeft: 6 }}>
                 {(item.contestParticipation.ratingChange || 0) >= 0 ? "+" : ""}{item.contestParticipation.ratingChange}
               </span>
             )}
@@ -109,7 +109,7 @@ export function UpsolveItemRow({ item, showContest, onSkip, highlight }: Upsolve
             style={{
               fontSize: 13,
               fontWeight: 600,
-              color: "#F2F4FF",
+              color: "var(--text-primary)",
               fontFamily: "Arial, sans-serif",
               overflow: "hidden",
               textOverflow: "ellipsis",
@@ -123,7 +123,7 @@ export function UpsolveItemRow({ item, showContest, onSkip, highlight }: Upsolve
           {item.problem.tags.slice(0, 3).map((t) => (
             <span
               key={t.tag.name}
-              style={{ fontSize: 10, color: "#6B7280", background: "#111320", border: "1px solid #1E2133", padding: "1px 6px", borderRadius: 3 }}
+              style={{ fontSize: 10, color: "var(--text-muted)", background: "var(--surface-high)", border: "1px solid var(--border)", padding: "1px 6px", borderRadius: 3 }}
             >
               {t.tag.name}
             </span>
@@ -141,7 +141,7 @@ export function UpsolveItemRow({ item, showContest, onSkip, highlight }: Upsolve
       </div>
 
       {/* Arrow */}
-      <div style={{ color: "#2A2D40", fontSize: 18, flexShrink: 0 }}>›</div>
+      <div style={{ color: "var(--text-muted)", fontSize: 18, flexShrink: 0 }}>›</div>
     </div>
   )
 }

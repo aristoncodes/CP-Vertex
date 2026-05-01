@@ -40,17 +40,17 @@ export function CountdownTimer({ deadlineAt, xpMultiplier }: CountdownTimerProps
   const { text, urgency } = formatCountdown(ms)
 
   const colors: Record<string, string> = {
-    high: "#FF2040",
-    medium: "#F59E0B",
-    low: "#6B7280",
-    expired: "#2A2D40",
+    high: "var(--danger)",
+    medium: "var(--warning)",
+    low: "var(--text-muted)",
+    expired: "var(--text-muted)",
   }
 
   const color = colors[urgency]
 
   if (urgency === "expired" || xpMultiplier <= 0.5) {
     return (
-      <span style={{ fontSize: 11, color: "#2A2D40", fontFamily: "Courier New, monospace" }}>
+      <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'Courier New', monospace" }}>
         Graveyard
       </span>
     )

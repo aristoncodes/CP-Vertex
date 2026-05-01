@@ -178,12 +178,30 @@ export async function getContestProblems(contestId: number): Promise<CFProblem[]
   const res = await fetch(url)
   if (!res.ok) throw new Error(`CF standings HTTP error: ${res.status}`)
   const data = await res.json()
-  if (data.status !== "OK") throw new Error(`CF standings error: ${data.comment}`)
+  
+  if (data.status === "OK") {
+    const problems: CFProblem[] = data.result.problems
+    // Cache 30 days — contest problems are immutable
+    await redis.setex(cacheKey, 86400 * 30, JSON.stringify(problems))
+    return problems
+  }
 
-  const problems: CFProblem[] = data.result.problems
-  // Cache 30 days — contest problems are immutable
-  await redis.setex(cacheKey, 86400 * 30, JSON.stringify(problems))
-  return problems
+  // Fallback to problemset.problems if contest.standings requires authentication or fails
+  console.warn(`CF standings failed for ${contestId} (${data.comment}). Falling back to problemset.problems.`)
+  const psUrl = `https://codeforces.com/api/problemset.problems`
+  const psRes = await fetch(psUrl)
+  if (!psRes.ok) throw new Error(`CF problemset HTTP error: ${psRes.status}`)
+  const psData = await psRes.json()
+  
+  if (psData.status === "OK") {
+    const problems = psData.result.problems.filter((p: any) => p.contestId === contestId)
+    if (problems.length > 0) {
+      await redis.setex(cacheKey, 86400 * 30, JSON.stringify(problems))
+      return problems
+    }
+  }
+
+  throw new Error(`CF standings error: ${data.comment} and no problems found in problemset`)
 }
 
 // ── Core Detection ───────────────────────────────────────────────
