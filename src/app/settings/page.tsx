@@ -105,20 +105,15 @@ export default function SettingsPage() {
       setVerifySuccess(true);
       setCfVerified(true);
       setChallenge(null);
+      setLastSync(new Date().toLocaleString());
 
-      // Auto-trigger sync so user doesn't have to click "Re-sync" manually
-      try {
-        await fetch("/api/user/cf-handle/sync", { method: "POST" });
-        setLastSync(new Date().toLocaleString());
-      } catch {
-        // Sync may fail due to rate limit (just verified), silently retry after delay
-        setTimeout(async () => {
-          try {
-            await fetch("/api/user/cf-handle/sync", { method: "POST" });
-            setLastSync(new Date().toLocaleString());
-          } catch { /* background import already running from verification */ }
-        }, 10000);
+      // Update NextAuth session to trigger AutoSyncProvider correctly for future background syncs
+      if (typeof window !== "undefined") {
+        import("next-auth/react").then(({ getSession }) => {
+          getSession(); // Forces NextAuth to refresh the session context with the new cfHandle
+        });
       }
+
     } catch { setVerifyError("Connection failed."); }
     finally { setVerifying(false); }
   };
@@ -267,7 +262,7 @@ export default function SettingsPage() {
 
                 <button className="n-btn-primary" onClick={handleVerifyCE} disabled={verifying} style={{ padding: "10px 24px" }}>
                   <span className="material-symbols-outlined" style={{ fontSize: 16 }}>verified</span>
-                  {verifying ? "Checking submissions..." : "I submitted CE — Verify Now"}
+                  {verifying ? "Verifying & Syncing History..." : "I submitted CE — Verify Now"}
                 </button>
               </div>
             )}

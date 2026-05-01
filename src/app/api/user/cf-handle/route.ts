@@ -165,10 +165,12 @@ export async function POST(request: Request) {
     // Clean up
     await redis.del(`cf-verify:${session.user.id}`)
 
-    // Import submissions in background
-    importSubmissions(session.user.id, challenge.handle).catch((err) =>
-      console.error("Background submission import failed:", err)
-    )
+    // Import submissions synchronously so it finishes before returning
+    try {
+      await importSubmissions(session.user.id, challenge.handle)
+    } catch (err) {
+      console.error("Full submission import failed:", err)
+    }
 
     return Response.json({
       message: "Codeforces handle verified successfully!",
