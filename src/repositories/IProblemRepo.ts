@@ -1,4 +1,4 @@
-import { Problem } from "@prisma/client"
+import { Problem } from "@/generated/prisma/client"
 
 export interface IProblemRepo {
   findByRating(min: number, max: number, limit?: number): Promise<Problem[]>

@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { IProblemRepo } from "./IProblemRepo"
-import { Problem } from "@prisma/client"
+import { Problem } from "@/generated/prisma/client"
 
 export class PrismaProblemRepo implements IProblemRepo {
   async findByRating(min: number, max: number, limit: number = 200): Promise<Problem[]> {
@@ -20,9 +20,10 @@ export class PrismaProblemRepo implements IProblemRepo {
       data: {
         userId,
         problemId,
+        cfSubmissionId: `manual_${userId}_${problemId}_${Date.now()}`,
         verdict: "OK",
         language: "unknown",
-        code: "",
+        submittedAt: new Date(),
       }
     })
   }

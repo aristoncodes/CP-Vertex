@@ -41,4 +41,4 @@ export const GET = withAuth(async (req, userId) => {
     console.error("GET /api/user/me error:", error)
     return Response.json({ error: "Internal server error" }, { status: 500 })
   }
-}
+})
