@@ -178,10 +178,14 @@ export async function getContestProblems(contestId: number): Promise<CFProblem[]
 
   const url = `https://codeforces.com/api/contest.standings?contestId=${contestId}&from=1&count=1`
   const res = await fetch(url)
-  if (!res.ok) throw new Error(`CF standings HTTP error: ${res.status}`)
-  const data = await res.json()
+  let data;
+  try {
+    data = await res.json()
+  } catch {
+    throw new Error(`CF standings HTTP error: ${res.status}`)
+  }
   
-  if (data.status === "OK") {
+  if (data && data.status === "OK") {
     const problems: CFProblem[] = data.result.problems
     // Cache 30 days — contest problems are immutable
     await redis.setex(cacheKey, 86400 * 30, JSON.stringify(problems))
