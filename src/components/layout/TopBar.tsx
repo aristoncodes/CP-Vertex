@@ -9,6 +9,7 @@ const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: "space_dashboard" },
   { label: "Problems", href: "/problems", icon: "code" },
   { label: "Practice", href: "/practice", icon: "fitness_center" },
+  { label: "Upsolve", href: "/upsolve", icon: "history" },
   { label: "Arena", href: "/arena", icon: "swords" },
   { label: "Contests", href: "/contests", icon: "emoji_events" },
   { label: "Leaderboard", href: "/leaderboard", icon: "leaderboard" },
