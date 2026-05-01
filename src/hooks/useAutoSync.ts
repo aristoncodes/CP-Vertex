@@ -13,7 +13,7 @@ import { useEffect, useRef } from "react";
 const SYNC_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
 const SESSION_KEY = "cp-vertex:lastAutoSync";
 
-export function useAutoSync() {
+export function useAutoSync(onSyncSuccess?: (imported: number) => void) {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -27,7 +27,11 @@ export function useAutoSync() {
 
       try {
         const res = await fetch("/api/user/cf-handle/sync", { method: "POST" });
-        if (res.ok || res.status === 429) {
+        if (res.ok) {
+          sessionStorage.setItem(SESSION_KEY, String(Date.now()));
+          const data = await res.json();
+          if (onSyncSuccess) onSyncSuccess(data.imported || 0);
+        } else if (res.status === 429) {
           // 429 means rate-limited (synced recently), still counts as "done"
           sessionStorage.setItem(SESSION_KEY, String(Date.now()));
         }
@@ -62,5 +66,5 @@ export function useAutoSync() {
       if (timerRef.current) clearInterval(timerRef.current);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
-  }, []);
+  }, [onSyncSuccess]);
 }
