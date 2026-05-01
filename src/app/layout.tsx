@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/providers/AuthProvider";
+import { AutoSyncProvider } from "@/providers/AutoSyncProvider";
 import { Analytics } from "@vercel/analytics/react";
 import { auth } from "@/auth";
 
@@ -34,6 +35,7 @@ export default async function RootLayout({
       </head>
       <body>
         <AuthProvider session={session}>
+          <AutoSyncProvider />
           {children}
         </AuthProvider>
         <Analytics />

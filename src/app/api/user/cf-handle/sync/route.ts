@@ -1,8 +1,19 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
-import { getCFSubmissions, getCFUser } from "@/lib/cf-api"
+import { getCFSubmissions, getCFUser, getCFRatingHistory, CFSubmission } from "@/lib/cf-api"
 import { NextRequest } from "next/server"
 import { recomputeTopicScore } from "@/lib/strength"
+import {
+  detectUpsolveItems,
+  detectDivisionFromName,
+  getUserContestSettings,
+  refreshMultipliers,
+  checkAdaptiveTarget,
+  getXPMultiplier,
+} from "@/lib/upsolve"
+import { scheduleReminders, cancelReminders } from "@/workers/upsolve-reminders"
+import { emitUpsolveComplete } from "@/lib/realtime"
+import { calculateXP, getWACountBeforeAC, awardXP, isWeakTag } from "@/lib/xp"
 
 export async function POST(request: NextRequest) {
   try {
@@ -147,6 +158,149 @@ export async function POST(request: NextRequest) {
         ...(lastActiveDay ? { streakLastDay: lastActiveDay } : {})
       }
     });
+
+    // ── Upsolve Detection ─────────────────────────────────────
+    // Only process contests that happened after the user joined CP Vertex
+    try {
+      const allSubs = await getCFSubmissions(user.cfHandle, 1, 200)
+
+      // Group by contestId
+      const contestGroups: Record<number, CFSubmission[]> = {}
+      for (const sub of allSubs) {
+        if (!sub.contestId) continue
+        if (!contestGroups[sub.contestId]) contestGroups[sub.contestId] = []
+        contestGroups[sub.contestId].push(sub)
+      }
+
+      // Get rating history for contest end times + names
+      let ratingHistory: Awaited<ReturnType<typeof getCFRatingHistory>> = []
+      try { ratingHistory = await getCFRatingHistory(user.cfHandle) } catch { /* ignore */ }
+
+      for (const [cidStr, contestSubs] of Object.entries(contestGroups)) {
+        const contestId = Number(cidStr)
+
+        // Only rated (CONTESTANT) participations
+        const isRated = contestSubs.some(
+          (s) => (s as CFSubmission & { author?: { participantType?: string } })
+            .author?.participantType === "CONTESTANT"
+        )
+        if (!isRated) continue
+
+        // Get contest info from rating history
+        const ratingEntry = ratingHistory.find((h) => h.contestId === contestId)
+        const contestEndTime = ratingEntry
+          ? new Date(ratingEntry.ratingUpdateTimeSeconds * 1000)
+          : new Date(Math.max(...contestSubs.map((s) => s.creationTimeSeconds)) * 1000)
+
+        // Only track contests after user joined CP Vertex
+        if (contestEndTime < user.createdAt) continue
+
+        // Skip already processed contests
+        const existing = await prisma.contestParticipation.findUnique({
+          where: { userId_contestId: { userId: user.id, contestId } },
+        })
+        if (existing) {
+          // Still check if any pending upsolve was solved
+          const pendingItems = await prisma.upsolveItem.findMany({
+            where: { userId: user.id, contestParticipationId: existing.id, status: "pending" },
+            include: { problem: true, contestParticipation: true },
+          })
+          for (const item of pendingItems) {
+            const solved = contestSubs.some(
+              (s) => `${s.problem.contestId}${s.problem.index}` === item.problem.cfId && s.verdict === "OK"
+            )
+            if (solved) {
+              const bonusXP = Math.floor((item.problem.rating || 1000) * item.xpMultiplier)
+              await Promise.all([
+                prisma.upsolveItem.update({ where: { id: item.id }, data: { status: "solved", solvedAt: new Date() } }),
+                prisma.user.update({ where: { id: user.id }, data: { xp: { increment: bonusXP } } }),
+                emitUpsolveComplete(user.id, item.problem.title, bonusXP),
+              ])
+              // Cancel reminders if all target items solved
+              const remaining = await prisma.upsolveItem.count({
+                where: { userId: user.id, contestParticipationId: existing.id, status: "pending", category: "target" },
+              })
+              if (remaining === 0) await cancelReminders(user.id, contestId)
+            }
+          }
+          continue
+        }
+
+        const contestName = ratingEntry?.contestName ?? `Codeforces Round ${contestId}`
+        const division = detectDivisionFromName(contestName)
+        const problemsSolved = contestSubs.filter((s) => s.verdict === "OK").length
+
+        // Create ContestParticipation
+        let participation: { id: string; contestId: number }
+        try {
+          participation = await prisma.contestParticipation.create({
+            data: {
+              userId: user.id,
+              contestId,
+              contestName,
+              division,
+              ratingBefore: ratingEntry?.oldRating ?? null,
+              ratingAfter: ratingEntry?.newRating ?? null,
+              ratingChange: ratingEntry ? ratingEntry.newRating - ratingEntry.oldRating : null,
+              rank: ratingEntry?.rank ?? null,
+              problemsSolved,
+              participatedAt: contestEndTime,
+            },
+          })
+        } catch { continue }
+
+        // Detect unsolved problems
+        const upsolveInputs = await detectUpsolveItems(
+          user.id, contestId, contestName, contestEndTime, allSubs
+        )
+
+        let targetCount = 0
+        for (const input of upsolveInputs) {
+          const problem = await prisma.problem.findUnique({ where: { cfId: input.problemCfId } })
+          if (!problem) continue
+          const alreadyExists = await prisma.upsolveItem.findFirst({
+            where: { userId: user.id, problemId: problem.id },
+          })
+          if (alreadyExists) continue
+          await prisma.upsolveItem.create({
+            data: {
+              userId: user.id,
+              contestParticipationId: participation.id,
+              problemId: problem.id,
+              type: input.type,
+              category: input.category,
+              attemptCount: input.attemptCount,
+              lastVerdict: input.lastVerdict,
+              priority: input.priority,
+              xpMultiplier: input.xpMultiplier,
+              deadlineAt: input.deadlineAt,
+            },
+          })
+          if (input.category === "target") targetCount++
+        }
+
+        if (targetCount > 0) {
+          await scheduleReminders(user.id, contestId, contestName, targetCount)
+          await prisma.notification.create({
+            data: {
+              userId: user.id,
+              type: "upsolve_reminder",
+              title: "Upsolve queue updated 📬",
+              message: `${contestName} — ${targetCount} problem${targetCount > 1 ? "s" : ""} in your upsolve queue. 2× XP for 24h!`,
+              contestId: String(contestId),
+            },
+          })
+        }
+
+        await checkAdaptiveTarget(user.id, division)
+      }
+
+      // Refresh XP multipliers for all pending items
+      await refreshMultipliers(user.id)
+    } catch (upsolveErr) {
+      // Don't fail the whole sync if upsolve detection errors
+      console.warn("Upsolve detection error:", upsolveErr)
+    }
 
     return Response.json({ message: "Sync complete", imported });
   } catch (error) {
