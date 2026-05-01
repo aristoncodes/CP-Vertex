@@ -11,6 +11,7 @@ import { StreakDisplay } from "@/components/ui/StreakDisplay";
 import { MissionMap } from "@/components/ui/MissionMap";
 import { useStore } from "@/store/useStore";
 import { useSession } from "next-auth/react";
+import { UpsolveWidget } from "@/components/upsolve/UpsolveWidget";
 
 interface ApiMission {
   id: string;
@@ -275,6 +276,11 @@ function IntelPanel({ profile }: { profile: any }) {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Upsolve Queue Widget — below missions panel */}
+      <div className="n-card" style={{ padding: "16px 18px" }}>
+        <UpsolveWidget />
       </div>
     </>
   );

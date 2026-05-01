@@ -77,7 +77,10 @@ export const ModelName = {
   AlgorithmArticle: 'AlgorithmArticle',
   AlgorithmProblem: 'AlgorithmProblem',
   Notification: 'Notification',
-  Friendship: 'Friendship'
+  Friendship: 'Friendship',
+  ContestParticipation: 'ContestParticipation',
+  UpsolveItem: 'UpsolveItem',
+  UserContestSettings: 'UserContestSettings'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -443,6 +446,7 @@ export const NotificationScalarFieldEnum = {
   title: 'title',
   message: 'message',
   data: 'data',
+  contestId: 'contestId',
   isRead: 'isRead',
   createdAt: 'createdAt'
 } as const
@@ -460,6 +464,60 @@ export const FriendshipScalarFieldEnum = {
 } as const
 
 export type FriendshipScalarFieldEnum = (typeof FriendshipScalarFieldEnum)[keyof typeof FriendshipScalarFieldEnum]
+
+
+export const ContestParticipationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  contestId: 'contestId',
+  contestName: 'contestName',
+  division: 'division',
+  ratingBefore: 'ratingBefore',
+  ratingAfter: 'ratingAfter',
+  ratingChange: 'ratingChange',
+  rank: 'rank',
+  problemsSolved: 'problemsSolved',
+  totalProblems: 'totalProblems',
+  participatedAt: 'participatedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type ContestParticipationScalarFieldEnum = (typeof ContestParticipationScalarFieldEnum)[keyof typeof ContestParticipationScalarFieldEnum]
+
+
+export const UpsolveItemScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  contestParticipationId: 'contestParticipationId',
+  problemId: 'problemId',
+  status: 'status',
+  type: 'type',
+  category: 'category',
+  attemptCount: 'attemptCount',
+  lastVerdict: 'lastVerdict',
+  priority: 'priority',
+  xpMultiplier: 'xpMultiplier',
+  createdAt: 'createdAt',
+  deadlineAt: 'deadlineAt',
+  solvedAt: 'solvedAt'
+} as const
+
+export type UpsolveItemScalarFieldEnum = (typeof UpsolveItemScalarFieldEnum)[keyof typeof UpsolveItemScalarFieldEnum]
+
+
+export const UserContestSettingsScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  div4Target: 'div4Target',
+  div3Target: 'div3Target',
+  div2Target: 'div2Target',
+  div1Target: 'div1Target',
+  autoAdjust: 'autoAdjust',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserContestSettingsScalarFieldEnum = (typeof UserContestSettingsScalarFieldEnum)[keyof typeof UserContestSettingsScalarFieldEnum]
 
 
 export const SortOrder = {

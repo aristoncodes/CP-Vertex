@@ -57,6 +57,9 @@ model User {
   notifications          Notification[]
   sentFriendRequests     Friendship[]   @relation("SentFriendRequests")
   receivedFriendRequests Friendship[]   @relation("ReceivedFriendRequests")
+  contestParticipations  ContestParticipation[]
+  upsolveItems           UpsolveItem[]
+  contestSettings        UserContestSettings?
 
   @@index([cfHandle])
   @@index([xp])
@@ -112,6 +115,7 @@ model Problem {
 
   tags         ProblemTag[]
   submissions  Submission[]
+  upsolveItems UpsolveItem[]
 
   @@index([rating])
 }
@@ -391,10 +395,11 @@ model AlgorithmProblem {
 model Notification {
   id        String   @id @default(cuid())
   userId    String
-  type      String   // "duel_challenge", "duel_accepted", "duel_declined", "duel_result"
+  type      String   // "duel_challenge", "duel_accepted", "duel_declined", "duel_result", "upsolve_reminder", "target_upgraded"
   title     String
   message   String
   data      Json?    // { duelId, challengerName, ... }
+  contestId String?  // for upsolve reminders
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
 
@@ -419,4 +424,66 @@ model Friendship {
   @@unique([senderId, receiverId])
   @@index([senderId, status])
   @@index([receiverId, status])
+}
+
+// ─── Upsolve Tracker ──────────────────────────────────
+model ContestParticipation {
+  id             String        @id @default(cuid())
+  userId         String
+  contestId      Int
+  contestName    String
+  division       Int?
+  ratingBefore   Int?
+  ratingAfter    Int?
+  ratingChange   Int?
+  rank           Int?
+  problemsSolved Int           @default(0)
+  totalProblems  Int           @default(0)
+  participatedAt DateTime
+  createdAt      DateTime      @default(now())
+
+  user           User          @relation(fields: [userId], references: [id])
+  upsolveItems   UpsolveItem[]
+
+  @@unique([userId, contestId])
+  @@index([userId, participatedAt])
+}
+
+model UpsolveItem {
+  id                     String               @id @default(cuid())
+  userId                 String
+  contestParticipationId String
+  problemId              String
+  status                 String               @default("pending")
+  type                   String
+  category               String               @default("target")
+  attemptCount           Int                  @default(0)
+  lastVerdict            String?
+  priority               Int                  @default(2)
+  xpMultiplier           Float                @default(2.0)
+  createdAt              DateTime             @default(now())
+  deadlineAt             DateTime
+  solvedAt               DateTime?
+
+  user                   User                 @relation(fields: [userId], references: [id])
+  contestParticipation   ContestParticipation @relation(fields: [contestParticipationId], references: [id])
+  problem                Problem              @relation(fields: [problemId], references: [id])
+
+  @@index([userId, status])
+  @@index([userId, category, status])
+  @@index([userId, deadlineAt])
+}
+
+model UserContestSettings {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  div4Target  String   @default("all")
+  div3Target  String   @default("A-F")
+  div2Target  String   @default("A-D")
+  div1Target  String   @default("A-B")
+  autoAdjust  Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id])
 }

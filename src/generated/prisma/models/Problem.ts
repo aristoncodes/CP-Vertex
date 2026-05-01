@@ -258,6 +258,7 @@ export type ProblemWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Problem"> | Date | string
   tags?: Prisma.ProblemTagListRelationFilter
   submissions?: Prisma.SubmissionListRelationFilter
+  upsolveItems?: Prisma.UpsolveItemListRelationFilter
 }
 
 export type ProblemOrderByWithRelationInput = {
@@ -272,6 +273,7 @@ export type ProblemOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   tags?: Prisma.ProblemTagOrderByRelationAggregateInput
   submissions?: Prisma.SubmissionOrderByRelationAggregateInput
+  upsolveItems?: Prisma.UpsolveItemOrderByRelationAggregateInput
 }
 
 export type ProblemWhereUniqueInput = Prisma.AtLeast<{
@@ -289,6 +291,7 @@ export type ProblemWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Problem"> | Date | string
   tags?: Prisma.ProblemTagListRelationFilter
   submissions?: Prisma.SubmissionListRelationFilter
+  upsolveItems?: Prisma.UpsolveItemListRelationFilter
 }, "id" | "cfId">
 
 export type ProblemOrderByWithAggregationInput = {
@@ -335,6 +338,7 @@ export type ProblemCreateInput = {
   createdAt?: Date | string
   tags?: Prisma.ProblemTagCreateNestedManyWithoutProblemInput
   submissions?: Prisma.SubmissionCreateNestedManyWithoutProblemInput
+  upsolveItems?: Prisma.UpsolveItemCreateNestedManyWithoutProblemInput
 }
 
 export type ProblemUncheckedCreateInput = {
@@ -349,6 +353,7 @@ export type ProblemUncheckedCreateInput = {
   createdAt?: Date | string
   tags?: Prisma.ProblemTagUncheckedCreateNestedManyWithoutProblemInput
   submissions?: Prisma.SubmissionUncheckedCreateNestedManyWithoutProblemInput
+  upsolveItems?: Prisma.UpsolveItemUncheckedCreateNestedManyWithoutProblemInput
 }
 
 export type ProblemUpdateInput = {
@@ -363,6 +368,7 @@ export type ProblemUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tags?: Prisma.ProblemTagUpdateManyWithoutProblemNestedInput
   submissions?: Prisma.SubmissionUpdateManyWithoutProblemNestedInput
+  upsolveItems?: Prisma.UpsolveItemUpdateManyWithoutProblemNestedInput
 }
 
 export type ProblemUncheckedUpdateInput = {
@@ -377,6 +383,7 @@ export type ProblemUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tags?: Prisma.ProblemTagUncheckedUpdateManyWithoutProblemNestedInput
   submissions?: Prisma.SubmissionUncheckedUpdateManyWithoutProblemNestedInput
+  upsolveItems?: Prisma.UpsolveItemUncheckedUpdateManyWithoutProblemNestedInput
 }
 
 export type ProblemCreateManyInput = {
@@ -496,6 +503,20 @@ export type ProblemUpdateOneRequiredWithoutSubmissionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProblemUpdateToOneWithWhereWithoutSubmissionsInput, Prisma.ProblemUpdateWithoutSubmissionsInput>, Prisma.ProblemUncheckedUpdateWithoutSubmissionsInput>
 }
 
+export type ProblemCreateNestedOneWithoutUpsolveItemsInput = {
+  create?: Prisma.XOR<Prisma.ProblemCreateWithoutUpsolveItemsInput, Prisma.ProblemUncheckedCreateWithoutUpsolveItemsInput>
+  connectOrCreate?: Prisma.ProblemCreateOrConnectWithoutUpsolveItemsInput
+  connect?: Prisma.ProblemWhereUniqueInput
+}
+
+export type ProblemUpdateOneRequiredWithoutUpsolveItemsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProblemCreateWithoutUpsolveItemsInput, Prisma.ProblemUncheckedCreateWithoutUpsolveItemsInput>
+  connectOrCreate?: Prisma.ProblemCreateOrConnectWithoutUpsolveItemsInput
+  upsert?: Prisma.ProblemUpsertWithoutUpsolveItemsInput
+  connect?: Prisma.ProblemWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProblemUpdateToOneWithWhereWithoutUpsolveItemsInput, Prisma.ProblemUpdateWithoutUpsolveItemsInput>, Prisma.ProblemUncheckedUpdateWithoutUpsolveItemsInput>
+}
+
 export type ProblemCreateWithoutTagsInput = {
   id?: string
   cfId: string
@@ -507,6 +528,7 @@ export type ProblemCreateWithoutTagsInput = {
   editorialUrl?: string | null
   createdAt?: Date | string
   submissions?: Prisma.SubmissionCreateNestedManyWithoutProblemInput
+  upsolveItems?: Prisma.UpsolveItemCreateNestedManyWithoutProblemInput
 }
 
 export type ProblemUncheckedCreateWithoutTagsInput = {
@@ -520,6 +542,7 @@ export type ProblemUncheckedCreateWithoutTagsInput = {
   editorialUrl?: string | null
   createdAt?: Date | string
   submissions?: Prisma.SubmissionUncheckedCreateNestedManyWithoutProblemInput
+  upsolveItems?: Prisma.UpsolveItemUncheckedCreateNestedManyWithoutProblemInput
 }
 
 export type ProblemCreateOrConnectWithoutTagsInput = {
@@ -549,6 +572,7 @@ export type ProblemUpdateWithoutTagsInput = {
   editorialUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submissions?: Prisma.SubmissionUpdateManyWithoutProblemNestedInput
+  upsolveItems?: Prisma.UpsolveItemUpdateManyWithoutProblemNestedInput
 }
 
 export type ProblemUncheckedUpdateWithoutTagsInput = {
@@ -562,6 +586,7 @@ export type ProblemUncheckedUpdateWithoutTagsInput = {
   editorialUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submissions?: Prisma.SubmissionUncheckedUpdateManyWithoutProblemNestedInput
+  upsolveItems?: Prisma.UpsolveItemUncheckedUpdateManyWithoutProblemNestedInput
 }
 
 export type ProblemCreateWithoutSubmissionsInput = {
@@ -575,6 +600,7 @@ export type ProblemCreateWithoutSubmissionsInput = {
   editorialUrl?: string | null
   createdAt?: Date | string
   tags?: Prisma.ProblemTagCreateNestedManyWithoutProblemInput
+  upsolveItems?: Prisma.UpsolveItemCreateNestedManyWithoutProblemInput
 }
 
 export type ProblemUncheckedCreateWithoutSubmissionsInput = {
@@ -588,6 +614,7 @@ export type ProblemUncheckedCreateWithoutSubmissionsInput = {
   editorialUrl?: string | null
   createdAt?: Date | string
   tags?: Prisma.ProblemTagUncheckedCreateNestedManyWithoutProblemInput
+  upsolveItems?: Prisma.UpsolveItemUncheckedCreateNestedManyWithoutProblemInput
 }
 
 export type ProblemCreateOrConnectWithoutSubmissionsInput = {
@@ -617,6 +644,7 @@ export type ProblemUpdateWithoutSubmissionsInput = {
   editorialUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tags?: Prisma.ProblemTagUpdateManyWithoutProblemNestedInput
+  upsolveItems?: Prisma.UpsolveItemUpdateManyWithoutProblemNestedInput
 }
 
 export type ProblemUncheckedUpdateWithoutSubmissionsInput = {
@@ -630,6 +658,79 @@ export type ProblemUncheckedUpdateWithoutSubmissionsInput = {
   editorialUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tags?: Prisma.ProblemTagUncheckedUpdateManyWithoutProblemNestedInput
+  upsolveItems?: Prisma.UpsolveItemUncheckedUpdateManyWithoutProblemNestedInput
+}
+
+export type ProblemCreateWithoutUpsolveItemsInput = {
+  id?: string
+  cfId: string
+  cfLink: string
+  title: string
+  rating: number
+  solvedCount?: number
+  contestId?: number | null
+  editorialUrl?: string | null
+  createdAt?: Date | string
+  tags?: Prisma.ProblemTagCreateNestedManyWithoutProblemInput
+  submissions?: Prisma.SubmissionCreateNestedManyWithoutProblemInput
+}
+
+export type ProblemUncheckedCreateWithoutUpsolveItemsInput = {
+  id?: string
+  cfId: string
+  cfLink: string
+  title: string
+  rating: number
+  solvedCount?: number
+  contestId?: number | null
+  editorialUrl?: string | null
+  createdAt?: Date | string
+  tags?: Prisma.ProblemTagUncheckedCreateNestedManyWithoutProblemInput
+  submissions?: Prisma.SubmissionUncheckedCreateNestedManyWithoutProblemInput
+}
+
+export type ProblemCreateOrConnectWithoutUpsolveItemsInput = {
+  where: Prisma.ProblemWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProblemCreateWithoutUpsolveItemsInput, Prisma.ProblemUncheckedCreateWithoutUpsolveItemsInput>
+}
+
+export type ProblemUpsertWithoutUpsolveItemsInput = {
+  update: Prisma.XOR<Prisma.ProblemUpdateWithoutUpsolveItemsInput, Prisma.ProblemUncheckedUpdateWithoutUpsolveItemsInput>
+  create: Prisma.XOR<Prisma.ProblemCreateWithoutUpsolveItemsInput, Prisma.ProblemUncheckedCreateWithoutUpsolveItemsInput>
+  where?: Prisma.ProblemWhereInput
+}
+
+export type ProblemUpdateToOneWithWhereWithoutUpsolveItemsInput = {
+  where?: Prisma.ProblemWhereInput
+  data: Prisma.XOR<Prisma.ProblemUpdateWithoutUpsolveItemsInput, Prisma.ProblemUncheckedUpdateWithoutUpsolveItemsInput>
+}
+
+export type ProblemUpdateWithoutUpsolveItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cfId?: Prisma.StringFieldUpdateOperationsInput | string
+  cfLink?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  rating?: Prisma.IntFieldUpdateOperationsInput | number
+  solvedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  contestId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editorialUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tags?: Prisma.ProblemTagUpdateManyWithoutProblemNestedInput
+  submissions?: Prisma.SubmissionUpdateManyWithoutProblemNestedInput
+}
+
+export type ProblemUncheckedUpdateWithoutUpsolveItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cfId?: Prisma.StringFieldUpdateOperationsInput | string
+  cfLink?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  rating?: Prisma.IntFieldUpdateOperationsInput | number
+  solvedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  contestId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editorialUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tags?: Prisma.ProblemTagUncheckedUpdateManyWithoutProblemNestedInput
+  submissions?: Prisma.SubmissionUncheckedUpdateManyWithoutProblemNestedInput
 }
 
 
@@ -640,11 +741,13 @@ export type ProblemUncheckedUpdateWithoutSubmissionsInput = {
 export type ProblemCountOutputType = {
   tags: number
   submissions: number
+  upsolveItems: number
 }
 
 export type ProblemCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tags?: boolean | ProblemCountOutputTypeCountTagsArgs
   submissions?: boolean | ProblemCountOutputTypeCountSubmissionsArgs
+  upsolveItems?: boolean | ProblemCountOutputTypeCountUpsolveItemsArgs
 }
 
 /**
@@ -671,6 +774,13 @@ export type ProblemCountOutputTypeCountSubmissionsArgs<ExtArgs extends runtime.T
   where?: Prisma.SubmissionWhereInput
 }
 
+/**
+ * ProblemCountOutputType without action
+ */
+export type ProblemCountOutputTypeCountUpsolveItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UpsolveItemWhereInput
+}
+
 
 export type ProblemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -684,6 +794,7 @@ export type ProblemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   createdAt?: boolean
   tags?: boolean | Prisma.Problem$tagsArgs<ExtArgs>
   submissions?: boolean | Prisma.Problem$submissionsArgs<ExtArgs>
+  upsolveItems?: boolean | Prisma.Problem$upsolveItemsArgs<ExtArgs>
   _count?: boolean | Prisma.ProblemCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["problem"]>
 
@@ -727,6 +838,7 @@ export type ProblemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
 export type ProblemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tags?: boolean | Prisma.Problem$tagsArgs<ExtArgs>
   submissions?: boolean | Prisma.Problem$submissionsArgs<ExtArgs>
+  upsolveItems?: boolean | Prisma.Problem$upsolveItemsArgs<ExtArgs>
   _count?: boolean | Prisma.ProblemCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProblemIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -737,6 +849,7 @@ export type $ProblemPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   objects: {
     tags: Prisma.$ProblemTagPayload<ExtArgs>[]
     submissions: Prisma.$SubmissionPayload<ExtArgs>[]
+    upsolveItems: Prisma.$UpsolveItemPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1144,6 +1257,7 @@ export interface Prisma__ProblemClient<T, Null = never, ExtArgs extends runtime.
   readonly [Symbol.toStringTag]: "PrismaPromise"
   tags<T extends Prisma.Problem$tagsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Problem$tagsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProblemTagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   submissions<T extends Prisma.Problem$submissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Problem$submissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SubmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  upsolveItems<T extends Prisma.Problem$upsolveItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Problem$upsolveItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UpsolveItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1620,6 +1734,30 @@ export type Problem$submissionsArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.SubmissionScalarFieldEnum | Prisma.SubmissionScalarFieldEnum[]
+}
+
+/**
+ * Problem.upsolveItems
+ */
+export type Problem$upsolveItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UpsolveItem
+   */
+  select?: Prisma.UpsolveItemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UpsolveItem
+   */
+  omit?: Prisma.UpsolveItemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UpsolveItemInclude<ExtArgs> | null
+  where?: Prisma.UpsolveItemWhereInput
+  orderBy?: Prisma.UpsolveItemOrderByWithRelationInput | Prisma.UpsolveItemOrderByWithRelationInput[]
+  cursor?: Prisma.UpsolveItemWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UpsolveItemScalarFieldEnum | Prisma.UpsolveItemScalarFieldEnum[]
 }
 
 /**

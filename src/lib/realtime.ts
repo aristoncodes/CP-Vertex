@@ -58,3 +58,23 @@ export async function emitXPGain(
     console.error("Failed to emit xp_gain event:", err)
   }
 }
+
+/**
+ * Emit an upsolve complete event — triggers toast on frontend.
+ */
+export async function emitUpsolveComplete(
+  userId: string,
+  problemTitle: string,
+  bonusXP: number
+): Promise<void> {
+  try {
+    await getSupabase().channel(`user:${userId}`).send({
+      type: "broadcast",
+      event: "upsolve_complete",
+      payload: { problemTitle, bonusXP },
+    })
+  } catch (err) {
+    console.error("Failed to emit upsolve_complete event:", err)
+  }
+}
+

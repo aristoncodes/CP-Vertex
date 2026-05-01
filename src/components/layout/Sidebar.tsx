@@ -10,6 +10,7 @@ const navSections = [
       { label: "Dashboard", href: "/dashboard", icon: "🏠" },
       { label: "Problem Feed", href: "/problems", icon: "📋" },
       { label: "Practice Hub", href: "/practice", icon: "🧪" },
+      { label: "Upsolve Queue", href: "/upsolve", icon: "⏰" },
       { label: "Leaderboard", href: "/leaderboard", icon: "🏆" },
       { label: "My Profile", href: "/profile/arjun_cp", icon: "👤" },
       { label: "Team", href: "/team", icon: "👥" },

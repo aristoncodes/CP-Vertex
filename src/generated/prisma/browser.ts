@@ -152,3 +152,18 @@ export type Notification = Prisma.NotificationModel
  * 
  */
 export type Friendship = Prisma.FriendshipModel
+/**
+ * Model ContestParticipation
+ * 
+ */
+export type ContestParticipation = Prisma.ContestParticipationModel
+/**
+ * Model UpsolveItem
+ * 
+ */
+export type UpsolveItem = Prisma.UpsolveItemModel
+/**
+ * Model UserContestSettings
+ * 
+ */
+export type UserContestSettings = Prisma.UserContestSettingsModel
