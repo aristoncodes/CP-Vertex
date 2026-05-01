@@ -256,8 +256,18 @@ export async function POST(request: NextRequest) {
 
         let targetCount = 0
         for (const input of upsolveInputs) {
-          const problem = await prisma.problem.findUnique({ where: { cfId: input.problemCfId } })
-          if (!problem) continue
+          let problem = await prisma.problem.findUnique({ where: { cfId: input.problemCfId } })
+          if (!problem) {
+            problem = await prisma.problem.create({
+              data: {
+                cfId: input.problemCfId,
+                cfLink: `https://codeforces.com/problemset/problem/${contestId}/${input.problemCfId.replace(String(contestId), "")}`,
+                title: input.problemName,
+                rating: input.problemRating,
+                contestId: contestId,
+              }
+            })
+          }
           const alreadyExists = await prisma.upsolveItem.findFirst({
             where: { userId: user.id, problemId: problem.id },
           })

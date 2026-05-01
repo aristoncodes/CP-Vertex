@@ -11,6 +11,8 @@ export type UpsolveType = "attempted" | "never_attempted"
 interface UpsolveItemInput {
   userId: string
   problemCfId: string
+  problemName: string
+  problemRating: number
   type: UpsolveType
   attemptCount: number
   lastVerdict: string | null
@@ -255,6 +257,8 @@ export async function detectUpsolveItems(
     items.push({
       userId,
       problemCfId: `${contestId}${prob.index}`,
+      problemName: prob.name,
+      problemRating: prob.rating || 0,
       type,
       attemptCount: attempts.length,
       lastVerdict,
