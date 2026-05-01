@@ -43,14 +43,14 @@ export function CountdownTimer({ deadlineAt, xpMultiplier }: CountdownTimerProps
     high: "var(--danger)",
     medium: "var(--warning)",
     low: "var(--text-muted)",
-    expired: "var(--text-muted)",
+    expired: "var(--text-faint)",
   }
 
   const color = colors[urgency]
 
   if (urgency === "expired" || xpMultiplier <= 0.5) {
     return (
-      <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'Courier New', monospace" }}>
+      <span style={{ fontSize: 10, color: "var(--text-faint)", fontWeight: 500 }}>
         Graveyard
       </span>
     )
@@ -59,9 +59,8 @@ export function CountdownTimer({ deadlineAt, xpMultiplier }: CountdownTimerProps
   return (
     <span
       style={{
-        fontSize: 11,
+        fontSize: 10,
         color,
-        fontFamily: "Courier New, monospace",
         fontVariantNumeric: "tabular-nums",
         fontWeight: urgency === "high" ? 700 : 500,
         animation: urgency === "high" ? "pulse 2s ease-in-out infinite" : "none",

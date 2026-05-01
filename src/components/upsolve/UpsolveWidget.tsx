@@ -51,10 +51,11 @@ export function UpsolveWidget() {
 
   if (loading) {
     return (
-      <div style={{ padding: "16px 0" }}>
+      <div>
         <div className="n-section-label">Upsolve Queue</div>
-        <div style={{ color: "var(--text-muted)", fontSize: 13, textAlign: "center", padding: "20px 0" }}>
-          Loading...
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: "8px 0" }}>
+          <div className="n-skeleton" style={{ height: 48, borderRadius: "var(--radius-sm)" }} />
+          <div className="n-skeleton" style={{ height: 48, borderRadius: "var(--radius-sm)" }} />
         </div>
       </div>
     )
@@ -62,19 +63,22 @@ export function UpsolveWidget() {
 
   if (!data || data.pendingCount === 0) {
     return (
-      <div style={{ padding: "16px 0" }}>
+      <div>
         <div className="n-section-label">Upsolve Queue</div>
         <div
           style={{
-            background: "#0C0D14",
-            border: "1px solid #1E2133",
-            borderRadius: 8,
             padding: "20px 16px",
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: 24, marginBottom: 8 }}>✅</div>
-          <div style={{ fontSize: 13, color: "#6B7280", fontFamily: "Courier New" }}>
+          <span className="material-symbols-outlined" style={{
+            fontSize: 28,
+            color: "var(--success)",
+            fontVariationSettings: "'FILL' 1",
+            marginBottom: 8,
+            display: "block",
+          }}>check_circle</span>
+          <div style={{ fontSize: 13, color: "var(--text-muted)", fontWeight: 500 }}>
             {data ? "All caught up! No pending upsolves." : "Participate in a rated contest to start."}
           </div>
         </div>
@@ -89,18 +93,16 @@ export function UpsolveWidget() {
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <div className="n-section-label" style={{ marginBottom: 0 }}>Upsolve Queue</div>
           <span
+            className="n-badge"
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: 20,
-              height: 20,
-              borderRadius: "50%",
-              background: "#FF2040",
+              background: "var(--danger)",
               color: "#fff",
               fontSize: 10,
-              fontWeight: 800,
-              fontFamily: "Courier New",
+              fontWeight: 700,
+              padding: "2px 7px",
+              borderRadius: "var(--radius-full)",
+              minWidth: 20,
+              textAlign: "center",
             }}
           >
             {data.pendingCount}
@@ -127,16 +129,16 @@ export function UpsolveWidget() {
           justifyContent: "space-between",
           marginTop: 12,
           padding: "8px 12px",
-          background: "#06060A",
-          border: "1px solid #1E2133",
-          borderRadius: 6,
+          background: "var(--surface-low)",
+          border: "1px solid var(--border)",
+          borderRadius: "var(--radius-sm)",
         }}
       >
-        <span style={{ fontSize: 11, color: "#6B7280", fontFamily: "Courier New" }}>
+        <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>
           {data.expiringCount > 0 && (
-            <span style={{ color: "#FF2040" }}>{data.expiringCount} expiring &lt;24h · </span>
+            <span style={{ color: "var(--danger)", fontWeight: 600 }}>{data.expiringCount} expiring &lt;24h · </span>
           )}
-          <span style={{ color: "#F59E0B" }}>
+          <span style={{ color: "var(--warning)", fontWeight: 600 }}>
             {data.totalXP.toLocaleString()} XP waiting
           </span>
         </span>
@@ -144,11 +146,10 @@ export function UpsolveWidget() {
           onClick={() => router.push("/upsolve")}
           style={{
             fontSize: 11,
-            color: "#FF2040",
+            color: "var(--primary)",
             background: "transparent",
             border: "none",
             cursor: "pointer",
-            fontFamily: "Courier New",
             fontWeight: 700,
             padding: 0,
           }}
