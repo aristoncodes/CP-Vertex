@@ -6,14 +6,11 @@ import { recomputeTopicScore } from "@/lib/strength"
 import {
   detectUpsolveItems,
   detectDivisionFromName,
-  getUserContestSettings,
   refreshMultipliers,
   checkAdaptiveTarget,
-  getXPMultiplier,
 } from "@/lib/upsolve"
-import { scheduleReminders, cancelReminders } from "@/workers/upsolve-reminders"
 import { emitUpsolveComplete } from "@/lib/realtime"
-import { calculateXP, getWACountBeforeAC, awardXP, isWeakTag } from "@/lib/xp"
+import { scheduleReminders, cancelReminders } from "@/workers/upsolve-reminders"
 
 export async function POST(request: NextRequest) {
   try {
@@ -43,40 +40,76 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // If first-ever sync or full re-sync requested, pull ALL submissions
-    // Otherwise, just pull the last 500 (enough for incremental daily syncs)
+    // ── Fetch submissions ONCE — reused for import + upsolve ──
     const submissions = (fullSync || !user.cfLastSync)
       ? await fetchAllSubmissions(user.cfHandle)
       : await getCFSubmissions(user.cfHandle, 1, 500);
+
+    // ── Phase 1: Batch import submissions ──────────────────────
+    // Pre-fetch existing problems and submissions in bulk
+    const allCfIds = [...new Set(submissions.map(s => `${s.problem.contestId}${s.problem.index}`))];
+    const existingProblems = await prisma.problem.findMany({
+      where: { cfId: { in: allCfIds } },
+    });
+    const problemMap = new Map(existingProblems.map(p => [p.cfId, p]));
+
+    const allSubIds = submissions.map(s => String(s.id));
+    const existingSubs = await prisma.submission.findMany({
+      where: { cfSubmissionId: { in: allSubIds } },
+      select: { cfSubmissionId: true },
+    });
+    const existingSubSet = new Set(existingSubs.map(s => s.cfSubmissionId));
+
+    // Pre-fetch existing tags
+    const allTagNames = [...new Set(submissions.flatMap(s => s.problem.tags || []))];
+    const existingTags = await prisma.tag.findMany({
+      where: { name: { in: allTagNames } },
+    });
+    const tagMap = new Map(existingTags.map(t => [t.name, t]));
+
     let imported = 0;
     const tagsToRecompute = new Set<string>();
 
     for (const sub of submissions) {
       const subDate = new Date(sub.creationTimeSeconds * 1000);
-      // For full sync, don't skip anything — we use upsert-like logic below
+      // For full sync, don't skip anything
       if (!fullSync && user.cfLastSync && subDate <= user.cfLastSync) continue;
 
       const cfId = `${sub.problem.contestId}${sub.problem.index}`;
 
-      let problem = await prisma.problem.findUnique({ where: { cfId } });
+      // Get or create problem (use cache, only hit DB on miss)
+      let problem = problemMap.get(cfId);
       if (!problem) {
-        problem = await prisma.problem.create({
-          data: {
-            cfId,
-            cfLink: `https://codeforces.com/problemset/problem/${sub.problem.contestId}/${sub.problem.index}`,
-            title: sub.problem.name,
-            rating: sub.problem.rating || 0,
-            contestId: sub.problem.contestId,
-          },
-        });
+        try {
+          problem = await prisma.problem.create({
+            data: {
+              cfId,
+              cfLink: `https://codeforces.com/problemset/problem/${sub.problem.contestId}/${sub.problem.index}`,
+              title: sub.problem.name,
+              rating: sub.problem.rating || 0,
+              contestId: sub.problem.contestId,
+            },
+          });
+        } catch {
+          // Race condition: another request created it
+          problem = await prisma.problem.findUnique({ where: { cfId } }) ?? undefined;
+          if (!problem) continue;
+        }
+        problemMap.set(cfId, problem);
       }
 
-      // Process tags
+      // Process tags (cached)
       const tags = sub.problem.tags || [];
       for (const tagName of tags) {
-        let tag = await prisma.tag.findUnique({ where: { name: tagName } });
+        let tag = tagMap.get(tagName);
         if (!tag) {
-          tag = await prisma.tag.create({ data: { name: tagName, category: "general" } });
+          try {
+            tag = await prisma.tag.create({ data: { name: tagName, category: "general" } });
+          } catch {
+            tag = await prisma.tag.findUnique({ where: { name: tagName } }) ?? undefined;
+            if (!tag) continue;
+          }
+          tagMap.set(tagName, tag);
         }
         tagsToRecompute.add(tag.id);
 
@@ -87,11 +120,8 @@ export async function POST(request: NextRequest) {
         });
       }
 
-      // Upsert submission
-      const existing = await prisma.submission.findUnique({
-        where: { cfSubmissionId: String(sub.id) },
-      });
-      if (existing) continue;
+      // Skip if submission already exists (use pre-fetched set)
+      if (existingSubSet.has(String(sub.id))) continue;
 
       await prisma.submission.create({
         data: {
@@ -105,6 +135,7 @@ export async function POST(request: NextRequest) {
           submittedAt: subDate,
         },
       });
+      existingSubSet.add(String(sub.id));
 
       imported++;
     }
@@ -132,7 +163,7 @@ export async function POST(request: NextRequest) {
       orderBy: { submittedAt: "desc" }
     });
     
-    // Group by unique date strings (local or UTC, let's use YYYY-MM-DD UTC)
+    // Group by unique date strings (YYYY-MM-DD UTC)
     const uniqueDates = Array.from(new Set(allOKSubmissions.map(s => s.submittedAt.toISOString().split("T")[0])));
     
     let currentStreak = 0;
@@ -168,15 +199,11 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // ── Upsolve Detection ─────────────────────────────────────
-    // Only process contests that happened after the user joined CP Vertex
+    // ── Phase 2: Upsolve Detection (reuse submissions) ─────────
     try {
-      // Fetch ALL submissions to ensure we don't miss any rated contests
-      const allSubs = await fetchAllSubmissions(user.cfHandle)
-
-      // Group by contestId
+      // Group by contestId (reuse already-fetched submissions)
       const contestGroups: Record<number, CFSubmission[]> = {}
-      for (const sub of allSubs) {
+      for (const sub of submissions) {
         if (!sub.contestId) continue
         if (!contestGroups[sub.contestId]) contestGroups[sub.contestId] = []
         contestGroups[sub.contestId].push(sub)
@@ -185,6 +212,13 @@ export async function POST(request: NextRequest) {
       // Get rating history for contest end times + names
       let ratingHistory: Awaited<ReturnType<typeof getCFRatingHistory>> = []
       try { ratingHistory = await getCFRatingHistory(user.cfHandle) } catch { /* ignore */ }
+
+      // Pre-fetch all existing contest participations in bulk
+      const contestIds = Object.keys(contestGroups).map(Number)
+      const existingParticipations = await prisma.contestParticipation.findMany({
+        where: { userId: user.id, contestId: { in: contestIds } },
+      })
+      const participationMap = new Map(existingParticipations.map(p => [p.contestId, p]))
 
       for (const [cidStr, contestSubs] of Object.entries(contestGroups)) {
         const contestId = Number(cidStr)
@@ -204,10 +238,8 @@ export async function POST(request: NextRequest) {
         // Only track contests after user joined CP Vertex
         if (contestEndTime < user.createdAt) continue
 
-        // Skip already processed contests
-        const existing = await prisma.contestParticipation.findUnique({
-          where: { userId_contestId: { userId: user.id, contestId } },
-        })
+        // Check already processed contests (from pre-fetched map)
+        const existing = participationMap.get(contestId)
         if (existing) {
           // Still check if any pending upsolve was solved
           const pendingItems = await prisma.upsolveItem.findMany({
@@ -258,24 +290,31 @@ export async function POST(request: NextRequest) {
           })
         } catch { continue }
 
-        // Detect unsolved problems
+        // Detect unsolved problems (pass already-fetched submissions)
         const upsolveInputs = await detectUpsolveItems(
-          user.id, contestId, contestName, contestEndTime, allSubs
+          user.id, contestId, contestName, contestEndTime, submissions
         )
 
         let targetCount = 0
         for (const input of upsolveInputs) {
-          let problem = await prisma.problem.findUnique({ where: { cfId: input.problemCfId } })
+          // Reuse problem map from Phase 1
+          let problem = problemMap.get(input.problemCfId)
           if (!problem) {
-            problem = await prisma.problem.create({
-              data: {
-                cfId: input.problemCfId,
-                cfLink: `https://codeforces.com/problemset/problem/${contestId}/${input.problemCfId.replace(String(contestId), "")}`,
-                title: input.problemName,
-                rating: input.problemRating,
-                contestId: contestId,
-              }
-            })
+            try {
+              problem = await prisma.problem.create({
+                data: {
+                  cfId: input.problemCfId,
+                  cfLink: `https://codeforces.com/problemset/problem/${contestId}/${input.problemCfId.replace(String(contestId), "")}`,
+                  title: input.problemName,
+                  rating: input.problemRating,
+                  contestId: contestId,
+                }
+              })
+            } catch {
+              problem = await prisma.problem.findUnique({ where: { cfId: input.problemCfId } }) ?? undefined
+              if (!problem) continue
+            }
+            problemMap.set(input.problemCfId, problem)
           }
           const alreadyExists = await prisma.upsolveItem.findFirst({
             where: { userId: user.id, problemId: problem.id },
