@@ -31,21 +31,55 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   // 3. Remove the CP-Algorithms practice problems section at the bottom
   cleanContent = cleanContent.split(/##\s*Practice Problems/i)[0]
 
-  // 4. Fix $$ math blocks — ensure they are on their own lines
+  // 4. Convert LaTeX/TeX fenced code blocks into KaTeX display math
+  //    CP-Algorithms uses ```latex, ```tex, or ```math blocks — these are NOT code
+  cleanContent = cleanContent.replace(
+    /```(?:latex|tex|math)\s*\n([\s\S]*?)```/gi,
+    (_match, content) => `\n$$\n${content.trim()}\n$$\n`
+  )
+
+  // 5. Convert unlabeled code blocks that are actually LaTeX into math
+  //    Detect by presence of heavy LaTeX commands (\frac, \sum, \int, \begin, etc.)
+  cleanContent = cleanContent.replace(
+    /```\s*\n([\s\S]*?)```/g,
+    (_match, content) => {
+      const latexIndicators = /\\(?:frac|sum|int|prod|lim|sqrt|binom|text|operatorname|begin|end|left|right|cdot|ldots|ddots|leq|geq|neq|approx|equiv|pmod|mod|log|ln|sin|cos|tan|max|min|gcd|lcm|forall|exists|infty|partial|nabla|alpha|beta|gamma|delta|epsilon|theta|lambda|mu|sigma|phi|psi|omega|pi|cap|cup|subseteq|supseteq|subset|in|notin|emptyset|mathbb|mathrm|mathcal|mathbf|overline|underline|overbrace|underbrace|hat|tilde|vec|dot|bar|widetilde|widehat|boldsymbol)/
+      const hasLatex = latexIndicators.test(content)
+      const hasCodeSyntax = /(?:^|\n)\s*(?:for\s*\(|while\s*\(|if\s*\(|int\s+|void\s+|#include|import\s+|def\s+|class\s+|return\s+|cout\s*<<|cin\s*>>|printf|scanf|print\s*\(|struct\s+|enum\s+|auto\s+|const\s+\w+\s+\w+|std::|vector<|map<|set<|using\s+namespace)/.test(content)
+
+      // If it looks like LaTeX and NOT like code, render as math
+      if (hasLatex && !hasCodeSyntax) {
+        return `\n$$\n${content.trim()}\n$$\n`
+      }
+      // Otherwise keep as a regular code block
+      return _match
+    }
+  )
+
+  // 6. Fix $$ math blocks — ensure they are on their own lines
   cleanContent = cleanContent.replace(/\$\$/g, '\n$$\n')
-  
-  // 5. Wrap naked LaTeX environments for KaTeX
+
+  // 7. Wrap naked LaTeX environments for KaTeX
   cleanContent = cleanContent
     .replace(/\\begin{align\*?}/g, '$$\n\\begin{aligned}')
     .replace(/\\end{align\*?}/g, '\n\\end{aligned}\n$$')
     .replace(/\\begin{eqnarray\*?}/g, '$$\n\\begin{aligned}')
     .replace(/\\end{eqnarray\*?}/g, '\n\\end{aligned}\n$$')
+    .replace(/\\begin{gather\*?}/g, '$$\n\\begin{gathered}')
+    .replace(/\\end{gather\*?}/g, '\n\\end{gathered}\n$$')
+    .replace(/\\begin{equation\*?}/g, '$$\n')
+    .replace(/\\end{equation\*?}/g, '\n$$')
+    .replace(/\\begin{cases}/g, '\\begin{cases}')
+    .replace(/\\end{cases}/g, '\\end{cases}')
     .replace(/\$\$\s*\$\$/g, '$$')
 
-  // 6. Strip any remaining bullet lists that are just "- Original" or "- [link]" at the top
+  // 8. Strip CP-Algorithms {.cpp} / {.python} class annotations from fenced code blocks
+  cleanContent = cleanContent.replace(/```\s*\{\.(\w+)\}/g, '```$1')
+
+  // 9. Strip any remaining bullet lists that are just "- Original" or "- [link]" at the top
   cleanContent = cleanContent.replace(/^\s*-\s*\[?Original\]?.*\n?/im, '')
 
-  // 7. Strip the leading H1 (# Title) since we render article.title separately above
+  // 10. Strip the leading H1 (# Title) since we render article.title separately above
   cleanContent = cleanContent.replace(/^\s*#\s+.+\n?/, '')
 
   const wordCount = cleanContent.split(/\s+/).length
@@ -281,59 +315,119 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                   ),
                   code: ({node, inline, className, children, ...props}: any) => {
                     const match = /language-(\w+)/.exec(className || '')
-                    return inline ? (
-                      <code style={{
-                        background: "#f1f4f8",
-                        padding: "2px 7px",
-                        borderRadius: 5,
-                        fontFamily: "'SF Mono', 'Fira Code', 'JetBrains Mono', monospace",
-                        fontSize: "0.85em",
-                        color: "#004fa8",
-                        border: "1px solid rgba(194,198,214,0.3)",
-                      }} {...props}>
-                        {children}
-                      </code>
-                    ) : (
-                      <div style={{
-                        margin: "28px 0",
-                        borderRadius: 12,
-                        overflow: "hidden",
-                        border: "1px solid rgba(194,198,214,0.4)",
-                      }}>
-                        {/* Code header bar */}
+                    const lang = match ? match[1].toLowerCase() : ''
+
+                    // Real programming languages that should get the code-block UI
+                    const codeLanguages = new Set([
+                      'cpp', 'c', 'cc', 'cxx', 'c++',
+                      'python', 'py', 'python3',
+                      'java', 'kotlin', 'scala',
+                      'javascript', 'js', 'typescript', 'ts',
+                      'go', 'rust', 'rs', 'ruby', 'rb',
+                      'pascal', 'delphi', 'haskell', 'hs',
+                      'bash', 'sh', 'shell', 'zsh',
+                      'sql', 'r', 'perl', 'lua', 'swift',
+                      'csharp', 'cs', 'php', 'dart',
+                      'nasm', 'asm', 'assembly',
+                      'pseudocode', 'pseudo',
+                    ])
+
+                    const isRealCode = lang && codeLanguages.has(lang)
+
+                    // Display name mapping for common languages
+                    const langLabels: Record<string, string> = {
+                      'cpp': 'C++', 'cc': 'C++', 'cxx': 'C++', 'c++': 'C++',
+                      'c': 'C', 'python': 'Python', 'py': 'Python', 'python3': 'Python',
+                      'java': 'Java', 'kotlin': 'Kotlin', 'javascript': 'JavaScript',
+                      'js': 'JavaScript', 'typescript': 'TypeScript', 'ts': 'TypeScript',
+                      'go': 'Go', 'rust': 'Rust', 'rs': 'Rust', 'ruby': 'Ruby',
+                      'bash': 'Bash', 'sh': 'Shell', 'shell': 'Shell',
+                      'sql': 'SQL', 'haskell': 'Haskell', 'pascal': 'Pascal',
+                      'csharp': 'C#', 'cs': 'C#', 'php': 'PHP', 'swift': 'Swift',
+                      'pseudocode': 'Pseudocode', 'pseudo': 'Pseudocode',
+                    }
+
+                    if (inline) {
+                      return (
+                        <code style={{
+                          background: "#f1f4f8",
+                          padding: "2px 7px",
+                          borderRadius: 5,
+                          fontFamily: "'SF Mono', 'Fira Code', 'JetBrains Mono', monospace",
+                          fontSize: "0.85em",
+                          color: "#004fa8",
+                          border: "1px solid rgba(194,198,214,0.3)",
+                        }} {...props}>
+                          {children}
+                        </code>
+                      )
+                    }
+
+                    if (isRealCode) {
+                      // Real code block with language header
+                      return (
                         <div style={{
-                          background: "#ebeef2",
-                          padding: "8px 16px",
-                          borderBottom: "1px solid rgba(194,198,214,0.4)",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
-                          fontSize: 11,
-                          fontWeight: 700,
-                          color: "#727785",
-                          textTransform: "uppercase",
-                          letterSpacing: "0.05em",
-                          fontFamily: "'SF Mono', monospace",
+                          margin: "28px 0",
+                          borderRadius: 12,
+                          overflow: "hidden",
+                          border: "1px solid rgba(194,198,214,0.4)",
                         }}>
-                          <span className="material-symbols-outlined" style={{ fontSize: 15 }}>code</span>
-                          {match ? match[1] : 'code'}
+                          <div style={{
+                            background: "#ebeef2",
+                            padding: "8px 16px",
+                            borderBottom: "1px solid rgba(194,198,214,0.4)",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
+                            fontSize: 11,
+                            fontWeight: 700,
+                            color: "#727785",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.05em",
+                            fontFamily: "'SF Mono', monospace",
+                          }}>
+                            <span className="material-symbols-outlined" style={{ fontSize: 15 }}>code</span>
+                            {langLabels[lang] || lang}
+                          </div>
+                          <pre style={{
+                            background: "#fafcfe",
+                            padding: "20px 24px",
+                            overflowX: "auto",
+                            margin: 0,
+                          }}>
+                            <code style={{
+                              fontFamily: "'SF Mono', 'Fira Code', 'JetBrains Mono', monospace",
+                              fontSize: 14,
+                              color: "#181c1f",
+                              lineHeight: 1.6,
+                            }} {...props}>
+                              {children}
+                            </code>
+                          </pre>
                         </div>
-                        <pre style={{
-                          background: "#fafcfe",
-                          padding: "20px 24px",
-                          overflowX: "auto",
-                          margin: 0,
-                        }}>
-                          <code style={{
-                            fontFamily: "'SF Mono', 'Fira Code', 'JetBrains Mono', monospace",
-                            fontSize: 14,
-                            color: "#181c1f",
-                            lineHeight: 1.6,
-                          }} {...props}>
-                            {children}
-                          </code>
-                        </pre>
-                      </div>
+                      )
+                    }
+
+                    // Non-code block (unlabeled or non-programming language)
+                    // Render as a simple pre block without the "CODE" header
+                    return (
+                      <pre style={{
+                        background: "#f7f9fb",
+                        padding: "20px 24px",
+                        borderRadius: 10,
+                        border: "1px solid rgba(194,198,214,0.25)",
+                        overflowX: "auto",
+                        margin: "24px 0",
+                      }}>
+                        <code style={{
+                          fontFamily: "'SF Mono', 'Fira Code', 'JetBrains Mono', monospace",
+                          fontSize: 14,
+                          color: "#2d3134",
+                          lineHeight: 1.6,
+                        }} {...props}>
+                          {children}
+                        </code>
+                      </pre>
                     )
                   },
                   a: ({node, ...props}) => (
