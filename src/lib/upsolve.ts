@@ -230,18 +230,27 @@ export async function detectUpsolveItems(
   }
 
   // Only submissions made DURING the contest (participantType=CONTESTANT)
-  // This is more reliable than comparing timestamps
+  // Used to determine attempt type and count
   const contestSubs = newSubs.filter(
     (s) =>
       s.contestId === contestId &&
       s.author?.participantType === "CONTESTANT"
   )
 
+  // ALL submissions for this contest (CONTESTANT + PRACTICE)
+  // Used to determine if a problem is already solved (in any mode)
+  const allContestSubs = newSubs.filter(
+    (s) => s.contestId === contestId
+  )
+
   const getIndex = (cfId: string) => cfId.replace(String(contestId), "")
 
-  const solvedIdx = new Set(
-    contestSubs.filter((s) => s.verdict === "OK").map((s) => s.problem.index)
+  // Problems solved in ANY mode — these should NOT appear in the upsolve queue
+  const solvedInAnyMode = new Set(
+    allContestSubs.filter((s) => s.verdict === "OK").map((s) => s.problem.index)
   )
+
+  // Problems attempted during the contest (for labeling)
   const attemptedIdx = new Set(
     contestSubs.filter((s) => s.verdict !== "OK").map((s) => s.problem.index)
   )
@@ -249,7 +258,7 @@ export async function detectUpsolveItems(
   const items: UpsolveItemInput[] = []
 
   for (const prob of allProblems) {
-    if (solvedIdx.has(prob.index)) continue // already solved — skip
+    if (solvedInAnyMode.has(prob.index)) continue // already solved (contest or practice) — skip
 
     const type: UpsolveType = attemptedIdx.has(prob.index)
       ? "attempted"
