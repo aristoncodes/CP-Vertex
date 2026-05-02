@@ -63,12 +63,18 @@ export interface CFSubmission {
   id: number
   contestId: number
   creationTimeSeconds: number
+  relativeTimeSeconds?: number
   problem: {
     contestId: number
     index: string
     name: string
     rating?: number
     tags: string[]
+  }
+  author: {
+    participantType: string
+    contestId?: number
+    members?: { handle: string }[]
   }
   verdict: string
   programmingLanguage: string

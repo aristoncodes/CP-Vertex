@@ -170,7 +170,8 @@ export async function POST(request: NextRequest) {
     // ── Upsolve Detection ─────────────────────────────────────
     // Only process contests that happened after the user joined CP Vertex
     try {
-      const allSubs = await getCFSubmissions(user.cfHandle, 1, 200)
+      // Fetch ALL submissions to ensure we don't miss any rated contests
+      const allSubs = await fetchAllSubmissions(user.cfHandle)
 
       // Group by contestId
       const contestGroups: Record<number, CFSubmission[]> = {}
@@ -189,8 +190,7 @@ export async function POST(request: NextRequest) {
 
         // Only rated (CONTESTANT) participations
         const isRated = contestSubs.some(
-          (s) => (s as CFSubmission & { author?: { participantType?: string } })
-            .author?.participantType === "CONTESTANT"
+          (s) => s.author?.participantType === "CONTESTANT"
         )
         if (!isRated) continue
 

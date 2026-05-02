@@ -229,11 +229,12 @@ export async function detectUpsolveItems(
     return []
   }
 
-  // Only submissions during the contest window
+  // Only submissions made DURING the contest (participantType=CONTESTANT)
+  // This is more reliable than comparing timestamps
   const contestSubs = newSubs.filter(
     (s) =>
       s.contestId === contestId &&
-      new Date(s.creationTimeSeconds * 1000) <= contestEndTime
+      s.author?.participantType === "CONTESTANT"
   )
 
   const getIndex = (cfId: string) => cfId.replace(String(contestId), "")

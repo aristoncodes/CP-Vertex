@@ -74,8 +74,7 @@ const worker = new Worker<CFSyncJobData>(
         .map(Number)
         .filter((cid) =>
           contestGroups[cid].some(
-            (s) => (s as CFSubmission & { author?: { participantType?: string } })
-              .author?.participantType === "CONTESTANT"
+            (s) => s.author?.participantType === "CONTESTANT"
           )
         )
         .map(async (cid) => {
