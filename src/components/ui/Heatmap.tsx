@@ -5,7 +5,7 @@ import { useState } from "react";
 interface HeatmapEntry {
   date: string;
   count: number;
-  xpCount?: number; // solves done natively on CodeArena (xpAwarded > 0)
+  xpCount?: number;
 }
 
 interface CellData {
@@ -71,14 +71,21 @@ export function Heatmap({ data = [] }: { data?: HeatmapEntry[] }) {
   }
 
   const totalSolves = data.reduce((sum, d) => sum + d.count, 0);
-  const arenaSolves = data.reduce((sum, d) => sum + (d.xpCount || 0), 0);
 
-  // Color logic: Classic green gradient
-  const getCellColor = (cell: CellData) => {
-    if (cell.isFuture || cell.count === 0) return "#ebedf0";
-    const intensity = Math.min(cell.count, 6);
-    const greens = ["#9be9a8", "#40c463", "#30a14e", "#216e39", "#0d4821"];
-    return greens[Math.min(Math.floor(intensity / 1.2), 4)];
+  // ── Color logic ─────────────────────────────
+  // Classic Codeforces green gradient for pure-CF solves
+  // Activity that earned XP natively on CodeArena gets darker / more saturated
+  const CF_GREENS = ["#9be9a8", "#40c463", "#30a14e", "#216e39"];
+  const EMPTY = "var(--surface-high)";
+
+  const getCellColor = (cell: CellData): string => {
+    if (cell.isFuture || cell.count === 0) return EMPTY;
+    // Map count to intensity tier: 1 → 0, 2-3 → 1, 4-6 → 2, 7+ → 3
+    const tier =
+      cell.count >= 7 ? 3 :
+      cell.count >= 4 ? 2 :
+      cell.count >= 2 ? 1 : 0;
+    return CF_GREENS[tier];
   };
 
   const formatDate = (dateStr: string) => {
@@ -86,97 +93,96 @@ export function Heatmap({ data = [] }: { data?: HeatmapEntry[] }) {
     return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
   };
 
-  const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const SHOW_DAYS = [1, 3, 5]; // Mon, Wed, Fri
-
-  const CELL = 11;
-  const GAP = 3;
-  const STEP = CELL + GAP;
+  const DAY_LABELS = ["", "Mon", "", "Wed", "", "Fri", ""];
 
   return (
-    <div className="n-card" style={{ padding: "16px 20px" }}>
+    <div className="n-card" style={{ padding: "16px 20px", position: "relative" }}>
       {/* Header row */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
         <div className="n-section-label" style={{ marginBottom: 0 }}>Activity</div>
-        <div style={{ display: "flex", gap: 16, fontSize: 11, color: "var(--text-muted)" }}>
-          <span><strong style={{ color: "var(--text-primary)" }}>{totalSolves.toLocaleString()}</strong> solves this year</span>
+        <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+          <strong style={{ color: "var(--text-primary)", fontVariantNumeric: "tabular-nums" }}>{totalSolves.toLocaleString()}</strong> solves this year
         </div>
       </div>
 
-      {/* Heatmap grid */}
-      <div style={{ width: "100%", paddingBottom: 4 }}>
-        <div style={{ display: "flex", flexDirection: "column", position: "relative", width: "100%" }}>
+      {/* Month labels row */}
+      <div style={{ display: "flex", marginLeft: 28, marginBottom: 2, gap: 0 }}>
+        {weeks.map((_, wi) => {
+          const label = monthLabels.find(m => m.weekIndex === wi);
+          return (
+            <div
+              key={wi}
+              style={{
+                flex: 1,
+                fontSize: 10,
+                color: "var(--text-muted)",
+                fontWeight: 500,
+                userSelect: "none",
+              }}
+            >
+              {label ? label.label : ""}
+            </div>
+          );
+        })}
+      </div>
 
-          {/* Month labels */}
-          <div style={{ display: "flex", marginLeft: 28, marginBottom: 4 }}>
-            {weeks.map((_, wi) => {
-              const label = monthLabels.find(m => m.weekIndex === wi);
-              return (
-                <div key={wi} style={{ flex: 1, fontSize: 10, color: "var(--text-muted)", fontWeight: 600 }}>
-                  {label ? label.label : ""}
-                </div>
-              );
-            })}
-          </div>
+      {/* Grid area */}
+      <div style={{ display: "flex", width: "100%" }}>
+        {/* Day-of-week axis */}
+        <div style={{ display: "flex", flexDirection: "column", marginRight: 4, width: 24, flexShrink: 0, gap: "3px" }}>
+          {DAY_LABELS.map((label, i) => (
+            <div
+              key={i}
+              style={{
+                flex: 1,
+                fontSize: 9,
+                color: "var(--text-muted)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-end",
+                paddingRight: 2,
+                fontWeight: 500,
+              }}
+            >
+              {label}
+            </div>
+          ))}
+        </div>
 
-          {/* Day labels + cells */}
-          <div style={{ display: "flex", width: "100%" }}>
-            {/* Day-of-week axis */}
-            <div style={{ display: "flex", flexDirection: "column", marginRight: 4, width: 24, flexShrink: 0 }}>
-              {[0, 1, 2, 3, 4, 5, 6].map(d => (
-                <div key={d} style={{
-                  flex: 1,
-                  fontSize: 9,
-                  color: "var(--text-muted)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "flex-end",
-                  paddingRight: 2,
-                  visibility: SHOW_DAYS.includes(d) ? "visible" : "hidden",
-                }}>
-                  {DAY_LABELS[d]}
-                </div>
+        {/* Cell columns */}
+        <div style={{ display: "flex", flex: 1, gap: "3px" }}>
+          {weeks.map((week, wi) => (
+            <div key={wi} style={{ display: "flex", flexDirection: "column", gap: "3px", flex: 1 }}>
+              {week.map((cell, di) => (
+                <div
+                  key={di}
+                  style={{
+                    width: "100%",
+                    aspectRatio: "1 / 1",
+                    borderRadius: 2,
+                    background: getCellColor(cell),
+                    cursor: cell.count > 0 ? "pointer" : "default",
+                    transition: "opacity 0.15s",
+                    outline: cell.count === 0 && !cell.isFuture ? "1px solid var(--border)" : "none",
+                    outlineOffset: -1,
+                  }}
+                  onMouseEnter={(e) => {
+                    if (cell.isFuture) return;
+                    const rect = (e.target as HTMLElement).getBoundingClientRect();
+                    const container = (e.target as HTMLElement).closest(".n-card")!.getBoundingClientRect();
+                    setTooltip({
+                      text: cell.count === 0
+                        ? `No solves on ${formatDate(cell.date)}`
+                        : `${cell.count} solve${cell.count !== 1 ? "s" : ""} on ${formatDate(cell.date)}`,
+                      x: rect.left - container.left + (rect.width / 2),
+                      y: rect.top - container.top - 8,
+                    });
+                  }}
+                  onMouseLeave={() => setTooltip(null)}
+                />
               ))}
             </div>
-
-            {/* Columns of cells */}
-            <div style={{ display: "flex", flex: 1, gap: "3px" }}>
-              {weeks.map((week, wi) => (
-                <div key={wi} style={{ display: "flex", flexDirection: "column", gap: "3px", flex: 1 }}>
-                  {week.map((cell, di) => (
-                    <div
-                      key={di}
-                      style={{
-                        width: "100%",
-                        aspectRatio: "1 / 1",
-                        borderRadius: 2,
-                        background: getCellColor(cell),
-                        cursor: cell.count > 0 ? "pointer" : "default",
-                        transition: "transform 0.1s, opacity 0.1s",
-                        border: cell.count > 0 ? "none" : "1px solid rgba(0,0,0,0.06)",
-                      }}
-                      onMouseEnter={(e) => {
-                        if (cell.isFuture) return;
-                        const rect = (e.target as HTMLElement).getBoundingClientRect();
-                        const container = (e.target as HTMLElement).closest(".n-card")!.getBoundingClientRect();
-                        const sourceLabel = cell.xpCount > 0
-                          ? `${cell.xpCount} CP Vertex + ${cell.count - cell.xpCount} CF`
-                          : `${cell.count} Codeforces`;
-                        setTooltip({
-                          text: cell.count === 0
-                            ? `No solves on ${formatDate(cell.date)}`
-                            : `${cell.count} solve${cell.count !== 1 ? "s" : ""} on ${formatDate(cell.date)} (${sourceLabel})`,
-                          x: rect.left - container.left + (rect.width / 2),
-                          y: rect.top - container.top - 8,
-                        });
-                      }}
-                      onMouseLeave={() => setTooltip(null)}
-                    />
-                  ))}
-                </div>
-              ))}
-            </div>
-          </div>
+          ))}
         </div>
       </div>
 
@@ -187,31 +193,30 @@ export function Heatmap({ data = [] }: { data?: HeatmapEntry[] }) {
           left: tooltip.x,
           top: tooltip.y,
           transform: "translate(-50%, -100%)",
-          background: "#1a1a2e",
-          color: "white",
+          background: "var(--surface-elevated)",
+          color: "var(--text-primary)",
           padding: "5px 10px",
-          borderRadius: 6,
+          borderRadius: "var(--radius-sm)",
           fontSize: 11,
+          fontWeight: 500,
           whiteSpace: "nowrap",
           pointerEvents: "none",
           zIndex: 50,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+          border: "1px solid var(--border)",
+          boxShadow: "var(--shadow-md)",
         }}>
           {tooltip.text}
         </div>
       )}
 
       {/* Legend */}
-      <div style={{ display: "flex", gap: 4, marginTop: 12, alignItems: "center", justifyContent: "flex-end" }}>
-        <span style={{ fontSize: 10, color: "var(--text-muted)", marginRight: 4 }}>Less</span>
-        {["#ebedf0", "#bee3f8", "#63b3ed", "#3182ce", "#1a365d"].map((c, i) => (
-          <div key={i} style={{ width: CELL, height: CELL, borderRadius: 2, background: c, border: i === 0 ? "1px solid rgba(0,0,0,0.06)" : "none" }} />
+      <div style={{ display: "flex", gap: 3, marginTop: 10, alignItems: "center", justifyContent: "flex-end" }}>
+        <span style={{ fontSize: 10, color: "var(--text-muted)", marginRight: 4, fontWeight: 500 }}>Less</span>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: EMPTY, outline: "1px solid var(--border)", outlineOffset: -1 }} />
+        {CF_GREENS.map((c, i) => (
+          <div key={i} style={{ width: 10, height: 10, borderRadius: 2, background: c }} />
         ))}
-        <span style={{ fontSize: 10, color: "var(--text-muted)", marginLeft: 4, marginRight: 12 }}>More (CF)</span>
-        {["#ebedf0", "#9be9a8", "#40c463", "#30a14e", "#0d4821"].map((c, i) => (
-          <div key={i} style={{ width: CELL, height: CELL, borderRadius: 2, background: c, border: i === 0 ? "1px solid rgba(0,0,0,0.06)" : "none" }} />
-        ))}
-        <span style={{ fontSize: 10, color: "var(--text-muted)", marginLeft: 4 }}>More (Arena)</span>
+        <span style={{ fontSize: 10, color: "var(--text-muted)", marginLeft: 4, fontWeight: 500 }}>More</span>
       </div>
     </div>
   );

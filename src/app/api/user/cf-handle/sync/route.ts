@@ -1,6 +1,6 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
-import { getCFSubmissions, getCFUser, getCFRatingHistory, CFSubmission } from "@/lib/cf-api"
+import { getCFSubmissions, getCFUser, getCFRatingHistory, CFSubmission, fetchAllSubmissions } from "@/lib/cf-api"
 import { NextRequest } from "next/server"
 import { recomputeTopicScore } from "@/lib/strength"
 import {
@@ -38,14 +38,22 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Fetch recent submissions
-    const submissions = await getCFSubmissions(user.cfHandle, 1, 100);
+    // Support ?full=true to force a complete historical re-import
+    const url = new URL(request.url);
+    const fullSync = url.searchParams.get("full") === "true";
+
+    // If first-ever sync or full re-sync requested, pull ALL submissions
+    // Otherwise, just pull the last 500 (enough for incremental daily syncs)
+    const submissions = (fullSync || !user.cfLastSync)
+      ? await fetchAllSubmissions(user.cfHandle)
+      : await getCFSubmissions(user.cfHandle, 1, 500);
     let imported = 0;
     const tagsToRecompute = new Set<string>();
 
     for (const sub of submissions) {
       const subDate = new Date(sub.creationTimeSeconds * 1000);
-      if (user.cfLastSync && subDate <= user.cfLastSync) continue;
+      // For full sync, don't skip anything — we use upsert-like logic below
+      if (!fullSync && user.cfLastSync && subDate <= user.cfLastSync) continue;
 
       const cfId = `${sub.problem.contestId}${sub.problem.index}`;
 

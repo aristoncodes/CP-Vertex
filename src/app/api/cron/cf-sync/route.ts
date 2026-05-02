@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma"
-import { getCFSubmissions } from "@/lib/cf-api"
+import { getCFSubmissions, fetchAllSubmissions } from "@/lib/cf-api"
 import { calculateXP, getWACountBeforeAC, awardXP, isWeakTag } from "@/lib/xp"
 import { recomputeTopicScore } from "@/lib/strength"
 import { generateCoachInsights } from "@/lib/coach"
@@ -36,8 +36,11 @@ export async function POST(request: NextRequest) {
       if (!user.cfHandle) continue
 
       try {
-        // Fetch recent submissions (last 100)
-        const submissions = await getCFSubmissions(user.cfHandle, 1, 100)
+        // If never synced before, pull ALL submissions for full heatmap + totalSolved
+        // Otherwise, pull last 500 (enough for a day's activity)
+        const submissions = user.cfLastSync
+          ? await getCFSubmissions(user.cfHandle, 1, 500)
+          : await fetchAllSubmissions(user.cfHandle)
 
         for (const sub of submissions) {
           // Skip if before last sync

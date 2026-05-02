@@ -131,6 +131,23 @@ export default function SettingsPage() {
     finally { setSyncing(false); }
   };
 
+  // Full historical re-sync (backfills all heatmap data)
+  const handleFullSync = async () => {
+    if (!handle) return alert("Please enter a Codeforces handle first");
+    const confirm = window.confirm(
+      "This will pull ALL your Codeforces submissions to fully populate your heatmap and solve count. This may take a minute. Continue?"
+    );
+    if (!confirm) return;
+    setSyncing(true);
+    try {
+      const syncRes = await fetch("/api/user/cf-handle/sync?full=true", { method: "POST" });
+      const syncData = await syncRes.json();
+      if (!syncRes.ok) alert("Error: " + (syncData.error || "Failed"));
+      else { alert(`Full sync complete! Imported ${syncData.imported} submissions.`); setLastSync(new Date().toLocaleString()); }
+    } catch { alert("Connection to Codeforces API failed."); }
+    finally { setSyncing(false); }
+  };
+
   const handleReset = async () => {
     const first = window.confirm("This will permanently delete ALL your progress. Continue?");
     if (!first) return;
@@ -287,9 +304,18 @@ export default function SettingsPage() {
               <button className="n-btn-secondary" style={{ padding: "10px 20px" }} onClick={handleSync} disabled={syncing}>
                 {syncing ? "Syncing..." : "Re-sync"}
               </button>
+              <button
+                className="n-btn-secondary"
+                style={{ padding: "10px 20px", fontSize: 12 }}
+                onClick={handleFullSync}
+                disabled={syncing}
+                title="Pull ALL submissions from Codeforces to fully populate your heatmap"
+              >
+                {syncing ? "..." : "Full Re-sync"}
+              </button>
             </div>
             <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 8 }}>
-              Last synced: {lastSync || "Never"} · To change handles, contact support.
+              Last synced: {lastSync || "Never"} · <strong>Full Re-sync</strong> imports your entire CF history (heatmap + solve count). · To change handles, contact support.
             </div>
           </>
         )}
