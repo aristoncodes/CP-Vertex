@@ -30,17 +30,18 @@ export async function POST(request: NextRequest) {
       return Response.json({ error: "No Codeforces handle connected" }, { status: 400 });
     }
 
+    // Support ?full=true to force a complete historical re-import
+    const url = new URL(request.url);
+    const fullSync = url.searchParams.get("full") === "true";
+
     // Check if synced recently (e.g., within 5 mins) to prevent spam
-    if (user.cfLastSync) {
+    // Full re-sync bypasses this — it's a deliberate one-time operation
+    if (!fullSync && user.cfLastSync) {
       const fiveMinsAgo = new Date(Date.now() - 5 * 60 * 1000);
       if (user.cfLastSync > fiveMinsAgo) {
         return Response.json({ error: "Please wait 5 minutes between manual syncs." }, { status: 429 });
       }
     }
-
-    // Support ?full=true to force a complete historical re-import
-    const url = new URL(request.url);
-    const fullSync = url.searchParams.get("full") === "true";
 
     // If first-ever sync or full re-sync requested, pull ALL submissions
     // Otherwise, just pull the last 500 (enough for incremental daily syncs)
