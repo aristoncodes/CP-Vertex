@@ -11,6 +11,7 @@ interface BossProblem {
   title: string;
   rating: number;
   tags: string[];
+  engaged?: boolean;
 }
 
 type BossState = "idle" | "engaged" | "verifying" | "defeated" | "failed";
@@ -25,21 +26,36 @@ export default function BossFightPage() {
   useEffect(() => {
     fetch("/api/problems/boss")
       .then(r => r.json())
-      .then(d => { if (d.id) setBoss(d); setLoading(false); })
+      .then(d => {
+        if (d.id) {
+          setBoss(d);
+          // If server says this boss is already engaged, restore that state
+          if (d.engaged) setBossState("engaged");
+        }
+        setLoading(false);
+      })
       .catch(() => setLoading(false));
   }, []);
 
   const handleEngage = async () => {
     if (!boss) return;
-    // Always open the link
-    window.open(boss.cfLink, "_blank");
+
     if (bossState === "idle") {
+      // First click: engage the boss (lock it in) and open the link
       setBossState("engaged");
+      window.open(boss.cfLink, "_blank");
       try {
-        await fetch("/api/missions/boss/engage", { method: "POST" });
+        await fetch("/api/missions/boss/engage", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ bossId: boss.id }),
+        });
       } catch (e) {
         console.error(e);
       }
+    } else {
+      // Already engaged: just open the link again
+      window.open(boss.cfLink, "_blank");
     }
   };
 
@@ -53,6 +69,8 @@ export default function BossFightPage() {
       if (data.solved) {
         setBossState("defeated");
         setVerifyMessage("🎉 Boss defeated! +" + (data.xpAwarded || 500) + " XP earned!");
+        // Clear the engaged boss on the server
+        await fetch("/api/missions/boss/engage", { method: "DELETE" }).catch(() => {});
       } else {
         setBossState("engaged");
         setVerifyMessage(data.message || "Not solved yet. Keep fighting!");
@@ -62,6 +80,14 @@ export default function BossFightPage() {
       setBossState("engaged");
       setVerifyMessage("Verification failed. Try again.");
     }
+  };
+
+  const handleRetreat = async () => {
+    // Clear the engaged boss so next visit shows a new random one
+    if (bossState === "engaged") {
+      await fetch("/api/missions/boss/engage", { method: "DELETE" }).catch(() => {});
+    }
+    router.push("/dashboard");
   };
 
   if (loading) {
@@ -167,7 +193,7 @@ export default function BossFightPage() {
             Verify Submission ✓
           </button>
         )}
-        <button className="n-btn-secondary" style={{ padding: "16px 32px", fontSize: 16 }} onClick={() => router.push("/dashboard")}>
+        <button className="n-btn-secondary" style={{ padding: "16px 32px", fontSize: 16 }} onClick={handleRetreat}>
           {bossState === "defeated" ? "Return to Base" : "Retreat"}
         </button>
       </div>

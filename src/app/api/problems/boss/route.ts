@@ -2,7 +2,6 @@ import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { redis } from "@/lib/redis"
 
-
 export async function GET() {
   try {
     const session = await auth()
@@ -10,31 +9,33 @@ export async function GET() {
       return Response.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const today = new Date().toISOString().split("T")[0]
-    const cacheKey = `boss:${session.user.id}:${today}`
+    const userId = session.user.id
 
-    // Check if boss already assigned today
-    const cachedBossId = await redis.get(cacheKey)
-    if (cachedBossId) {
+    // ── Check if user has an active (engaged) boss ──────────────
+    const engagedKey = `boss:engaged:${userId}`
+    const engagedBossId = await redis.get(engagedKey)
+    if (engagedBossId) {
       const problem = await prisma.problem.findUnique({
-        where: { id: cachedBossId as string },
+        where: { id: engagedBossId as string },
         include: { tags: { include: { tag: true } } },
       })
       if (problem) {
         return Response.json({
           id: problem.id,
           cfId: problem.cfId,
-          cfLink: problem.cfLink,
+          cfLink: buildCfLink(problem.cfId, problem.cfLink),
           title: problem.title,
           rating: problem.rating,
           tags: problem.tags.map((pt) => pt.tag.name),
+          engaged: true, // tell the client this boss is already engaged
         })
       }
     }
 
-    // Get user rating and pick boss around +500
+    // ── No engaged boss — pick a new random one ─────────────────
+    // Get user rating and pick boss around +400 to +600
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: userId },
       select: { cfRating: true },
     })
     const userRating = user?.cfRating || 800
@@ -43,7 +44,7 @@ export async function GET() {
 
     // Get solved problem IDs to exclude
     const solvedIds = await prisma.submission.findMany({
-      where: { userId: session.user.id, verdict: "OK" },
+      where: { userId, verdict: "OK" },
       select: { problemId: true },
       distinct: ["problemId"],
     })
@@ -55,30 +56,37 @@ export async function GET() {
         id: { notIn: Array.from(solvedSet) },
       },
       include: { tags: { include: { tag: true } } },
-      take: 20,
+      take: 50, // fetch more candidates for better randomization
     })
 
     if (candidates.length === 0) {
       return Response.json({ error: "No boss problem available" }, { status: 404 })
     }
 
-    // Pick a deterministic daily boss using date-based seed
-    const dateHash = today.split("-").reduce((acc, v) => acc + parseInt(v), 0)
-    const boss = candidates[(dateHash + session.user.id.length) % candidates.length]
-
-    // Cache for 24 hours
-    await redis.setex(cacheKey, 86400, boss.id)
+    // Pick a RANDOM boss (different each time you visit, until you engage)
+    const boss = candidates[Math.floor(Math.random() * candidates.length)]
 
     return Response.json({
       id: boss.id,
       cfId: boss.cfId,
-      cfLink: boss.cfLink,
+      cfLink: buildCfLink(boss.cfId, boss.cfLink),
       title: boss.title,
       rating: boss.rating,
       tags: boss.tags.map((pt) => pt.tag.name),
+      engaged: false,
     })
   } catch (error) {
     console.error("GET /api/problems/boss error:", error)
     return Response.json({ error: "Internal server error" }, { status: 500 })
   }
+}
+
+// Build a valid CF link from cfId (e.g. "1234A") even if cfLink is null
+function buildCfLink(cfId: string, storedLink: string | null): string {
+  if (storedLink) return storedLink
+  const match = cfId.match(/^(\d+)(.+)$/)
+  if (match) {
+    return `https://codeforces.com/problemset/problem/${match[1]}/${match[2]}`
+  }
+  return `https://codeforces.com/problemset/problem/${cfId}`
 }
