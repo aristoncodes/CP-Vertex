@@ -28,35 +28,32 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   cleanContent = cleanContent.replace(/^tags:\s*.*\n?/im, '')
   cleanContent = cleanContent.replace(/^e_maxx_link:\s*.*\n?/im, '')
 
-  // 3. Remove the CP-Algorithms practice problems section at the bottom
-  cleanContent = cleanContent.split(/##\s*Practice Problems/i)[0]
+  // 3. (Removed) We now keep the Practice Problems section as requested by the user.
 
   // 4. Convert LaTeX/TeX fenced code blocks into KaTeX display math
-  //    CP-Algorithms uses ```latex, ```tex, or ```math blocks — these are NOT code
   cleanContent = cleanContent.replace(
-    /```(?:latex|tex|math)\s*\n([\s\S]*?)```/gi,
-    (_match, content) => `\n$$\n${content.trim()}\n$$\n`
-  )
-
-  // 5. Convert unlabeled code blocks that are actually LaTeX into math
-  //    Detect by presence of heavy LaTeX commands (\frac, \sum, \int, \begin, etc.)
-  cleanContent = cleanContent.replace(
-    /```\s*\n([\s\S]*?)```/g,
+    /^[ \t]*```(?:latex|tex|math)?\s*\n([\s\S]*?)```/gim,
     (_match, content) => {
       const latexIndicators = /\\(?:frac|sum|int|prod|lim|sqrt|binom|text|operatorname|begin|end|left|right|cdot|ldots|ddots|leq|geq|neq|approx|equiv|pmod|mod|log|ln|sin|cos|tan|max|min|gcd|lcm|forall|exists|infty|partial|nabla|alpha|beta|gamma|delta|epsilon|theta|lambda|mu|sigma|phi|psi|omega|pi|cap|cup|subseteq|supseteq|subset|in|notin|emptyset|mathbb|mathrm|mathcal|mathbf|overline|underline|overbrace|underbrace|hat|tilde|vec|dot|bar|widetilde|widehat|boldsymbol)/
       const hasLatex = latexIndicators.test(content)
       const hasCodeSyntax = /(?:^|\n)\s*(?:for\s*\(|while\s*\(|if\s*\(|int\s+|void\s+|#include|import\s+|def\s+|class\s+|return\s+|cout\s*<<|cin\s*>>|printf|scanf|print\s*\(|struct\s+|enum\s+|auto\s+|const\s+\w+\s+\w+|std::|vector<|map<|set<|using\s+namespace)/.test(content)
-
-      // If it looks like LaTeX and NOT like code, render as math
-      if (hasLatex && !hasCodeSyntax) {
+      
+      // If it has latex/tex/math tag, or looks like LaTeX and NOT like code, render as math
+      const isTaggedMath = _match.toLowerCase().includes('latex') || _match.toLowerCase().includes('tex') || _match.toLowerCase().includes('math')
+      if (isTaggedMath || (hasLatex && !hasCodeSyntax)) {
         return `\n$$\n${content.trim()}\n$$\n`
       }
-      // Otherwise keep as a regular code block
       return _match
     }
   )
 
-  // 6. Fix $$ math blocks — ensure they are on their own lines
+  // 5. Strip indentation from $$ delimiters to prevent them from becoming indented code blocks
+  cleanContent = cleanContent.replace(/^[ \t]+\$\$/gm, '$$')
+
+  // 6. Strip backticks around inline math (e.g., `$O(n)$`) so they aren't parsed as inline code
+  cleanContent = cleanContent.replace(/`(\$[^$\n]+\$)`/g, '$1')
+
+  // 7. Fix $$ math blocks — ensure they are on their own lines
   cleanContent = cleanContent.replace(/\$\$/g, '\n$$\n')
 
   // 7. Wrap naked LaTeX environments for KaTeX
