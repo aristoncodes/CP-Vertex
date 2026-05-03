@@ -30,6 +30,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
   // 3. (Removed) We now keep the Practice Problems section as requested by the user.
 
+  // 3.5. Strip CP-Algorithms {.cpp file=...} class annotations from fenced code blocks
+  cleanContent = cleanContent.replace(/```\s*\{\.(\w+)[^}]*\}/g, '```$1')
+
   // 4. Convert LaTeX/TeX fenced code blocks into KaTeX display math
   cleanContent = cleanContent.replace(
     /^[ \t]*```(?:latex|tex|math)?\s*\n([\s\S]*?)```/gim,
@@ -47,8 +50,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     }
   )
 
-  // 5. Strip indentation from $$ delimiters to prevent them from becoming indented code blocks
-  cleanContent = cleanContent.replace(/^[ \t]+\$\$/gm, '$$')
+  // 5. Strip indentation from $$ and common LaTeX delimiters to prevent them from becoming indented code blocks
+  cleanContent = cleanContent.replace(/^[ \t]+(\$\$|\\\[|\\\]|\\begin\{|\\end\{)/gm, '$1')
 
   // 6. Strip backticks around inline math (e.g., `$O(n)$`) so they aren't parsed as inline code
   cleanContent = cleanContent.replace(/`(\$[^$\n]+\$)`/g, '$1')
@@ -70,8 +73,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     .replace(/\\end{cases}/g, '\\end{cases}')
     .replace(/\$\$\s*\$\$/g, '$$')
 
-  // 8. Strip CP-Algorithms {.cpp} / {.python} class annotations from fenced code blocks
-  cleanContent = cleanContent.replace(/```\s*\{\.(\w+)\}/g, '```$1')
+  // 8. (Moved to step 3.5)
 
   // 9. Strip any remaining bullet lists that are just "- Original" or "- [link]" at the top
   cleanContent = cleanContent.replace(/^\s*-\s*\[?Original\]?.*\n?/im, '')
