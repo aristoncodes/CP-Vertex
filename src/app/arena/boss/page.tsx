@@ -37,26 +37,23 @@ export default function BossFightPage() {
       .catch(() => setLoading(false));
   }, []);
 
-  const handleEngage = async () => {
+  const handleEngage = () => {
     if (!boss) return;
 
+    // Always open the problem link immediately (synchronous, before any async work)
+    // This prevents popup blockers from killing the new tab
+    window.open(boss.cfLink, "_blank");
+
     if (bossState === "idle") {
-      // First click: engage the boss (lock it in) and open the link
+      // First click: also lock the boss on the server
       setBossState("engaged");
-      window.open(boss.cfLink, "_blank");
-      try {
-        await fetch("/api/missions/boss/engage", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ bossId: boss.id }),
-        });
-      } catch (e) {
-        console.error(e);
-      }
-    } else {
-      // Already engaged: just open the link again
-      window.open(boss.cfLink, "_blank");
+      fetch("/api/missions/boss/engage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bossId: boss.id }),
+      }).catch((e) => console.error("Failed to engage boss:", e));
     }
+    // If already engaged, the window.open above is all we need
   };
 
   const handleVerify = async () => {
@@ -174,14 +171,30 @@ export default function BossFightPage() {
       )}
 
       <div style={{ display: "flex", gap: 12, marginTop: verifyMessage ? 24 : 56 }}>
-        {bossState !== "defeated" && (
-          <button
-            className="n-btn-primary"
-            style={{ padding: "16px 48px", fontSize: 16 }}
-            onClick={handleEngage}
-            disabled={bossState === "verifying"}
-          >
-            {stateLabel[bossState]}
+        {bossState !== "defeated" && bossState !== "verifying" && (
+          bossState === "idle" ? (
+            <button
+              className="n-btn-primary"
+              style={{ padding: "16px 48px", fontSize: 16 }}
+              onClick={handleEngage}
+            >
+              Engage Boss →
+            </button>
+          ) : (
+            <a
+              href={boss.cfLink}
+              target="_blank"
+              rel="noreferrer"
+              className="n-btn-primary"
+              style={{ padding: "16px 48px", fontSize: 16, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8 }}
+            >
+              Open Problem ↗
+            </a>
+          )
+        )}
+        {bossState === "verifying" && (
+          <button className="n-btn-primary" style={{ padding: "16px 48px", fontSize: 16, opacity: 0.7 }} disabled>
+            Verifying...
           </button>
         )}
         {(bossState === "engaged" || bossState === "failed") && (
