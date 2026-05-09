@@ -41,7 +41,12 @@ export async function getWACountBeforeAC(
 }
 
 /**
- * Award XP to a user, handle level-up detection.
+ * Award XP to a user atomically. Uses Prisma's atomic `increment` inside a
+ * transaction to prevent race conditions when concurrent requests award XP.
+ *
+ * The level is computed from the NEW total XP and written in the same
+ * transaction, eliminating the "lost update" and "stale level" bugs.
+ *
  * Returns { xpAwarded, newLevel, leveledUp }
  */
 export async function awardXP(
@@ -49,22 +54,30 @@ export async function awardXP(
   xp: number,
   source: string // Not currently stored but could be used for an XP history log
 ): Promise<{ xpAwarded: number; newLevel: number; leveledUp: boolean }> {
-  const user = await prisma.user.update({
-    where: { id: userId },
-    data: { xp: { increment: xp } },
-    select: { xp: true, level: true },
+  // Use an interactive transaction to ensure atomicity.
+  // Step 1: Atomically increment XP and read the result.
+  // Step 2: Compute the correct level and update it in the same transaction.
+  const result = await prisma.$transaction(async (tx) => {
+    // Atomic increment — no read-then-write race
+    const updated = await tx.user.update({
+      where: { id: userId },
+      data: { xp: { increment: xp } },
+      select: { xp: true, level: true },
+    })
+
+    const newLevel = getLevelFromXP(updated.xp)
+    const leveledUp = newLevel > updated.level
+
+    // Sync level within the same transaction
+    if (newLevel !== updated.level) {
+      await tx.user.update({
+        where: { id: userId },
+        data: { level: newLevel },
+      })
+    }
+
+    return { xpAwarded: xp, newLevel, leveledUp }
   })
 
-  const newLevel = getLevelFromXP(user.xp)
-  const leveledUp = newLevel > user.level
-
-  // Always sync level to match XP (handles stale levels from direct XP increments)
-  if (newLevel !== user.level) {
-    await prisma.user.update({
-      where: { id: userId },
-      data: { level: newLevel },
-    })
-  }
-
-  return { xpAwarded: xp, newLevel, leveledUp }
+  return result
 }

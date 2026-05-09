@@ -1,5 +1,6 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
+import { redis } from "@/lib/redis"
 
 export async function GET() {
   try {
@@ -76,6 +77,10 @@ export async function GET() {
 
     selected.sort((a, b) => a.rating - b.rating)
 
+    // Fix #5: Store session start time for idempotent verification.
+    const sessionStartKey = `session:start:arena:${session.user.id}`
+    await redis.setex(sessionStartKey, 14400, String(Date.now())) // 4 hour TTL
+
     return Response.json({
       problems: selected.map((p) => ({
         id: p.id,
@@ -86,6 +91,7 @@ export async function GET() {
         tags: p.tags.map((pt) => pt.tag.name),
       })),
       mode: "arena",
+      sessionStartedAt: Date.now(),
       targetTags: weakTags.map((t) => ({
         name: t.tag.name,
         score: t.score,

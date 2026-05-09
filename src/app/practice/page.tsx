@@ -34,13 +34,13 @@ const modes = [
     route: "/practice/session?mode=arena",
   },
   {
-    name: "Recovery",
-    desc: "Easy problems from your strongest tag. Rebuild after a loss streak.",
+    name: "Warmup",
+    desc: "2-3 quick problems at your rating level. A 10-minute warm-up before the real grind.",
     color: "var(--info)",
     xp: "30-60 XP",
     difficulty: "Easy",
-    icon: "spa",
-    route: "/practice/session?mode=recovery",
+    icon: "speed",
+    route: "/practice/session?mode=warmup",
   },
 ];
 

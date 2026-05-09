@@ -4,7 +4,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-type SettingKey = "particles" | "scenes3d" | "smoothScroll" | "notifDigest" | "notifDuels" | "notifStreak";
+type SettingKey = "smoothScroll" | "notifDuels" | "notifStreak";
 
 function getStoredSetting(key: SettingKey, fallback: boolean = true): boolean {
   if (typeof window === "undefined") return fallback;
@@ -40,12 +40,10 @@ export default function SettingsPage() {
   const [verifyError, setVerifyError] = useState<string | null>(null);
   const [verifySuccess, setVerifySuccess] = useState(false);
 
-  const [particles, setParticles] = useState(true);
-  const [scenes3d, setScenes3d] = useState(true);
   const [smoothScroll, setSmoothScroll] = useState(true);
-  const [notifDigest, setNotifDigest] = useState(true);
   const [notifDuels, setNotifDuels] = useState(true);
   const [notifStreak, setNotifStreak] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
     fetch("/api/user/me").then(r => r.json()).then(d => {
@@ -54,12 +52,12 @@ export default function SettingsPage() {
       if (d.cfVerified) setCfVerified(true);
     }).catch(console.error);
 
-    setParticles(getStoredSetting("particles"));
-    setScenes3d(getStoredSetting("scenes3d"));
     setSmoothScroll(getStoredSetting("smoothScroll"));
-    setNotifDigest(getStoredSetting("notifDigest"));
     setNotifDuels(getStoredSetting("notifDuels"));
     setNotifStreak(getStoredSetting("notifStreak"));
+    // Dark mode
+    const theme = localStorage.getItem("cp-vertex:theme");
+    setDarkMode(theme === "dark" || (!theme && window.matchMedia("(prefers-color-scheme: dark)").matches));
   }, []);
 
   const toggle = (key: SettingKey, current: boolean, setter: (v: boolean) => void) => {
@@ -325,8 +323,17 @@ export default function SettingsPage() {
       <div className="n-card" style={{ padding: "24px 28px" }}>
         <div className="n-section-label">Appearance</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <SettingRow label="Particle Effects" desc="Background particle animations" enabled={particles} onToggle={() => toggle("particles", particles, setParticles)} />
-          <SettingRow label="3D Scenes" desc="WebGL-powered visualizations" enabled={scenes3d} onToggle={() => toggle("scenes3d", scenes3d, setScenes3d)} />
+          <SettingRow 
+            label="Dark Mode" 
+            desc="Switch between light and dark themes" 
+            enabled={darkMode} 
+            onToggle={() => {
+              const next = !darkMode;
+              setDarkMode(next);
+              document.documentElement.setAttribute("data-theme", next ? "dark" : "light");
+              localStorage.setItem("cp-vertex:theme", next ? "dark" : "light");
+            }} 
+          />
           <SettingRow label="Smooth Scroll" desc="Kinetic scroll behavior" enabled={smoothScroll} onToggle={() => toggle("smoothScroll", smoothScroll, setSmoothScroll)} />
         </div>
       </div>
@@ -335,7 +342,6 @@ export default function SettingsPage() {
       <div className="n-card" style={{ padding: "24px 28px" }}>
         <div className="n-section-label">Notifications</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <SettingRow label="Weekly Digest" desc="Performance summary emails" enabled={notifDigest} onToggle={() => toggle("notifDigest", notifDigest, setNotifDigest)} />
           <SettingRow label="Duel Challenges" desc="Notifications for incoming duels" enabled={notifDuels} onToggle={() => toggle("notifDuels", notifDuels, setNotifDuels)} />
           <SettingRow label="Streak Reminders" desc="Daily reminders to maintain streak" enabled={notifStreak} onToggle={() => toggle("notifStreak", notifStreak, setNotifStreak)} />
         </div>

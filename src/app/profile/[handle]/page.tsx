@@ -108,6 +108,57 @@ export default function ProfilePage() {
         <Heatmap data={profile.heatmap || []} />
       </div>
 
+      {/* Badge Showcase (#14) */}
+      <div className="n-card" style={{ padding: "20px 24px" }}>
+        <div className="n-section-label">Badge Showcase</div>
+        {(() => {
+          const earned = profile.badges || [];
+          const allBadges = [
+            { id: "first_solve", name: "First Blood", icon: "emoji_events", color: "#d97706", desc: "Solve your first problem" },
+            { id: "streak_7", name: "On Fire", icon: "local_fire_department", color: "#dc2626", desc: "7-day solve streak" },
+            { id: "streak_30", name: "Unstoppable", icon: "whatshot", color: "#f59e0b", desc: "30-day solve streak" },
+            { id: "boss_slayer", name: "Boss Slayer", icon: "swords", color: "#7c3aed", desc: "Defeat 10 boss problems" },
+            { id: "blitz_master", name: "Speed Demon", icon: "bolt", color: "#0891b2", desc: "Complete 20 blitz sessions" },
+            { id: "social", name: "Socialite", icon: "group", color: "#059669", desc: "Add 10 friends" },
+            { id: "level_10", name: "Rising Star", icon: "star", color: "#0366d6", desc: "Reach Level 10" },
+            { id: "level_25", name: "Elite", icon: "military_tech", color: "#FF8C00", desc: "Reach Level 25" },
+            { id: "hundred_solves", name: "Centurion", icon: "looks_one", color: "#14b8a6", desc: "Solve 100 problems" },
+            { id: "duel_winner", name: "Gladiator", icon: "shield", color: "#6366f1", desc: "Win 5 duels" },
+          ];
+          const earnedIds = new Set(earned.map((b: any) => b.id || b));
+
+          return (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
+              {allBadges.map((badge) => {
+                const isEarned = earnedIds.has(badge.id);
+                return (
+                  <div key={badge.id} style={{
+                    display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
+                    padding: "14px 8px", borderRadius: 12,
+                    background: isEarned ? `${badge.color}08` : "var(--surface-low)",
+                    border: `1px solid ${isEarned ? `${badge.color}30` : "var(--border)"}`,
+                    opacity: isEarned ? 1 : 0.4,
+                    transition: "all 0.2s",
+                  }} title={badge.desc}>
+                    <span className="material-symbols-outlined" style={{
+                      fontSize: 28,
+                      color: isEarned ? badge.color : "var(--text-faint)",
+                      fontVariationSettings: "'FILL' 1",
+                      filter: isEarned ? `drop-shadow(0 0 8px ${badge.color}40)` : "none",
+                    }}>{badge.icon}</span>
+                    <span style={{
+                      fontSize: 10, fontWeight: 700,
+                      color: isEarned ? badge.color : "var(--text-faint)",
+                      textAlign: "center",
+                    }}>{badge.name}</span>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
+      </div>
+
       {/* Rating & Skill Assessment */}
       <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
         <RatingChart data={profile.ratingHistory || []} />

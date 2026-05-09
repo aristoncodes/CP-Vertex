@@ -26,6 +26,11 @@ export async function POST(request: NextRequest) {
     const engagedKey = `boss:engaged:${session.user.id}`
     await redis.setex(engagedKey, 86400, bossId)
 
+    // Fix #5: Store the session start time for idempotent verification.
+    // The verify route will reject any CF submission made before this timestamp.
+    const sessionStartKey = `session:start:boss:${session.user.id}`
+    await redis.setex(sessionStartKey, 86400, String(Date.now()))
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 

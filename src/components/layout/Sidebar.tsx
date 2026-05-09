@@ -2,63 +2,95 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 const navSections = [
   {
     label: "NAVIGATE",
     items: [
-      { label: "Dashboard", href: "/dashboard", icon: "🏠" },
-      { label: "Problem Feed", href: "/problems", icon: "📋" },
-      { label: "Practice Hub", href: "/practice", icon: "🧪" },
-      { label: "Upsolve Queue", href: "/upsolve", icon: "⏰" },
-      { label: "Leaderboard", href: "/leaderboard", icon: "🏆" },
-      { label: "My Profile", href: "/profile/arjun_cp", icon: "👤" },
-      { label: "Team", href: "/team", icon: "👥" },
-      { label: "Algorithms", href: "/learn", icon: "📚" },
+      { label: "Dashboard", href: "/dashboard", icon: "space_dashboard" },
+      { label: "Problems", href: "/problems", icon: "code" },
+      { label: "Practice", href: "/practice", icon: "fitness_center" },
+      { label: "Upsolve Queue", href: "/upsolve", icon: "history" },
+      { label: "Leaderboard", href: "/leaderboard", icon: "leaderboard" },
+      { label: "My Profile", href: "/profile/me", icon: "person", dynamic: true },
+      { label: "Intel Database", href: "/learn", icon: "menu_book" },
+    ],
+  },
+  {
+    label: "COMPETE",
+    items: [
+      { label: "Arena", href: "/arena", icon: "swords" },
+      { label: "Contests", href: "/contests", icon: "emoji_events" },
+      { label: "Friends", href: "/friends", icon: "group" },
     ],
   },
   {
     label: "ACCOUNT",
     items: [
-      { label: "Settings", href: "/settings", icon: "⚙️" },
+      { label: "Settings", href: "/settings", icon: "settings" },
     ],
   },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const userHandle = session?.user?.cfHandle || session?.user?.name || "me";
 
   return (
     <aside
-      className="hidden lg:flex flex-col gap-4 p-6 w-[220px] shrink-0"
+      className="hidden lg:flex"
       style={{
-        background: "var(--bg-raised)",
-        borderRight: "1px solid var(--border-dim)",
+        flexDirection: "column",
+        gap: 16,
+        padding: "24px 16px",
+        width: 220,
+        flexShrink: 0,
+        background: "var(--surface-low)",
+        borderRight: "1px solid var(--border)",
       }}
     >
       {navSections.map((section, si) => (
-        <div key={si} className={si > 0 ? "mt-auto" : ""}>
-          <div
-            className="mb-2 text-[9px] tracking-widest uppercase"
-            style={{ fontFamily: "var(--font-code)", color: "var(--text-dim)" }}
-          >
+        <div key={si} style={{ marginTop: si === navSections.length - 1 ? "auto" : 0 }}>
+          <div style={{
+            fontSize: 10, fontWeight: 700, letterSpacing: "0.1em",
+            textTransform: "uppercase", color: "var(--text-faint)",
+            padding: "0 12px", marginBottom: 6,
+          }}>
             {section.label}
           </div>
           {section.items.map((item) => {
-            const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+            const href = item.dynamic ? `/profile/${userHandle}` : item.href;
+            const isActive = pathname === href || (href !== "/dashboard" && pathname.startsWith(item.href));
             return (
               <Link
                 key={item.href}
-                href={item.href}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl no-underline text-[11px] transition-all duration-200"
+                href={href}
                 style={{
-                  fontFamily: "var(--font-ui)",
-                  color: isActive ? "var(--accent)" : "var(--text-muted)",
-                  background: isActive ? "var(--accent-dim)" : "transparent",
-                  border: isActive ? "1px solid rgba(255,45,85,0.2)" : "1px solid transparent",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "8px 12px",
+                  borderRadius: 10,
+                  textDecoration: "none",
+                  fontSize: 13,
+                  fontWeight: isActive ? 600 : 500,
+                  color: isActive ? "var(--primary)" : "var(--text-muted)",
+                  background: isActive ? "var(--primary-light)" : "transparent",
+                  transition: "all 0.15s",
+                  marginBottom: 2,
                 }}
               >
-                <span className="text-sm">{item.icon}</span>
+                <span
+                  className="material-symbols-outlined"
+                  style={{
+                    fontSize: 18,
+                    fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0",
+                  }}
+                >
+                  {item.icon}
+                </span>
                 {item.label}
               </Link>
             );

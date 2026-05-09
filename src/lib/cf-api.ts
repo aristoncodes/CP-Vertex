@@ -2,6 +2,28 @@ import { redis } from "./redis"
 
 const CF_BASE = "https://codeforces.com/api"
 
+// ─── Global Rate Limiter (1 req/sec across the entire platform) ─────────
+// Uses a simple in-process queue + mutex. For multi-instance deployments,
+// swap this for a Redis-based distributed lock (e.g., Redlock).
+
+let lastRequestTime = 0
+const MIN_INTERVAL_MS = 1100 // slightly over 1 second to be safe
+const MAX_RETRIES = 3
+const BASE_BACKOFF_MS = 2000
+
+/**
+ * Wait until enough time has passed since the last CF API call.
+ * This ensures global rate-limiting to ~1 req/sec within this process.
+ */
+async function acquireSlot(): Promise<void> {
+  const now = Date.now()
+  const elapsed = now - lastRequestTime
+  if (elapsed < MIN_INTERVAL_MS) {
+    await sleep(MIN_INTERVAL_MS - elapsed)
+  }
+  lastRequestTime = Date.now()
+}
+
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
@@ -12,6 +34,12 @@ interface CFAPIResponse {
   comment?: string
 }
 
+/**
+ * Core CF API fetcher with:
+ * - Redis caching (5 min fresh / 1 hour stale fallback)
+ * - Global rate-limit queue (1 req/sec)
+ * - Exponential backoff on 429 / 503 / network errors
+ */
 async function cfGet<T = unknown>(
   method: string,
   params: Record<string, string>
@@ -20,32 +48,87 @@ async function cfGet<T = unknown>(
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v))
 
   const cacheKey = `cf:${method}:${JSON.stringify(params)}`
+  const staleKey = `cf:stale:${method}:${JSON.stringify(params)}`
+
+  // 1. Check fresh cache first
   const cached = await redis.get(cacheKey)
   if (cached) {
     return (typeof cached === "string" ? JSON.parse(cached) : cached) as T
   }
 
-  const res = await fetch(url.toString())
-  if (!res.ok) {
-    // Serve stale cache if CF is down
-    const stale = await redis.get(`cf:stale:${method}:${JSON.stringify(params)}`)
-    if (stale) {
-      console.warn(`CF API returned ${res.status}, serving stale cache for ${method}`)
-      return (typeof stale === "string" ? JSON.parse(stale) : stale) as T
+  // 2. Rate-limited fetch with exponential backoff
+  let lastError: Error | null = null
+
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    try {
+      // Wait for our turn in the global queue
+      await acquireSlot()
+
+      const res = await fetch(url.toString())
+
+      // Retry on rate-limit or server overload
+      if (res.status === 429 || res.status === 503) {
+        const backoffMs = BASE_BACKOFF_MS * Math.pow(2, attempt)
+        console.warn(
+          `CF API returned ${res.status} for ${method}, retry ${attempt + 1}/${MAX_RETRIES} in ${backoffMs}ms`
+        )
+        await sleep(backoffMs)
+        continue
+      }
+
+      if (!res.ok) {
+        // Serve stale cache if CF is down
+        const stale = await redis.get(staleKey)
+        if (stale) {
+          console.warn(`CF API returned ${res.status}, serving stale cache for ${method}`)
+          return (typeof stale === "string" ? JSON.parse(stale) : stale) as T
+        }
+        throw new Error(`CF API HTTP error: ${res.status}`)
+      }
+
+      const data: CFAPIResponse = await res.json()
+      if (data.status !== "OK") {
+        throw new Error(`CF API error: ${data.comment}`)
+      }
+
+      // Cache for 5 minutes, stale backup for 1 hour
+      await redis.setex(cacheKey, 300, JSON.stringify(data.result))
+      await redis.setex(staleKey, 3600, JSON.stringify(data.result))
+
+      return data.result as T
+    } catch (err) {
+      lastError = err as Error
+
+      // Don't retry on non-retryable errors (bad request, parse errors, etc.)
+      if (
+        lastError.message.includes("CF API error:") ||
+        lastError.message.includes("CF API HTTP error: 4")
+      ) {
+        // 4xx errors (except 429) are not retryable
+        if (!lastError.message.includes("429")) {
+          throw lastError
+        }
+      }
+
+      if (attempt < MAX_RETRIES - 1) {
+        const backoffMs = BASE_BACKOFF_MS * Math.pow(2, attempt)
+        console.warn(
+          `CF API request failed for ${method}, retry ${attempt + 1}/${MAX_RETRIES} in ${backoffMs}ms:`,
+          lastError.message
+        )
+        await sleep(backoffMs)
+      }
     }
-    throw new Error(`CF API HTTP error: ${res.status}`)
   }
 
-  const data: CFAPIResponse = await res.json()
-  if (data.status !== "OK") {
-    throw new Error(`CF API error: ${data.comment}`)
+  // All retries exhausted — try stale cache as last resort
+  const stale = await redis.get(staleKey)
+  if (stale) {
+    console.warn(`CF API exhausted retries for ${method}, serving stale cache`)
+    return (typeof stale === "string" ? JSON.parse(stale) : stale) as T
   }
 
-  // Cache for 5 minutes, stale backup for 1 hour
-  await redis.setex(cacheKey, 300, JSON.stringify(data.result))
-  await redis.setex(`cf:stale:${method}:${JSON.stringify(params)}`, 3600, JSON.stringify(data.result))
-
-  return data.result as T
+  throw lastError ?? new Error(`CF API failed after ${MAX_RETRIES} retries`)
 }
 
 // ─── Public API ─────────────────────────────────────
@@ -153,7 +236,9 @@ export async function fetchAllSubmissions(
     all.push(...batch)
     if (batch.length < 1000) break
     from += 1000
-    await sleep(200) // respect 5 req/sec limit
+    // acquireSlot() inside cfGet already enforces 1 req/sec,
+    // but we add a small buffer for safety during bulk imports
+    await sleep(500)
   }
 
   return all

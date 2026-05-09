@@ -15,6 +15,33 @@ export async function POST(request: NextRequest) {
       return Response.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    // ─── Fix #4: Zombie Duel Cleanup ─────────────────────────
+    // Expire any active duels whose endsAt timestamp has passed.
+    // This runs on every cron tick so duels never sit as "active" forever.
+    const expiredDuels = await prisma.duel.updateMany({
+      where: {
+        status: "active",
+        endsAt: { lt: new Date() },
+      },
+      data: { status: "expired" },
+    })
+    if (expiredDuels.count > 0) {
+      console.log(`[cf-sync] Expired ${expiredDuels.count} zombie duels`)
+    }
+
+    // Also expire pending duels older than 2 minutes (no response from opponent)
+    const twMinAgo = new Date(Date.now() - 2 * 60 * 1000)
+    const expiredPending = await prisma.duel.updateMany({
+      where: {
+        status: "pending",
+        startedAt: { lt: twMinAgo },
+      },
+      data: { status: "expired" },
+    })
+    if (expiredPending.count > 0) {
+      console.log(`[cf-sync] Expired ${expiredPending.count} stale pending duels`)
+    }
+
     // Get all users with CF handles that need syncing
     const users = await prisma.user.findMany({
       where: {

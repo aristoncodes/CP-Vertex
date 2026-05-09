@@ -52,9 +52,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
   callbacks: {
     async jwt({ token, user }) {
+      // On initial sign-in, capture the user ID
       if (user) {
+        token.userId = user.id
+      }
+
+      // On EVERY token refresh, pull fresh data from the DB
+      // This ensures XP, level, streak, cfRating are never stale.
+      if (token.userId) {
         const dbUser = await prisma.user.findUnique({
-          where: { id: user.id },
+          where: { id: token.userId as string },
           select: {
             id: true,
             xp: true,
@@ -64,12 +71,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             streakCurrent: true,
           },
         })
-        token.userId = dbUser?.id
-        token.xp = dbUser?.xp ?? 0
-        token.level = dbUser?.level ?? 1
-        token.cfHandle = dbUser?.cfHandle
-        token.cfRating = dbUser?.cfRating ?? 0
-        token.streak = dbUser?.streakCurrent ?? 0
+        if (dbUser) {
+          token.xp = dbUser.xp
+          token.level = dbUser.level
+          token.cfHandle = dbUser.cfHandle
+          token.cfRating = dbUser.cfRating ?? 0
+          token.streak = dbUser.streakCurrent
+        }
       }
       return token
     },

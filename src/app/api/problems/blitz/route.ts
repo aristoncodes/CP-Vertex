@@ -1,5 +1,6 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
+import { redis } from "@/lib/redis"
 
 export async function GET() {
   try {
@@ -65,6 +66,11 @@ export async function GET() {
 
     selected.sort((a, b) => a.rating - b.rating)
 
+    // Fix #5: Store session start time for idempotent verification.
+    // Any verify call will check that CF submissions were made AFTER this timestamp.
+    const sessionStartKey = `session:start:blitz:${session.user.id}`
+    await redis.setex(sessionStartKey, 7200, String(Date.now())) // 2 hour TTL
+
     return Response.json({
       problems: selected.map((p) => ({
         id: p.id,
@@ -75,6 +81,7 @@ export async function GET() {
         tags: p.tags.map((pt) => pt.tag.name),
       })),
       mode: "blitz",
+      sessionStartedAt: Date.now(),
     })
   } catch (error) {
     console.error("GET /api/problems/blitz error:", error)

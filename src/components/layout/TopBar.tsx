@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect, useRef, useCallback } from "react";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: "space_dashboard" },
@@ -389,6 +390,23 @@ export function TopBar() {
             )}
           </div>
 
+          {/* Ctrl+K shortcut hint */}
+          <button
+            onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
+            style={{
+              display: "flex", alignItems: "center", gap: 6,
+              padding: "5px 12px", borderRadius: 8,
+              background: "var(--surface-high)", border: "1px solid var(--border)",
+              color: "var(--text-muted)", fontSize: 12, fontWeight: 500,
+              cursor: "pointer", fontFamily: "'Inter', sans-serif",
+              transition: "border-color 0.15s",
+            }}
+            title="Command Palette (⌘K)"
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 14 }}>search</span>
+            <span style={{ opacity: 0.7 }}>⌘K</span>
+          </button>
+
           <Link
             href={`/profile/${userHandle}`}
             style={{
@@ -398,7 +416,7 @@ export function TopBar() {
               display: "flex",
               alignItems: "center",
               gap: 8,
-              marginLeft: 8,
+              marginLeft: 4,
             }}
           >
             <div
@@ -421,6 +439,7 @@ export function TopBar() {
             </div>
             <span className="topbar-username">{displayHandle}</span>
           </Link>
+          <ThemeToggle />
           <Link
             href="/settings"
             style={{

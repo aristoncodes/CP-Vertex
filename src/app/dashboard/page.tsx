@@ -11,6 +11,7 @@ import { StreakDisplay } from "@/components/ui/StreakDisplay";
 import { MissionMap } from "@/components/ui/MissionMap";
 import { useStore } from "@/store/useStore";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { UpsolveWidget } from "@/components/upsolve/UpsolveWidget";
 
 interface ApiMission {
@@ -288,7 +289,18 @@ function IntelPanel({ profile }: { profile: any }) {
 
 export default function DashboardPage() {
   const { data: session } = useSession();
+  const router = useRouter();
   const [profile, setProfile] = useState<any>(null);
+
+  // Onboarding redirect (#1)
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const onboarded = localStorage.getItem("cp-vertex:onboarded");
+      if (!onboarded) {
+        router.push("/onboarding");
+      }
+    }
+  }, [router]);
 
   useEffect(() => {
     if (session?.user?.cfHandle || session?.user?.name) {
