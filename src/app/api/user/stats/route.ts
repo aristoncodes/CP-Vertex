@@ -1,5 +1,6 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
+import { getLevelFromXP } from "@/lib/xp-math"
 
 export async function GET() {
   try {
@@ -58,7 +59,7 @@ export async function GET() {
       cfRating: user.cfRating,
       totalSolved,
       xp: user.xp,
-      level: user.level,
+      level: getLevelFromXP(user.xp),
       streakCurrent: user.streakCurrent,
       streakLongest: user.streakLongest,
       xpHistory: Object.entries(xpHistory).map(([date, xp]) => ({ date, xp })),

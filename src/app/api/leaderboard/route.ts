@@ -1,5 +1,6 @@
 import { redis } from "@/lib/redis"
 import { prisma } from "@/lib/prisma"
+import { getLevelFromXP } from "@/lib/xp-math"
 import { NextRequest } from "next/server"
 import { auth } from "@/auth"
 
@@ -56,6 +57,7 @@ export async function GET(request: NextRequest) {
           rank: e.rank,
           xp: e.xp,
           ...userMap.get(e.userId),
+          level: getLevelFromXP(e.xp),
         })),
         period,
         scope,
@@ -120,6 +122,7 @@ export async function GET(request: NextRequest) {
       leaderboard: users.map((u, i) => ({
         rank: i + 1,
         ...u,
+        level: getLevelFromXP(u.xp),
       })),
       period,
       scope,

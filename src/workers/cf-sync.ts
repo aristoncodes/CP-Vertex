@@ -183,10 +183,7 @@ const worker = new Worker<CFSyncJobData>(
               where: { id: upsolveItem.id },
               data: { status: "solved", solvedAt: new Date() },
             }),
-            prisma.user.update({
-              where: { id: userId },
-              data: { xp: { increment: bonusXP } },
-            }),
+            awardXP(userId, bonusXP, "upsolve"),
             emitUpsolveComplete(userId, problem.title, bonusXP),
           ])
 

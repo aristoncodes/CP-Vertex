@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma"
 import { IUserRepo } from "./IUserRepo"
 import { User } from "@/generated/prisma/client"
+import { awardXP } from "@/lib/xp"
 
 export class PrismaUserRepo implements IUserRepo {
   async findById(id: string): Promise<User | null> {
@@ -16,6 +17,6 @@ export class PrismaUserRepo implements IUserRepo {
   }
 
   async incrementXP(id: string, amount: number): Promise<void> {
-    await prisma.user.update({ where: { id }, data: { xp: { increment: amount } } })
+    await awardXP(id, amount, "repo_increment")
   }
 }

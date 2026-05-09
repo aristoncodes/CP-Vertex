@@ -58,7 +58,8 @@ export async function awardXP(
   const newLevel = getLevelFromXP(user.xp)
   const leveledUp = newLevel > user.level
 
-  if (leveledUp) {
+  // Always sync level to match XP (handles stale levels from direct XP increments)
+  if (newLevel !== user.level) {
     await prisma.user.update({
       where: { id: userId },
       data: { level: newLevel },

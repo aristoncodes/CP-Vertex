@@ -1,6 +1,7 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { getCFSubmissions } from "@/lib/cf-api"
+import { awardXP } from "@/lib/xp"
 import { rateLimits, checkRateLimit } from "@/lib/ratelimit"
 import { NextRequest } from "next/server"
 
@@ -134,13 +135,38 @@ export async function POST(
 
     // If there is a winner, award XP (simple logic for now)
     if (winnerId) {
-      await prisma.user.update({
-        where: { id: winnerId },
-        data: { xp: { increment: 500 } }, // Flat 500 XP bonus for winning a duel
-      })
+      await awardXP(winnerId, 500, "duel_win") // Flat 500 XP bonus for winning a duel
     }
 
-    return Response.json({ duel: updated })
+    // Fetch problems to include in response (matching GET route shape)
+    const duelProblems = await prisma.problem.findMany({
+      where: { id: { in: updated.problemIds } },
+      select: { id: true, title: true, rating: true, cfLink: true },
+    })
+    const sortedProblems = updated.problemIds
+      .map(pid => duelProblems.find(p => p.id === pid))
+      .filter(Boolean)
+
+    return Response.json({
+      duel: {
+        id: updated.id,
+        status: updated.status,
+        problemIds: updated.problemIds,
+        questionCount: updated.questionCount,
+        startedAt: updated.startedAt,
+        endsAt: updated.endsAt,
+        player1: updated.player1,
+        player2: updated.player2,
+        problems: sortedProblems,
+        p1WaCount: updated.p1WaCount,
+        p2WaCount: updated.p2WaCount,
+        p1Progress: updated.p1Progress,
+        p2Progress: updated.p2Progress,
+        winnerId: updated.winnerId,
+        player1Id: updated.player1Id,
+        player2Id: updated.player2Id,
+      },
+    })
   } catch (error) {
     console.error("POST /api/duels/[id]/verify error:", error)
     return Response.json({ error: "Internal server error" }, { status: 500 })

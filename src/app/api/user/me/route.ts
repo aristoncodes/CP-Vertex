@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma"
+import { getLevelFromXP } from "@/lib/xp-math"
 import { withAuth } from "@/lib/withAuth"
 
 export const GET = withAuth(async (req, userId) => {
@@ -36,7 +37,7 @@ export const GET = withAuth(async (req, userId) => {
       return Response.json({ error: "User not found" }, { status: 404 })
     }
 
-    return Response.json(user)
+    return Response.json({ ...user, level: getLevelFromXP(user.xp) })
   } catch (error) {
     console.error("GET /api/user/me error:", error)
     return Response.json({ error: "Internal server error" }, { status: 500 })

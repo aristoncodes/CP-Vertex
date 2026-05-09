@@ -1,6 +1,7 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { getCFSubmissions, getCFUser, getCFRatingHistory, CFSubmission, fetchAllSubmissions } from "@/lib/cf-api"
+import { awardXP } from "@/lib/xp"
 import { NextRequest } from "next/server"
 import { recomputeTopicScore } from "@/lib/strength"
 import {
@@ -254,7 +255,7 @@ export async function POST(request: NextRequest) {
               const bonusXP = Math.floor((item.problem.rating || 1000) * item.xpMultiplier)
               await Promise.all([
                 prisma.upsolveItem.update({ where: { id: item.id }, data: { status: "solved", solvedAt: new Date() } }),
-                prisma.user.update({ where: { id: user.id }, data: { xp: { increment: bonusXP } } }),
+                awardXP(user.id, bonusXP, "upsolve"),
                 emitUpsolveComplete(user.id, item.problem.title, bonusXP),
               ])
               // Cancel reminders if all target items solved

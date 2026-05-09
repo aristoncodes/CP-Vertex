@@ -162,50 +162,60 @@ export async function POST(request: NextRequest) {
 }
 
 async function recalculateStreak(userId: string) {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const yesterday = new Date(today)
-  yesterday.setDate(yesterday.getDate() - 1)
-
-  // Check if user solved today
-  const solvedToday = await prisma.submission.findFirst({
-    where: {
-      userId,
-      verdict: "OK",
-      submittedAt: { gte: today },
-    },
-  })
-
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { streakCurrent: true, streakLongest: true, streakLastDay: true },
   })
-
   if (!user) return
 
-  if (solvedToday) {
-    const lastDay = user.streakLastDay ? new Date(user.streakLastDay) : null
-    let newStreak = user.streakCurrent
+  // Fetch all OK submissions, ordered newest first
+  const allOKSubmissions = await prisma.submission.findMany({
+    where: { userId, verdict: "OK" },
+    select: { submittedAt: true },
+    orderBy: { submittedAt: "desc" },
+  })
 
-    if (!lastDay || lastDay < yesterday) {
-      // Streak was broken or first day
-      newStreak = 1
-    } else if (lastDay >= yesterday && lastDay < today) {
-      // Continuing streak
-      newStreak = user.streakCurrent + 1
+  if (allOKSubmissions.length === 0) return
+
+  // Group by unique date strings (YYYY-MM-DD UTC)
+  const uniqueDates = Array.from(
+    new Set(allOKSubmissions.map(s => s.submittedAt.toISOString().split("T")[0]))
+  )
+
+  const todayStr = new Date().toISOString().split("T")[0]
+  const yesterdayDate = new Date()
+  yesterdayDate.setDate(yesterdayDate.getDate() - 1)
+  const yesterdayStr = yesterdayDate.toISOString().split("T")[0]
+
+  let currentStreak = 0
+  let lastActiveDay: Date | null = null
+
+  // Check if streak is active (solved today or yesterday)
+  if (uniqueDates.includes(todayStr) || uniqueDates.includes(yesterdayStr)) {
+    let checkDate = uniqueDates.includes(todayStr) ? new Date() : yesterdayDate
+    lastActiveDay = new Date(checkDate)
+    while (true) {
+      const dateStr = checkDate.toISOString().split("T")[0]
+      if (uniqueDates.includes(dateStr)) {
+        currentStreak++
+        checkDate.setDate(checkDate.getDate() - 1)
+      } else {
+        break
+      }
     }
-    // else: already counted today
+  }
 
-    await prisma.user.update({
-      where: { id: userId },
-      data: {
-        streakCurrent: newStreak,
-        streakLongest: Math.max(user.streakLongest, newStreak),
-        streakLastDay: new Date(),
-      },
-    })
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      streakCurrent: currentStreak,
+      streakLongest: Math.max(user.streakLongest, currentStreak),
+      ...(lastActiveDay ? { streakLastDay: lastActiveDay } : {}),
+    },
+  })
 
-    // Cache streak status
+  // Cache streak status
+  if (currentStreak > 0) {
     await redis.setex(`streak:${userId}`, 90000, "1") // 25 hours
   }
 }

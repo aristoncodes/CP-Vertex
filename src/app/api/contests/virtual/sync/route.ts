@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { awardXP } from "@/lib/xp";
 import { rateLimits, checkRateLimit } from "@/lib/ratelimit";
 
 export async function POST(request: Request) {
@@ -65,20 +66,15 @@ export async function POST(request: Request) {
       // Faux Rating change calculation (-30 for 0, +10 for each problem solved)
       const fauxRatingChange = -30 + (problemsSolved * 20); 
 
-      await prisma.$transaction([
-        prisma.virtualContest.update({
-          where: { id: activeSession.id },
-          data: {
-            status: "completed",
-            score: problemsSolved,
-            xpAwarded: xpAwarded,
-          },
-        }),
-        prisma.user.update({
-          where: { id: session.user.id },
-          data: { xp: { increment: xpAwarded } },
-        })
-      ]);
+      await prisma.virtualContest.update({
+        where: { id: activeSession.id },
+        data: {
+          status: "completed",
+          score: problemsSolved,
+          xpAwarded: xpAwarded,
+        },
+      });
+      await awardXP(session.user.id, xpAwarded, "virtual_contest");
 
       return Response.json({
         synced: true,
