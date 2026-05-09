@@ -319,31 +319,83 @@ export default function SettingsPage() {
         )}
       </div>
 
-      {/* Appearance */}
-      <div className="n-card" style={{ padding: "24px 28px" }}>
-        <div className="n-section-label">Appearance</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <SettingRow 
-            label="Dark Mode" 
-            desc="Switch between light and dark themes" 
-            enabled={darkMode} 
-            onToggle={() => {
-              const next = !darkMode;
-              setDarkMode(next);
-              document.documentElement.setAttribute("data-theme", next ? "dark" : "light");
-              localStorage.setItem("cp-vertex:theme", next ? "dark" : "light");
-            }} 
-          />
-          <SettingRow label="Smooth Scroll" desc="Kinetic scroll behavior" enabled={smoothScroll} onToggle={() => toggle("smoothScroll", smoothScroll, setSmoothScroll)} />
+      {/* Preferences & Appearance */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+        <div className="n-card" style={{ padding: "24px 28px" }}>
+          <div className="n-section-label">Appearance</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <SettingRow 
+              label="Dark Mode" 
+              desc="Switch between light and dark themes" 
+              enabled={darkMode} 
+              onToggle={() => {
+                const next = !darkMode;
+                setDarkMode(next);
+                document.documentElement.setAttribute("data-theme", next ? "dark" : "light");
+                localStorage.setItem("cp-vertex:theme", next ? "dark" : "light");
+              }} 
+            />
+            <SettingRow 
+              label="Smooth Scroll" 
+              desc="Kinetic scroll behavior" 
+              enabled={smoothScroll} 
+              onToggle={() => toggle("smoothScroll", smoothScroll, setSmoothScroll)} 
+            />
+            <SettingRow 
+              label="Focus Mode" 
+              desc="Hide ratings and stats to reduce anxiety" 
+              enabled={getStoredSetting("focusMode", false)} 
+              onToggle={() => {
+                const current = getStoredSetting("focusMode", false);
+                setStoredSetting("focusMode", !current);
+                // force re-render
+                setHandle(h => h); 
+              }} 
+            />
+          </div>
         </div>
-      </div>
 
-      {/* Notifications */}
-      <div className="n-card" style={{ padding: "24px 28px" }}>
-        <div className="n-section-label">Notifications</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <SettingRow label="Duel Challenges" desc="Notifications for incoming duels" enabled={notifDuels} onToggle={() => toggle("notifDuels", notifDuels, setNotifDuels)} />
-          <SettingRow label="Streak Reminders" desc="Daily reminders to maintain streak" enabled={notifStreak} onToggle={() => toggle("notifStreak", notifStreak, setNotifStreak)} />
+        <div className="n-card" style={{ padding: "24px 28px" }}>
+          <div className="n-section-label">Training Preferences</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "4px 0" }}>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>Default Mode</div>
+                <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>For Quick Play actions</div>
+              </div>
+              <select 
+                className="n-input" 
+                style={{ width: 140, padding: "8px 12px", height: "auto" }}
+                defaultValue={typeof window !== "undefined" ? localStorage.getItem("cp-vertex:defaultMode") || "arena" : "arena"}
+                onChange={(e) => localStorage.setItem("cp-vertex:defaultMode", e.target.value)}
+              >
+                <option value="warmup">Warmup</option>
+                <option value="blitz">Blitz</option>
+                <option value="arena">Arena</option>
+                <option value="boss">Boss Fight</option>
+              </select>
+            </div>
+            <SettingRow 
+              label="Timer Auto-Start" 
+              desc="Start session timer immediately upon load" 
+              enabled={getStoredSetting("autoStartTimer", true)} 
+              onToggle={() => {
+                const current = getStoredSetting("autoStartTimer", true);
+                setStoredSetting("autoStartTimer", !current);
+                setHandle(h => h);
+              }} 
+            />
+            <SettingRow 
+              label="Strict Mode" 
+              desc="Disable 'Give Up' for the first 10 mins" 
+              enabled={getStoredSetting("strictMode", false)} 
+              onToggle={() => {
+                const current = getStoredSetting("strictMode", false);
+                setStoredSetting("strictMode", !current);
+                setHandle(h => h);
+              }} 
+            />
+          </div>
         </div>
       </div>
 
