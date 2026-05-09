@@ -4,7 +4,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-type SettingKey = "smoothScroll" | "notifDuels" | "notifStreak";
+type SettingKey = "smoothScroll" | "notifDuels" | "notifStreak" | "focusMode" | "autoStartTimer" | "strictMode";
 
 function getStoredSetting(key: SettingKey, fallback: boolean = true): boolean {
   if (typeof window === "undefined") return fallback;
