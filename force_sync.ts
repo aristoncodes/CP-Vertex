@@ -1,14 +1,16 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from './src/lib/prisma';
 import { getCFSubmissions, getCFRatingHistory } from './src/lib/cf-api';
 import { detectDivisionFromName, detectUpsolveItems } from './src/lib/upsolve';
 import { scheduleReminders } from './src/workers/upsolve-reminders';
 
-const prisma = new PrismaClient();
-
-async function run() {
+async function main() {
   const user = await prisma.user.findFirst({ where: { cfHandle: "joyboy24" } });
-  if (!user) return console.log("User not found");
-
+  if (!user || !user.cfHandle) {
+    console.log("User not found or has no CF handle");
+    return;
+  }
+  
+  console.log("Fetching subs...");
   const allSubs = await getCFSubmissions(user.cfHandle, 1, 200);
   
   const contestGroups: Record<number, any[]> = {};
@@ -85,4 +87,4 @@ async function run() {
     }
   }
 }
-run().catch(console.error).finally(() => prisma.$disconnect());
+main().catch(console.error).finally(() => prisma.$disconnect());

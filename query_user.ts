@@ -1,5 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+import { prisma } from './src/lib/prisma';
 async function main() {
   const user = await prisma.user.findFirst({ where: { cfHandle: "joyboy24" } });
   console.log("User createdAt:", user?.createdAt);
