@@ -47,9 +47,34 @@ export async function GET() {
       take: 30,
     })
 
-    // Randomly select 5-6
-    const shuffled = problems.sort(() => Math.random() - 0.5)
-    const selected = shuffled.slice(0, Math.min(6, Math.max(5, shuffled.length)))
+    // Pick one problem per rating tier for gradual difficulty increase
+    const targetCount = Math.min(6, Math.max(5, problems.length))
+    const minRating = userRating
+    const maxRating = userRating + 600
+    const tierSize = (maxRating - minRating) / targetCount
+    const selected: typeof problems = []
+
+    for (let i = 0; i < targetCount; i++) {
+      const tierMin = minRating + Math.floor(i * tierSize)
+      const tierMax = minRating + Math.floor((i + 1) * tierSize)
+      const tierCandidates = problems.filter(
+        (p) => p.rating >= tierMin && p.rating <= tierMax && !selected.includes(p)
+      )
+      if (tierCandidates.length > 0) {
+        selected.push(tierCandidates[Math.floor(Math.random() * tierCandidates.length)])
+      }
+    }
+
+    // If tiers didn't fill enough, backfill from remaining
+    if (selected.length < targetCount) {
+      const remaining = problems.filter((p) => !selected.includes(p))
+        .sort(() => Math.random() - 0.5)
+      while (selected.length < targetCount && remaining.length > 0) {
+        selected.push(remaining.shift()!)
+      }
+    }
+
+    selected.sort((a, b) => a.rating - b.rating)
 
     return Response.json({
       problems: selected.map((p) => ({
