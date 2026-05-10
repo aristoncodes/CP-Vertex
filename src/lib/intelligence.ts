@@ -6,14 +6,29 @@ import { redis } from "./redis";
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-async function callGemini(prompt: string): Promise<string> {
-  const result = await model.generateContent(prompt);
+// ─── Master System Prompt ─────────────────────────────
+const SYSTEM_PROMPT = `You are an Elite Competitive Programming Coach (Legendary Grandmaster rank). Your tone is technical, encouraging, and focused on mathematical intuition. You guide students toward the "Aha!" moment — never spoon-feed answers.
+
+Core Principles:
+- Use LaTeX notation for all complexity expressions (e.g., $O(N \\log N)$, $O(\\sqrt{N})$).
+- Be technically precise — reference specific data structures, algorithms, and their trade-offs.
+- Keep responses scannable using Markdown formatting.
+- Categorize errors as: Mathematical, Implementation, or Conceptual.
+- When suggesting practice, reference specific algorithm families (e.g., "Monotone stack for histogram problems" not "practice more").
+- Your style is direct and analytical — no filler, no generic advice. Every sentence must add value.`;
+
+async function callGemini(systemPrompt: string, userPrompt: string): Promise<string> {
+  const result = await model.generateContent({
+    contents: [
+      { role: "user", parts: [{ text: `${systemPrompt}\n\n---\n\n${userPrompt}` }] },
+    ],
+  });
   return result.response.text().trim();
 }
 
-async function callGeminiJSON<T>(prompt: string): Promise<T | null> {
+async function callGeminiJSON<T>(systemPrompt: string, userPrompt: string): Promise<T | null> {
   try {
-    const raw = await callGemini(prompt);
+    const raw = await callGemini(systemPrompt, userPrompt);
     // Strip markdown code fences if present
     const cleaned = raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
     return JSON.parse(cleaned) as T;
@@ -23,7 +38,7 @@ async function callGeminiJSON<T>(prompt: string): Promise<T | null> {
   }
 }
 
-// ─── Feature 1: AI Coach Insight (existing, cleaned up) ──
+// ─── Feature 1: AI Coach Insight (Daily Brief) ───────
 export async function generateCoachInsight(userId: string) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -49,20 +64,23 @@ export async function generateCoachInsight(userId: string) {
   const weakTags = [...user.topicScores].sort((a, b) => a.score - b.score).slice(0, 3)
     .map((t) => `${t.tag.name} (${t.score}/100, ${t.trend})`);
 
-  const prompt = `You are an elite competitive programming coach. Style: harsh, direct, analytical.
+  const userPrompt = `Current Task: AI Coach Insight (Daily Brief)
 
-Student stats:
-- CF Rating: ${user.cfRating || "Unrated"}
-- Strong: ${topTags.join(", ")}
-- Weak: ${weakTags.join(", ")}
+User Context:
+- Codeforces Rating: ${user.cfRating || "Unrated"}
+- Strongest Topics: ${topTags.join(", ")}
+- Weakest Topics: ${weakTags.join(", ")}
+- Total Topics Tracked: ${user.topicScores.length}
 
-Generate a 2-sentence tactical recommendation.
-Sentence 1: bluntly assess their weaknesses.
-Sentence 2: command them to a specific mode (ARENA/BOSS FIGHT/BLITZ) with what to focus on.
-No pleasantries. Output only the 2 sentences.`;
+Your Mission:
+1. Identify ONE specific weakness from the data above — be precise (e.g., "You are getting TLE'd on $O(N^2)$ DP transitions — you need to learn the Convex Hull Trick").
+2. Provide one concrete "Tip of the Day" — a specific optimization trick, an STL technique, or a mathematical insight relevant to their weak area.
+3. Command them to a specific training mode: ARENA MODE (target weak tags), BOSS FIGHT (push rating ceiling), or BLITZ MODE (speed training).
+
+Format: 2-3 punchy sentences. No pleasantries. Every word must be tactically useful.`;
 
   try {
-    const responseText = await callGemini(prompt);
+    const responseText = await callGemini(SYSTEM_PROMPT, userPrompt);
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 1);
     return await prisma.coachInsight.create({
@@ -77,13 +95,13 @@ No pleasantries. Output only the 2 sentences.`;
 // ─── Feature 2: AI Post-Mortem Analysis ───────────────
 interface PostMortemAnalysis {
   pattern: string;
+  errorCategory: string;
   rootCause: string;
   actionItem: string;
-  encouragement: string;
+  nextProblemHint: string;
 }
 
 export async function analyzePostMortem(userId: string, postMortemId: string): Promise<PostMortemAnalysis | null> {
-  // Fetch the current post-mortem + submission + problem
   const current = await prisma.postMortem.findUnique({
     where: { id: postMortemId },
     include: {
@@ -109,27 +127,39 @@ export async function analyzePostMortem(userId: string, postMortemId: string): P
   const formatPM = (pm: any) => {
     const prob = pm.submission.problem;
     const tags = prob.tags?.map((t: any) => t.tag.name).join(", ") || "unknown";
-    return `- "${prob.title}" (${prob.rating}, ${tags}) — Failures: ${pm.failureReasons.join(", ")}${pm.howFixed ? ` — Fix: "${pm.howFixed}"` : ""} — Difficulty: ${pm.difficultyFelt}/5`;
+    return `- "${prob.title}" (Rating: ${prob.rating}, Tags: ${tags}) — Failures: [${pm.failureReasons.join(", ")}]${pm.howFixed ? ` — Student's Fix: "${pm.howFixed}"` : ""} — Perceived Difficulty: ${pm.difficultyFelt}/5`;
   };
 
-  const prompt = `You are analyzing a competitive programmer's failure patterns.
+  // Get user's rating for context
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { cfRating: true } });
 
-Previous post-mortems (recent first):
-${history.length > 0 ? history.map(formatPM).join("\n") : "No previous data."}
+  const userPrompt = `Current Task: AI Post-Mortem Analysis
 
-CURRENT failure:
+Student Rating: ${user?.cfRating || "Unrated"}
+
+Previous Post-Mortems (recent first):
+${history.length > 0 ? history.map(formatPM).join("\n") : "No previous data — this is their first post-mortem."}
+
+CURRENT Failure Under Analysis:
 ${formatPM(current)}
-Confidence for next attempt: ${current.confidenceNext}
+Student's Confidence for Next Attempt: ${current.confidenceNext}
+
+Your Mission:
+1. Identify the exact "failure point" — was it a Logic Error, TLE due to $O(N^2)$ in a $10^5$ constraint, an Edge Case, or a Conceptual misunderstanding?
+2. Categorize the error as: **Mathematical** (wrong formula/invariant), **Implementation** (correct idea, buggy code), or **Conceptual** (wrong approach entirely).
+3. Look across their failure history — detect any recurring pattern (e.g., "3 out of 5 recent failures are TLE on graph problems").
+4. Suggest ONE specific next problem or technique to fix this gap.
 
 Respond with JSON only:
 {
-  "pattern": "1-2 sentence pattern across failures",
-  "rootCause": "the fundamental skill gap causing this",
-  "actionItem": "specific behavioral change to make (be concrete)",
-  "encouragement": "1 sentence acknowledging progress or effort"
+  "pattern": "1-2 sentence pattern detected across their failure history",
+  "errorCategory": "Mathematical | Implementation | Conceptual",
+  "rootCause": "the precise skill gap — be technical (e.g., 'Unable to recognize when $O(N \\\\log N)$ sorting + two-pointers replaces $O(N^2)$ brute force')",
+  "actionItem": "one concrete behavioral change or technique to learn (e.g., 'Before coding, write the recurrence relation on paper. If it has overlapping subproblems, it is DP, not greedy.')",
+  "nextProblemHint": "describe the type of problem they should solve next (e.g., 'Solve a Segment Tree problem with lazy propagation rated 1400-1600')"
 }`;
 
-  const analysis = await callGeminiJSON<PostMortemAnalysis>(prompt);
+  const analysis = await callGeminiJSON<PostMortemAnalysis>(SYSTEM_PROMPT, userPrompt);
   if (!analysis) return null;
 
   // Save to DB
@@ -193,24 +223,25 @@ export async function generateHint(
 
   const tags = problem.tags.map((t) => t.tag.name).join(", ");
 
-  const prompt = `You are giving a competitive programming hint.
+  const userPrompt = `Current Task: AI Progressive Hints — Level ${requestedLevel} of 4
 
 Problem: "${problem.title}"
-Tags: ${tags}
+Tags: [${tags}]
 Rating: ${problem.rating}
+Codeforces Link: ${problem.cfLink}
 
-Generate ONLY hint level ${requestedLevel} of 4:
-- Level 1 (Conceptual): What TYPE of problem is this? One high-level direction sentence. Do NOT name the algorithm.
-- Level 2 (Technique): Name the specific algorithm/data structure. 1-2 sentences.
-- Level 3 (Approach): Step-by-step approach WITHOUT code. 3-4 sentences.
-- Level 4 (Detailed): Full approach with pseudocode and complexity analysis.
+Hint Level Definitions:
+- **Level 1 — The Hook**: A cryptic mathematical property or observation. What TYPE of problem is this? Give a high-level direction without naming the algorithm. Like a riddle that points to the right mental model. (1-2 sentences)
+- **Level 2 — The Strategy**: Name the specific algorithm, data structure, or technique. Explain WHY it applies here by connecting it to the problem's constraints. (2-3 sentences)
+- **Level 3 — The Logic**: Break down the transitions, the greedy choice, or the DP recurrence. Describe the step-by-step approach WITHOUT code. Include the key invariant or mathematical insight. (3-5 sentences)
+- **Level 4 — The Implementation**: Pseudocode for the most complex part of the logic. Include complexity analysis with LaTeX notation. Mention edge cases to watch for.
+
+Generate ONLY Level ${requestedLevel}. Do NOT leak information from higher levels.
 
 Respond with JSON only:
-{ "hint": "your hint text here" }
+{ "hint": "your hint text here — use markdown formatting and LaTeX where appropriate" }`;
 
-CRITICAL: Output ONLY level ${requestedLevel}. Do not leak information from higher levels.`;
-
-  const result = await callGeminiJSON<HintResponse>(prompt);
+  const result = await callGeminiJSON<HintResponse>(SYSTEM_PROMPT, userPrompt);
   if (!result) return { error: "Failed to generate hint" };
 
   // Deduct XP if applicable
@@ -237,8 +268,10 @@ CRITICAL: Output ONLY level ${requestedLevel}. Do not leak information from high
 
 // ─── Feature 4: AI Editorial Summaries ────────────────
 interface EditorialSummary {
+  trick: string;
   keyTakeaway: string;
   whenToUse: string;
+  complexity: string;
   commonMistakes: string[];
   prerequisites: string[];
   difficulty: string;
@@ -259,26 +292,30 @@ export async function getEditorialSummary(
   // Truncate content to first 3000 chars for prompt efficiency
   const truncated = articleContent.substring(0, 3000);
 
-  const prompt = `You are summarizing a competitive programming tutorial for students.
+  const userPrompt = `Current Task: AI Editorial Summary
 
 Article: "${articleTitle}"
 Source: CP-Algorithms
 
-Content (truncated):
+Content (first 3000 chars):
 """
 ${truncated}
 """
 
-Generate a JSON summary for a ~1200-rated student. Be concise and practical:
+Condense this tutorial into a scannable study card. Respond with JSON:
 {
-  "keyTakeaway": "2-3 sentences explaining the core concept simply",
-  "whenToUse": "1-2 sentences on problem patterns where this applies",
-  "commonMistakes": ["mistake 1", "mistake 2", "mistake 3"],
-  "prerequisites": ["topic 1", "topic 2"],
+  "trick": "The core idea in exactly 20 words or fewer — the one insight that makes this technique click",
+  "keyTakeaway": "2-3 sentences explaining the concept with mathematical precision. Use LaTeX for any expressions.",
+  "whenToUse": "Problem patterns where this technique applies. Be specific — e.g., 'When you need range minimum queries with point updates in $O(\\\\log N)$'",
+  "complexity": "Time and space complexity with LaTeX, and WHY it fits typical competitive programming constraints (e.g., '$O(N \\\\log N)$ handles $N \\\\leq 10^5$ comfortably within 2s')",
+  "commonMistakes": ["specific implementation pitfall 1", "specific pitfall 2", "specific pitfall 3"],
+  "prerequisites": ["prerequisite topic 1", "prerequisite topic 2"],
   "difficulty": "beginner|intermediate|advanced"
-}`;
+}
 
-  const summary = await callGeminiJSON<EditorialSummary>(prompt);
+Write for a student at ~1200 CF rating. Be concise but technically precise.`;
+
+  const summary = await callGeminiJSON<EditorialSummary>(SYSTEM_PROMPT, userPrompt);
   if (!summary) return null;
 
   // Cache for 30 days
@@ -315,23 +352,30 @@ export async function generateAIRoadmap(userId: string): Promise<any> {
     `${t.tag.name}: ${t.score}/100 (${t.trend}, ${t.acCount} solved)`
   ).join("\n");
 
-  const prompt = `You are a competitive programming coach creating a 4-week training plan.
+  const userPrompt = `Current Task: AI Roadmap Generation
 
-Student profile:
+Student Profile:
 - CF Rating: ${userRating}
-- Total topics tracked: ${user.topicScores.length}
+- Total Topics Tracked: ${user.topicScores.length}
 
-Topic scores (sorted weakest first):
+Topic Scores (sorted weakest first):
 ${topicData}
 
-Create a 4-week plan targeting their weakest areas. Respond with JSON:
+Your Mission: Create a 4-week progressive training roadmap.
+
+Roadmap Philosophy:
+- Follow prerequisite ordering (e.g., teach BFS/DFS before shortest paths, basic DP before bitmask DP)
+- Each week should build on the previous — create a narrative arc from "foundational gap" to "stretch goal"
+- Suggest specific subtopics within each tag (e.g., for "dp": ["knapsack", "digit dp", "bitmask dp"])
+
+Respond with JSON:
 {
-  "reasoning": "2-3 sentences explaining your strategy and why you chose this order",
+  "reasoning": "2-3 sentences explaining your coaching strategy — WHY this order, what the student gains by Week 4. Use mathematical precision.",
   "weeks": [
     {
-      "focus": "exact tag name from the list above",
-      "why": "1 sentence why this week",
-      "targetCount": number_of_problems (5-8),
+      "focus": "exact tag name from the student's data above",
+      "why": "1 sentence connecting this week to the overall strategy — make the student understand the purpose",
+      "targetCount": 5_to_8,
       "minRating": min_problem_rating,
       "maxRating": max_problem_rating,
       "subtopics": ["specific subtopic 1", "specific subtopic 2"]
@@ -340,13 +384,13 @@ Create a 4-week plan targeting their weakest areas. Respond with JSON:
 }
 
 Rules:
-- Use EXACTLY the tag names from the student's data (lowercase, e.g., "dp", "graphs")
+- Use EXACTLY the tag names from the student's data (case-insensitive match)
 - Week 1 = most approachable weak topic, Week 4 = hardest stretch
-- Difficulty range should be: minRating = max(800, rating-200), increasing each week
-- Don't pick topics where the student already scores 80+
-- Consider prerequisite order (basics before advanced techniques)`;
+- minRating = max(800, rating - 200), increasing ~100 per week
+- Skip topics where the student already scores 80+
+- Max 4 weeks`;
 
-  const result = await callGeminiJSON<AIRoadmapResponse>(prompt);
+  const result = await callGeminiJSON<AIRoadmapResponse>(SYSTEM_PROMPT, userPrompt);
   if (!result || !result.weeks || result.weeks.length === 0) return null;
 
   // Delete existing roadmap
@@ -408,37 +452,48 @@ export async function generateContestPrep(userId: string): Promise<ContestPrepRe
   if (!user || user.topicScores.length === 0) return null;
 
   const userRating = user.cfRating || 800;
-  const strong = user.topicScores.slice(0, 5).map((t) => `${t.tag.name} (${t.score})`).join(", ");
+  const strong = user.topicScores.slice(0, 5).map((t) => `${t.tag.name} (${t.score}/100, ${t.trend})`).join(", ");
   const weak = [...user.topicScores].sort((a, b) => a.score - b.score).slice(0, 5)
-    .map((t) => `${t.tag.name} (${t.score})`).join(", ");
+    .map((t) => `${t.tag.name} (${t.score}/100, ${t.trend})`).join(", ");
 
   // Determine division
   let div = "Div 2";
   if (userRating >= 1900) div = "Div 1";
   else if (userRating >= 1600) div = "Div 1+2";
 
-  const prompt = `You are a competitive programming contest coach.
+  const userPrompt = `Current Task: AI Contest Prep
 
-Student: CF Rating ${userRating}
-Strongest: ${strong}
-Weakest: ${weak}
+Student Profile:
+- CF Rating: ${userRating}
+- Strongest Topics: ${strong}
+- Weakest Topics: ${weak}
 
-Upcoming contest type: Codeforces ${div}
-Typical ${div}: A (800-1000), B (1000-1300), C (1300-1600), D (1700-2100)
+Contest Type: Codeforces ${div}
+Typical ${div} Problem Distribution:
+- A: 800-1000 (implementation/math, 5-10 min)
+- B: 1000-1300 (greedy/constructive, 10-15 min)
+- C: 1300-1600 (dp/graphs/binary search, 20-30 min)
+- D: 1700-2100 (advanced techniques, 30-45 min)
+
+Your Mission:
+1. **Risk Areas**: Based on the student's weak topics, predict which problems (C/D) could trip them up. Be specific about the algorithm that might appear.
+2. **Strengths**: What they can lean on — which problem types should be "free points."
+3. **Warm-up Tags**: Suggest 2 topics to practice for 15 min before the contest, with appropriate ratings.
+4. **Strategy**: 4-5 bullet points — specific to this student's rating. Include time management, when to skip, and how to approach debugging.
+5. **Time Allocation**: How many minutes to spend on A, B, C, D.
+
+Predict risk areas like: "This student's ${weak.split(",")[0]?.trim()} weakness means a C problem on this topic could cost them 30+ minutes."
 
 Respond with JSON:
 {
-  "riskAreas": ["2-3 topics that could trip them on C/D problems"],
-  "strengths": ["2-3 topics they can rely on"],
-  "warmupTags": [
-    {"tag": "topic to warm up", "rating": suggested_warmup_rating},
-    {"tag": "topic to warm up", "rating": suggested_warmup_rating}
-  ],
-  "strategy": ["4-5 bullet point contest strategy tips, specific to their level"],
+  "riskAreas": ["specific risk 1 with algorithm name", "specific risk 2"],
+  "strengths": ["specific strength 1", "specific strength 2"],
+  "warmupTags": [{"tag": "topic", "rating": number}, {"tag": "topic", "rating": number}],
+  "strategy": ["strategy point 1", "strategy point 2", "strategy point 3", "strategy point 4"],
   "timeAllocation": {"A": "Xmin", "B": "Xmin", "C": "Xmin", "D": "Xmin"}
 }
 
-Be specific to their rating and weak topics. No generic advice.`;
+No generic advice. Every point must be tied to THIS student's data.`;
 
-  return callGeminiJSON<ContestPrepResponse>(prompt);
+  return callGeminiJSON<ContestPrepResponse>(SYSTEM_PROMPT, userPrompt);
 }
