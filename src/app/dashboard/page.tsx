@@ -3,12 +3,9 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useEffect, useState, useCallback } from "react";
 import { XPBar } from "@/components/ui/XPBar";
-import { Heatmap } from "@/components/ui/Heatmap";
 import { MissionCard } from "@/components/ui/MissionCard";
-import { SkillBar } from "@/components/ui/SkillBar";
 import { CoachInsightCard } from "@/components/ui/CoachInsightCard";
 import { StreakDisplay } from "@/components/ui/StreakDisplay";
-import { MissionMap } from "@/components/ui/MissionMap";
 import { useStore } from "@/store/useStore";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -26,11 +23,43 @@ interface ApiMission {
   target: number;
 }
 
-function DashboardMain({ profile }: { profile: any }) {
-  const { topics, fetchInsights } = useStore();
-  const { data: session } = useSession();
+/* ─────────────────────────── Quick-Play Cards ──────────────────────── */
 
-  useEffect(() => { fetchInsights(); }, [fetchInsights]);
+const quickPlayModes = [
+  {
+    key: "warmup", label: "Warmup", icon: "speed",
+    desc: "Easy 15-min session", color: "#059669", bg: "#059669",
+    href: "/practice/session?mode=warmup",
+  },
+  {
+    key: "blitz", label: "Blitz", icon: "bolt",
+    desc: "Fast 30-min sprint", color: "#0891b2", bg: "#0891b2",
+    href: "/practice/session?mode=blitz",
+  },
+  {
+    key: "arena", label: "Arena", icon: "fitness_center",
+    desc: "Train weak topics", color: "#0366d6", bg: "#0366d6",
+    href: "/practice/session?mode=arena",
+  },
+  {
+    key: "boss", label: "Boss Fight", icon: "swords",
+    desc: "Daily boss challenge", color: "#dc2626", bg: "#dc2626",
+    href: "/arena/boss",
+  },
+];
+
+/* ──────────────────── Main Content (left column) ───────────────────── */
+
+function DashboardMain({ profile }: { profile: any }) {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [pendingDuels, setPendingDuels] = useState(0);
+
+  useEffect(() => {
+    fetch("/api/duels?status=pending").then(r => r.json()).then(d => {
+      if (Array.isArray(d.duels)) setPendingDuels(d.duels.length);
+    }).catch(() => {});
+  }, []);
 
   const user = {
     name: profile?.name || session?.user?.name || "Guest",
@@ -42,41 +71,94 @@ function DashboardMain({ profile }: { profile: any }) {
     title: profile?.level >= 40 ? "Gold Coder" : profile?.level >= 20 ? "Silver Coder" : "Bronze Coder",
   };
 
+  // Determine greeting based on time
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+
   return (
     <>
-      {/* Greeting */}
+      {/* ── Greeting + Streak ── */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
         <div>
           <h1 style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text-primary)" }}>
-            Welcome back, <span style={{ color: "var(--primary)" }}>{user.name}</span>
+            {greeting}, <span style={{ color: "var(--primary)" }}>{user.name}</span>
           </h1>
           <p style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 6, fontWeight: 500 }}>
-            Level {user.level} · {user.totalSolved} problems solved
+            Level {user.level} · {user.totalSolved} problems solved · {user.rating > 0 ? `CF ${user.rating}` : "No CF rating yet"}
           </p>
         </div>
         <StreakDisplay count={user.streak} />
       </div>
 
-      {/* Stats Row */}
+      {/* ── XP Progress ── */}
+      <XPBar totalXP={user.xp} title={user.title} />
+
+      {/* ── Quick Play — The Action Center ── */}
       <div>
-        <div className="n-section-label">Overview</div>
-        <div className="stats-grid-4" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+          <div className="n-section-label" style={{ margin: 0 }}>Quick Play</div>
+          <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Jump straight into training</span>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+          {quickPlayModes.map((mode) => (
+            <button
+              key={mode.key}
+              onClick={() => router.push(mode.href)}
+              style={{
+                display: "flex", flexDirection: "column", alignItems: "flex-start",
+                padding: "20px 18px", borderRadius: 14, border: "1px solid var(--border)",
+                background: "var(--surface-card)", cursor: "pointer",
+                transition: "all 0.2s", fontFamily: "'Inter', sans-serif",
+                position: "relative", overflow: "hidden",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = mode.color;
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.boxShadow = `0 8px 24px ${mode.color}18`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "var(--border)";
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
+            >
+              {/* Icon */}
+              <div style={{
+                width: 40, height: 40, borderRadius: 10,
+                background: `${mode.color}12`, display: "flex",
+                alignItems: "center", justifyContent: "center", marginBottom: 12,
+              }}>
+                <span className="material-symbols-outlined" style={{
+                  fontSize: 22, color: mode.color, fontVariationSettings: "'FILL' 1",
+                }}>{mode.icon}</span>
+              </div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)" }}>{mode.label}</div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>{mode.desc}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Today's Snapshot — Compact Stats ── */}
+      <div>
+        <div className="n-section-label">Today&apos;s Overview</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
           {[
-            { label: "CF Rating", value: user.rating.toLocaleString(), color: "var(--info)", icon: "trending_up" },
-            { label: "Problems Solved", value: user.totalSolved.toLocaleString(), color: "var(--success)", icon: "check_circle" },
+            { label: "CF Rating", value: user.rating > 0 ? user.rating.toLocaleString() : "—", color: "var(--info)", icon: "trending_up" },
+            { label: "Solved", value: user.totalSolved.toLocaleString(), color: "var(--success)", icon: "check_circle" },
             { label: "Total XP", value: (user.xp / 1000).toFixed(1) + "K", color: "var(--warning)", icon: "star" },
             { label: "Level", value: String(user.level), color: "var(--primary)", icon: "military_tech" },
           ].map((stat) => (
-            <div key={stat.label} className="n-card" style={{ padding: "20px 18px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 20, color: stat.color, fontVariationSettings: "'FILL' 1" }}>
+            <div key={stat.label} className="n-card" style={{ padding: "16px 18px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 18, color: stat.color, fontVariationSettings: "'FILL' 1" }}>
                   {stat.icon}
                 </span>
-                <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
                   {stat.label}
                 </span>
               </div>
-              <div style={{ fontSize: 28, fontWeight: 800, color: stat.color, letterSpacing: "-0.02em" }}>
+              <div style={{ fontSize: 24, fontWeight: 800, color: stat.color, letterSpacing: "-0.02em" }}>
                 {stat.value}
               </div>
             </div>
@@ -84,88 +166,47 @@ function DashboardMain({ profile }: { profile: any }) {
         </div>
       </div>
 
-      {/* XP Progress */}
-      <XPBar totalXP={user.xp} title={user.title} />
-
-      {/* Full-width column — IntelPanel is separately in DashboardLayout rightPanel */}
-      <div style={{ display: "flex", flexDirection: "column" as const, gap: 16 }}>
-
-        {/* Activity Heatmap */}
-        <div style={{ position: "relative" }}>
-          <Heatmap data={profile?.heatmap || []} />
-        </div>
-
-        {/* Skill Assessment — Vertical Bar Chart, sits right below heatmap */}
-        {topics.length > 0 && (() => {
-          const topicColors: Record<string, string> = {
-            "dp": "#d97706", "graphs": "#059669", "math": "#7c3aed",
-            "greedy": "#0891b2", "data structures": "#0366d6", "strings": "#0d9488",
-            "binary search": "#f59e0b", "implementation": "#6366f1", "sorting": "#8b5cf6",
-            "number theory": "#ec4899", "combinatorics": "#f97316", "geometry": "#14b8a6",
-            "brute force": "#64748b", "trees": "#22c55e",
-          };
-          const sorted = [...topics].sort((a, b) => (b.solved || 0) - (a.solved || 0)).slice(0, 12);
-          const maxSolved = Math.max(...sorted.map(t => t.solved || 0), 1);
-          const BAR_MAX_H = 90;
-
-          return (
-            <div className="n-card" style={{ padding: "14px 20px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                <div className="n-section-label" style={{ marginBottom: 0 }}>Skill Assessment</div>
-                <div style={{ fontSize: 11, color: "var(--text-muted)" }}>problems solved · top 12 topics</div>
-              </div>
-              <div style={{ display: "flex", gap: 6, alignItems: "flex-end" }}>
-                {sorted.map((t) => {
-                  const color = topicColors[t.tag.toLowerCase()] || "var(--primary)";
-                  const barH = Math.max(Math.round(((t.solved || 0) / maxSolved) * BAR_MAX_H), t.solved > 0 ? 5 : 2);
-                  const acPct = t.attempted > 0 ? Math.round((t.solved / t.attempted) * 100) : 0;
-                  const trendIcon = t.trend === "up" ? "↑" : t.trend === "down" ? "↓" : "";
-                  const trendColor = t.trend === "up" ? "var(--success)" : "var(--danger)";
-                  return (
-                    <div key={t.tag} style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 3, flex: "1 1 0", minWidth: 0 }}>
-                      {/* Count + trend on top */}
-                      <span style={{ fontSize: 10, fontWeight: 700, color: "var(--text-secondary)", lineHeight: 1 }}>
-                        {t.solved > 0 ? t.solved : ""}
-                        {trendIcon && <span style={{ color: trendColor, fontSize: 9 }}>{trendIcon}</span>}
-                      </span>
-                      {/* Bar track — grows upward */}
-                      <div style={{ width: "100%", height: BAR_MAX_H, background: "var(--surface-high)", borderRadius: "3px 3px 0 0", display: "flex", alignItems: "flex-end", overflow: "hidden" }}>
-                        <div style={{
-                          width: "100%",
-                          height: barH,
-                          background: color,
-                          borderRadius: "3px 3px 0 0",
-                          opacity: 0.85,
-                          transition: "height 0.8s ease",
-                        }} />
-                      </div>
-                      {/* AC% */}
-                      <div style={{ fontSize: 9, color: "var(--text-muted)", textAlign: "center" }}>{acPct > 0 ? `${acPct}%` : ""}</div>
-                      {/* Label */}
-                      <div style={{ fontSize: 9, fontWeight: 600, color: "var(--text-secondary)", textAlign: "center", textTransform: "capitalize" as const, lineHeight: 1.2, width: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
-                        {t.tag}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+      {/* ── Pending Duels Alert ── */}
+      {pendingDuels > 0 && (
+        <button
+          onClick={() => router.push("/arena")}
+          className="n-card"
+          style={{
+            padding: "16px 20px", display: "flex", alignItems: "center", gap: 14,
+            border: "1px solid rgba(220,38,38,0.3)", cursor: "pointer",
+            background: "rgba(220,38,38,0.04)", width: "100%",
+            fontFamily: "'Inter', sans-serif", borderRadius: 14,
+          }}
+        >
+          <div style={{
+            width: 40, height: 40, borderRadius: 10, background: "rgba(220,38,38,0.1)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <span className="material-symbols-outlined" style={{
+              fontSize: 22, color: "var(--danger)", fontVariationSettings: "'FILL' 1",
+              animation: "pulse 2s infinite",
+            }}>swords</span>
+          </div>
+          <div style={{ flex: 1, textAlign: "left" }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "var(--danger)" }}>
+              {pendingDuels} Duel Challenge{pendingDuels > 1 ? "s" : ""} Waiting
             </div>
-          );
-        })()}
-
-        {/* Quick Actions */}
-        <MissionMap />
-      </div>
+            <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>Someone wants to battle you!</div>
+          </div>
+          <span className="material-symbols-outlined" style={{ fontSize: 20, color: "var(--text-muted)" }}>arrow_forward</span>
+        </button>
+      )}
     </>
   );
 }
+
+/* ──────────────────── Right Column: Intel & Missions ───────────────── */
 
 function IntelPanel({ profile }: { profile: any }) {
   const { insights, missions: storeMissions, completeMission, gainXP, generateRecommendation, setActiveMission } = useStore();
   const [apiMissions, setApiMissions] = useState<ApiMission[]>([]);
   const [loadingMissions, setLoadingMissions] = useState(true);
 
-  // Fetch real missions from the API
   useEffect(() => {
     fetch("/api/missions/today")
       .then((res) => res.json())
@@ -178,7 +219,6 @@ function IntelPanel({ profile }: { profile: any }) {
       .catch(() => setLoadingMissions(false));
   }, []);
 
-  // Convert API missions to the format MissionCard expects
   const displayMissions = apiMissions.length > 0
     ? apiMissions.map((m) => ({
         id: m.id,
@@ -187,17 +227,15 @@ function IntelPanel({ profile }: { profile: any }) {
         xp: m.xpReward,
         done: m.completed,
       }))
-    : storeMissions; // Fallback to store mock missions if API returns nothing
+    : storeMissions;
 
   const handleComplete = useCallback(async (id: string) => {
-    // Check if this is an API mission
     const apiMission = apiMissions.find((m) => m.id === id);
     if (apiMission) {
       try {
         const res = await fetch(`/api/missions/${id}/complete`, { method: "PATCH" });
         const data = await res.json();
         if (data.success) {
-          // Update the API mission in local state
           setApiMissions((prev) =>
             prev.map((m) => (m.id === id ? { ...m, completed: true } : m))
           );
@@ -210,7 +248,6 @@ function IntelPanel({ profile }: { profile: any }) {
         alert("Failed to complete mission. Please try again.");
       }
     } else {
-      // Fallback for store missions
       const m = storeMissions.find((x) => x.id === id);
       if (m && !m.done) {
         completeMission(id);
@@ -224,22 +261,28 @@ function IntelPanel({ profile }: { profile: any }) {
 
   return (
     <>
+      {/* Coach's Corner */}
       <div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-          <div className="n-section-label" style={{ marginBottom: 0 }}>Intel Brief</div>
-          <button className="n-btn-primary" style={{ fontSize: 12, padding: "6px 12px" }} onClick={() => generateRecommendation()}>
-            Generate
+          <div className="n-section-label" style={{ marginBottom: 0 }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 16, verticalAlign: "middle", marginRight: 6, color: "var(--primary)", fontVariationSettings: "'FILL' 1" }}>smart_toy</span>
+            Coach&apos;s Brief
+          </div>
+          <button className="n-btn-primary" style={{ fontSize: 11, padding: "5px 10px" }} onClick={() => generateRecommendation()}>
+            <span className="material-symbols-outlined" style={{ fontSize: 14 }}>refresh</span>
           </button>
         </div>
         {insights.length > 0 ? (
           <CoachInsightCard insight={insights[0]} />
         ) : (
-          <div style={{ color: "var(--text-muted)", fontSize: 14, padding: "12px 0" }}>
-            No intel gathered yet. Start solving!
+          <div className="n-card" style={{ padding: "16px", textAlign: "center" }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 28, color: "var(--text-faint)", marginBottom: 8 }}>psychology</span>
+            <div style={{ color: "var(--text-muted)", fontSize: 13 }}>No intel yet. Solve a few problems first!</div>
           </div>
         )}
       </div>
 
+      {/* Active Missions */}
       <div>
         <div className="n-section-label">Active Missions</div>
         {loadingMissions ? (
@@ -255,6 +298,7 @@ function IntelPanel({ profile }: { profile: any }) {
         )}
       </div>
 
+      {/* Weekly Target */}
       <div>
         <div className="n-section-label">Weekly Target</div>
         <div className="n-card" style={{ padding: "16px 18px" }}>
@@ -279,13 +323,15 @@ function IntelPanel({ profile }: { profile: any }) {
         </div>
       </div>
 
-      {/* Upsolve Queue Widget — below missions panel */}
+      {/* Upsolve Queue */}
       <div className="n-card" style={{ padding: "16px 18px" }}>
         <UpsolveWidget />
       </div>
     </>
   );
 }
+
+/* ────────────────────────── Page Export ─────────────────────────────── */
 
 export default function DashboardPage() {
   const { data: session } = useSession();
