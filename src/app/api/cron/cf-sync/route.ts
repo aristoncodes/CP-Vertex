@@ -204,28 +204,35 @@ async function recalculateStreak(userId: string) {
 
   if (allOKSubmissions.length === 0) return
 
-  // Group by unique date strings (YYYY-MM-DD UTC)
+  // Helper to convert UTC Date to IST date string (UTC+5:30)
+  const getISTDateStr = (date: Date) => {
+    const istTime = new Date(date.getTime() + 330 * 60000)
+    return istTime.toISOString().split("T")[0]
+  }
+
+  // Group by unique date strings (YYYY-MM-DD IST)
   const uniqueDates = Array.from(
-    new Set(allOKSubmissions.map(s => s.submittedAt.toISOString().split("T")[0]))
+    new Set(allOKSubmissions.map(s => getISTDateStr(s.submittedAt)))
   )
 
-  const todayStr = new Date().toISOString().split("T")[0]
-  const yesterdayDate = new Date()
-  yesterdayDate.setDate(yesterdayDate.getDate() - 1)
-  const yesterdayStr = yesterdayDate.toISOString().split("T")[0]
+  const now = new Date()
+  const todayStr = getISTDateStr(now)
+  
+  const yesterdayDate = new Date(now.getTime() - 24 * 60 * 60000)
+  const yesterdayStr = getISTDateStr(yesterdayDate)
 
   let currentStreak = 0
   let lastActiveDay: Date | null = null
 
-  // Check if streak is active (solved today or yesterday)
+  // Check if streak is active (solved today or yesterday in IST)
   if (uniqueDates.includes(todayStr) || uniqueDates.includes(yesterdayStr)) {
-    let checkDate = uniqueDates.includes(todayStr) ? new Date() : yesterdayDate
+    let checkDate = uniqueDates.includes(todayStr) ? now : yesterdayDate
     lastActiveDay = new Date(checkDate)
     while (true) {
-      const dateStr = checkDate.toISOString().split("T")[0]
+      const dateStr = getISTDateStr(checkDate)
       if (uniqueDates.includes(dateStr)) {
         currentStreak++
-        checkDate.setDate(checkDate.getDate() - 1)
+        checkDate = new Date(checkDate.getTime() - 24 * 60 * 60000)
       } else {
         break
       }
