@@ -72,6 +72,10 @@ export function TopBar() {
   const [showNotifs, setShowNotifs] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
 
+  // User menu state
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
   const fetchNotifications = useCallback(async () => {
     try {
       const res = await fetch("/api/notifications");
@@ -96,10 +100,13 @@ export function TopBar() {
       if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
         setShowNotifs(false);
       }
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setShowUserMenu(false);
+      }
     }
-    if (showNotifs) document.addEventListener("mousedown", handleClickOutside);
+    if (showNotifs || showUserMenu) document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [showNotifs]);
+  }, [showNotifs, showUserMenu]);
 
   const markAllRead = async () => {
     try {
@@ -404,78 +411,141 @@ export function TopBar() {
             <span style={{ opacity: 0.7 }}>⌘K</span>
           </button>
 
-          <Link
-            href={`/profile/${userHandle}`}
-            style={{
-              fontSize: 14,
-              fontWeight: 600,
-              color: "var(--text-secondary)",
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              marginLeft: 4,
-            }}
-          >
-            <div
+          {/* User Menu Dropdown */}
+          <div ref={userMenuRef} style={{ position: "relative", marginLeft: 4 }}>
+            <button
+              onClick={() => setShowUserMenu(!showUserMenu)}
               style={{
-                width: 28,
-                height: 28,
+                width: 36,
+                height: 36,
                 borderRadius: "50%",
-                background: "var(--surface-high)",
+                background: showUserMenu ? "var(--surface-high)" : "transparent",
+                border: "1px solid",
+                borderColor: showUserMenu ? "var(--border)" : "transparent",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                cursor: "pointer",
+                transition: "all 0.15s",
               }}
+              title="User menu"
             >
-              <span
-                className="material-symbols-outlined"
-                style={{ fontSize: 16, color: "var(--text-muted)" }}
+              <div
+                style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: "50%",
+                  background: "var(--primary-light)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "var(--primary)",
+                }}
               >
-                person
-              </span>
-            </div>
-            <span className="topbar-username">{displayHandle}</span>
-          </Link>
-          <ThemeToggle />
-          <Link
-            href="/settings"
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: "50%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "var(--text-muted)",
-              transition: "background 0.15s",
-            }}
-            title="Settings"
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
-              settings
-            </span>
-          </Link>
-          <button
-            onClick={() => signOut({ callbackUrl: "/login" })}
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: "50%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "var(--danger)",
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-              transition: "background 0.15s",
-            }}
-            title="Sign out"
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
-              logout
-            </span>
-          </button>
+                <span className="material-symbols-outlined" style={{ fontSize: 16, fontVariationSettings: "'FILL' 1" }}>
+                  person
+                </span>
+              </div>
+            </button>
+
+            {showUserMenu && (
+              <div
+                className="user-dropdown n-glass"
+                style={{
+                  position: "absolute",
+                  top: "calc(100% + 8px)",
+                  right: 0,
+                  width: 260,
+                  background: "var(--surface-card)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 14,
+                  boxShadow: "0 12px 48px rgba(0,0,0,0.12)",
+                  zIndex: 200,
+                  padding: "8px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "4px",
+                }}
+              >
+                {/* Header info */}
+                <div style={{ padding: "12px", borderBottom: "1px solid var(--border)", marginBottom: "4px" }}>
+                  <div style={{ fontWeight: 600, color: "var(--text-primary)", fontSize: 15 }}>
+                    {displayHandle}
+                  </div>
+                  <div style={{ color: "var(--text-muted)", fontSize: 13, marginTop: 2 }}>
+                    @{userHandle}
+                  </div>
+                </div>
+
+                {/* Menu items */}
+                <Link
+                  href={`/profile/${userHandle}`}
+                  onClick={() => setShowUserMenu(false)}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 12,
+                    padding: "10px 12px", borderRadius: 8,
+                    color: "var(--text-secondary)", fontSize: 14,
+                    textDecoration: "none", transition: "background 0.15s",
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.background = "var(--surface-high)"}
+                  onMouseOut={(e) => e.currentTarget.style.background = "transparent"}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: 18 }}>person</span>
+                  My Profile
+                </Link>
+
+                <Link
+                  href="/settings"
+                  onClick={() => setShowUserMenu(false)}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 12,
+                    padding: "10px 12px", borderRadius: 8,
+                    color: "var(--text-secondary)", fontSize: 14,
+                    textDecoration: "none", transition: "background 0.15s",
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.background = "var(--surface-high)"}
+                  onMouseOut={(e) => e.currentTarget.style.background = "transparent"}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: 18 }}>settings</span>
+                  Settings
+                </Link>
+
+                <div
+                  style={{
+                    display: "flex", alignItems: "center", justifyContent: "space-between",
+                    padding: "10px 12px", borderRadius: 8,
+                    color: "var(--text-secondary)", fontSize: 14,
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 18 }}>palette</span>
+                    Appearance
+                  </div>
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <ThemeToggle />
+                  </div>
+                </div>
+
+                <div style={{ height: 1, background: "var(--border)", margin: "4px 0" }}></div>
+
+                <button
+                  onClick={() => { setShowUserMenu(false); signOut({ callbackUrl: "/login" }); }}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 12,
+                    padding: "10px 12px", borderRadius: 8,
+                    color: "var(--danger)", fontSize: 14, fontWeight: 500,
+                    background: "transparent", border: "none", cursor: "pointer",
+                    textAlign: "left", transition: "background 0.15s",
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.background = "rgba(220, 38, 38, 0.08)"}
+                  onMouseOut={(e) => e.currentTarget.style.background = "transparent"}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: 18 }}>logout</span>
+                  Sign Out
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
