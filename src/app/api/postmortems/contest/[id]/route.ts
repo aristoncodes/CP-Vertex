@@ -1,10 +1,11 @@
+import { NextRequest } from "next/server"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { analyzeContest } from "@/lib/intelligence"
 
 export async function POST(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth()
@@ -12,7 +13,8 @@ export async function POST(
       return Response.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const participationId = params.id
+    const { id: participationId } = await params
+
 
     // Check if participation exists and belongs to user
     const participation = await prisma.contestParticipation.findUnique({
