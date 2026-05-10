@@ -24,13 +24,15 @@ const allBadges = [
   { id: "duel_winner", slug: "duel_winner", name: "Gladiator", icon: "shield", color: "#6366f1", desc: "Win 5 duels" },
 ];
 
-function getRankInfo(level: number): { name: string; color: string; bg: string } {
-  if (level >= 40) return { name: "Grandmaster", color: "#dc2626", bg: "rgba(220,38,38,0.08)" };
-  if (level >= 30) return { name: "Master", color: "#d97706", bg: "rgba(217,119,6,0.08)" };
-  if (level >= 20) return { name: "Expert", color: "#7c3aed", bg: "rgba(124,58,237,0.08)" };
-  if (level >= 10) return { name: "Specialist", color: "#0891b2", bg: "rgba(8,145,178,0.08)" };
-  if (level >= 5) return { name: "Apprentice", color: "#059669", bg: "rgba(5,150,105,0.08)" };
-  return { name: "Novice", color: "var(--text-muted)", bg: "var(--surface-high)" };
+function getRankInfo(cfRating: number): { name: string; color: string; bg: string } {
+  if (cfRating >= 2400) return { name: "Grandmaster", color: "#dc2626", bg: "rgba(220,38,38,0.08)" };
+  if (cfRating >= 2100) return { name: "Master", color: "#FF8C00", bg: "rgba(255,140,0,0.08)" };
+  if (cfRating >= 1900) return { name: "Candidate Master", color: "#a855f7", bg: "rgba(168,85,247,0.08)" };
+  if (cfRating >= 1600) return { name: "Expert", color: "#3b82f6", bg: "rgba(59,130,246,0.08)" };
+  if (cfRating >= 1400) return { name: "Specialist", color: "#06b6d4", bg: "rgba(6,182,212,0.08)" };
+  if (cfRating >= 1200) return { name: "Pupil", color: "#22c55e", bg: "rgba(34,197,94,0.08)" };
+  if (cfRating > 0) return { name: "Newbie", color: "#6b7280", bg: "rgba(107,114,128,0.08)" };
+  return { name: "Unrated", color: "var(--text-muted)", bg: "var(--surface-high)" };
 }
 
 export default function ProfilePage() {
@@ -72,7 +74,7 @@ export default function ProfilePage() {
     );
   }
 
-  const rank = getRankInfo(profile.level || 1);
+  const rank = getRankInfo(profile.cfRating || 0);
   const earned = profile.badges || [];
   const earnedSlugs = new Set(earned.map((b: any) => b.slug || b.id || b));
   const earnedCount = allBadges.filter(b => earnedSlugs.has(b.slug)).length;
