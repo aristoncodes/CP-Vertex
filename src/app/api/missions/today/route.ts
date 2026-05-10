@@ -37,10 +37,18 @@ export async function GET() {
     }
 
     // Get all mission templates
-    const missionTemplates = await prisma.mission.findMany()
+    let missionTemplates = await prisma.mission.findMany()
 
     if (missionTemplates.length === 0) {
-      return Response.json({ missions: [], message: "No missions available" })
+      // Auto-seed basic templates if none exist
+      await prisma.mission.createMany({
+        data: [
+          { type: "solve_tag", title: "Solve 2 Binary Search problems", description: "WEAK ZONE · 42% AC RATE", xpReward: 100, difficulty: "normal" },
+          { type: "boss_fight", title: "Defeat Boss: 'Cthulhu'", description: "ARENA EVENT", xpReward: 250, difficulty: "hard" },
+          { type: "duel_win", title: "Win 1 Duel", description: "PVP CHALLENGE", xpReward: 150, difficulty: "normal" }
+        ]
+      })
+      missionTemplates = await prisma.mission.findMany()
     }
 
     // Pick 3 random missions

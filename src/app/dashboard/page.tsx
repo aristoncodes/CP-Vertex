@@ -254,9 +254,7 @@ function IntelPanel({ profile }: { profile: any }) {
     } else {
       const m = storeMissions.find((x) => x.id === id);
       if (m && !m.done) {
-        completeMission(id);
-        gainXP(m.xp);
-        setActiveMission(null);
+        alert("This is a mock mission. Please refresh the page to sync real missions from the server!");
       }
     }
   }, [apiMissions, storeMissions, completeMission, gainXP, setActiveMission]);

@@ -38,14 +38,23 @@ export async function PATCH(
     const missionStartSeconds = Math.floor(new Date(userMission.date).getTime() / 1000);
     const todayStart = new Date(userMission.date);
 
-    if (missionType === "solve_tag" || missionType === "speed_solve") {
+    if (missionType === "solve_tag" || missionType === "speed_solve" || userMission.mission.title.match(/Solve (\d+) (.+) problems/i)) {
       if (!userMission.user.cfHandle) {
         return Response.json({ error: "Please link your Codeforces handle first." }, { status: 400 })
       }
       
       let targetCount = 1;
-      if (userMission.mission.title === "Daily Grind") targetCount = 2;
-      if (missionType === "speed_solve") targetCount = 3;
+      let targetTag = "";
+      const match = userMission.mission.title.match(/Solve (\d+) (.+) problems/i);
+      
+      if (match) {
+        targetCount = parseInt(match[1]);
+        targetTag = match[2].toLowerCase().trim();
+      } else if (userMission.mission.title === "Daily Grind") {
+        targetCount = 2;
+      } else if (missionType === "speed_solve") {
+        targetCount = 3;
+      }
 
       try {
         const submissions = await getCFSubmissions(userMission.user.cfHandle, 1, 20);
@@ -54,13 +63,22 @@ export async function PATCH(
         for (const sub of submissions) {
           if (sub.creationTimeSeconds < missionStartSeconds) break;
           if (sub.verdict === "OK") {
-            validSolvedIds.add(`${sub.problem.contestId}-${sub.problem.index}`);
+            if (targetTag) {
+              const hasTag = sub.problem.tags.some(t => t.toLowerCase() === targetTag || (targetTag === "dynamic programming" && t.toLowerCase() === "dp"));
+              if (hasTag) {
+                validSolvedIds.add(`${sub.problem.contestId}-${sub.problem.index}`);
+              }
+            } else {
+              validSolvedIds.add(`${sub.problem.contestId}-${sub.problem.index}`);
+            }
           }
         }
         
         if (validSolvedIds.size < targetCount) {
           return Response.json({ 
-            error: `Mission not completed yet. You have solved ${validSolvedIds.size}/${targetCount} unique problems today. Keep going!` 
+            error: targetTag 
+              ? `Mission not completed yet. You have solved ${validSolvedIds.size}/${targetCount} '${targetTag}' problems today. Keep going!`
+              : `Mission not completed yet. You have solved ${validSolvedIds.size}/${targetCount} unique problems today. Keep going!` 
           }, { status: 400 })
         }
       } catch (error) {
