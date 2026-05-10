@@ -168,15 +168,16 @@ export default function ProfilePage() {
             const isEarned = earnedSlugs.has(badge.slug);
             const earnedInfo = earned.find((b: any) => (b.slug || b.id || b) === badge.slug);
             return (
-              <div key={badge.id} style={{
+              <div key={badge.id} className="badge-card" style={{
                 display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
                 padding: "16px 8px", borderRadius: 12,
                 background: isEarned ? `${badge.color}08` : "var(--surface-low)",
                 border: `1px solid ${isEarned ? `${badge.color}30` : "var(--border)"}`,
                 opacity: isEarned ? 1 : 0.35,
-                transition: "all 0.2s",
+                transition: "all 0.25s",
                 cursor: "default",
-              }} title={badge.desc + (isEarned && earnedInfo?.earnedAt ? ` · Earned ${new Date(earnedInfo.earnedAt).toLocaleDateString()}` : "")}>
+                position: "relative",
+              }}>
                 <span className="material-symbols-outlined" style={{
                   fontSize: 30,
                   color: isEarned ? badge.color : "var(--text-faint)",
@@ -193,6 +194,44 @@ export default function ProfilePage() {
                     {earnedInfo?.earnedAt ? new Date(earnedInfo.earnedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "✓"}
                   </span>
                 )}
+
+                {/* Hover Tooltip */}
+                <div className="badge-tooltip" style={{
+                  position: "absolute", bottom: "calc(100% + 10px)", left: "50%",
+                  transform: "translateX(-50%)", width: 200,
+                  background: "var(--surface-card)", border: "1px solid var(--border)",
+                  borderRadius: 12, padding: "12px 14px",
+                  boxShadow: "0 8px 30px rgba(0,0,0,0.12)",
+                  opacity: 0, pointerEvents: "none",
+                  transition: "opacity 0.2s, transform 0.2s",
+                  zIndex: 50,
+                }}>
+                  {/* Arrow */}
+                  <div style={{
+                    position: "absolute", bottom: -6, left: "50%", transform: "translateX(-50%) rotate(45deg)",
+                    width: 12, height: 12,
+                    background: "var(--surface-card)", border: "1px solid var(--border)",
+                    borderTop: "none", borderLeft: "none",
+                  }} />
+                  <div style={{ fontSize: 13, fontWeight: 700, color: isEarned ? badge.color : "var(--text-primary)", marginBottom: 4 }}>
+                    {badge.name}
+                  </div>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.4 }}>
+                    {badge.desc}
+                  </div>
+                  {isEarned && earnedInfo?.earnedAt && (
+                    <div style={{ fontSize: 11, color: "var(--success)", marginTop: 6, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: 14, fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                      Earned {new Date(earnedInfo.earnedAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                    </div>
+                  )}
+                  {!isEarned && (
+                    <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 6, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: 14 }}>lock</span>
+                      Not yet earned
+                    </div>
+                  )}
+                </div>
               </div>
             );
           })}

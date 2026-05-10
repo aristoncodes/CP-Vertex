@@ -737,3 +737,20 @@ a { text-decoration: none; color: inherit; }
   border-radius: 16px;
   margin: 16px;
 }
+
+/* ════════════════════════════════════════════════════════════════
+   22. BADGE TOOLTIPS
+════════════════════════════════════════════════════════════════ */
+.badge-card {
+  position: relative;
+}
+.badge-card:hover {
+  opacity: 1 !important;
+  transform: translateY(-3px);
+  z-index: 10;
+}
+.badge-card:hover .badge-tooltip {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transform: translateX(-50%) translateY(-4px) !important;
+}
