@@ -42,6 +42,7 @@ export default function ProfilePage() {
 
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [showAllTopics, setShowAllTopics] = useState(false);
 
   useEffect(() => {
     fetch(`/api/user/${handle}`)
@@ -325,8 +326,7 @@ export default function ProfilePage() {
       {/* ── Topic Breakdown (Visual) ── */}
       {(() => {
         const topics = (profile.topicScores || []).slice().sort((a: any, b: any) => b.score - a.score);
-        const [showAll, setShowAll] = useState(false);
-        const displayed = showAll ? topics : topics.slice(0, 12);
+        const displayed = showAllTopics ? topics : topics.slice(0, 12);
 
         const getStrengthColor = (score: number) => {
           if (score >= 80) return "var(--success)";
@@ -431,7 +431,7 @@ export default function ProfilePage() {
             {/* Show more/less */}
             {topics.length > 12 && (
               <button
-                onClick={() => setShowAll(!showAll)}
+                onClick={() => setShowAllTopics(!showAllTopics)}
                 style={{
                   display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
                   width: "100%", marginTop: 16, padding: "10px 0",
@@ -441,9 +441,9 @@ export default function ProfilePage() {
                 }}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
-                  {showAll ? "expand_less" : "expand_more"}
+                  {showAllTopics ? "expand_less" : "expand_more"}
                 </span>
-                {showAll ? "Show Less" : `Show All ${topics.length} Topics`}
+                {showAllTopics ? "Show Less" : `Show All ${topics.length} Topics`}
               </button>
             )}
           </div>
