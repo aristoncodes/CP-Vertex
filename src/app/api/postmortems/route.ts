@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { rateLimits, checkRateLimit } from "@/lib/ratelimit"
 import { awardXP } from "@/lib/xp"
 import { emitXPGain, emitLevelUp } from "@/lib/realtime"
+import { analyzePostMortem } from "@/lib/intelligence"
 import { z } from "zod"
 
 const postMortemSchema = z.object({
@@ -86,8 +87,17 @@ export async function POST(request: Request) {
       await emitLevelUp(session.user.id, newLevel)
     }
 
+    // AI Analysis (non-blocking — don't fail if Gemini errors)
+    let aiAnalysis = null
+    try {
+      aiAnalysis = await analyzePostMortem(session.user.id, postMortem.id)
+    } catch (err) {
+      console.error("AI post-mortem analysis failed (non-critical):", err)
+    }
+
     return Response.json({
       postMortem,
+      aiAnalysis,
       xpAwarded,
       newLevel,
       leveledUp,
@@ -97,3 +107,4 @@ export async function POST(request: Request) {
     return Response.json({ error: "Internal server error" }, { status: 500 })
   }
 }
+

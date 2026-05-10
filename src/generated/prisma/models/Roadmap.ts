@@ -27,18 +27,21 @@ export type AggregateRoadmap = {
 export type RoadmapMinAggregateOutputType = {
   id: string | null
   userId: string | null
+  reasoning: string | null
   generatedAt: Date | null
 }
 
 export type RoadmapMaxAggregateOutputType = {
   id: string | null
   userId: string | null
+  reasoning: string | null
   generatedAt: Date | null
 }
 
 export type RoadmapCountAggregateOutputType = {
   id: number
   userId: number
+  reasoning: number
   generatedAt: number
   _all: number
 }
@@ -47,18 +50,21 @@ export type RoadmapCountAggregateOutputType = {
 export type RoadmapMinAggregateInputType = {
   id?: true
   userId?: true
+  reasoning?: true
   generatedAt?: true
 }
 
 export type RoadmapMaxAggregateInputType = {
   id?: true
   userId?: true
+  reasoning?: true
   generatedAt?: true
 }
 
 export type RoadmapCountAggregateInputType = {
   id?: true
   userId?: true
+  reasoning?: true
   generatedAt?: true
   _all?: true
 }
@@ -138,6 +144,7 @@ export type RoadmapGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 export type RoadmapGroupByOutputType = {
   id: string
   userId: string
+  reasoning: string | null
   generatedAt: Date
   _count: RoadmapCountAggregateOutputType | null
   _min: RoadmapMinAggregateOutputType | null
@@ -165,6 +172,7 @@ export type RoadmapWhereInput = {
   NOT?: Prisma.RoadmapWhereInput | Prisma.RoadmapWhereInput[]
   id?: Prisma.StringFilter<"Roadmap"> | string
   userId?: Prisma.StringFilter<"Roadmap"> | string
+  reasoning?: Prisma.StringNullableFilter<"Roadmap"> | string | null
   generatedAt?: Prisma.DateTimeFilter<"Roadmap"> | Date | string
   weeks?: Prisma.RoadmapWeekListRelationFilter
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -173,6 +181,7 @@ export type RoadmapWhereInput = {
 export type RoadmapOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  reasoning?: Prisma.SortOrderInput | Prisma.SortOrder
   generatedAt?: Prisma.SortOrder
   weeks?: Prisma.RoadmapWeekOrderByRelationAggregateInput
   user?: Prisma.UserOrderByWithRelationInput
@@ -184,6 +193,7 @@ export type RoadmapWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.RoadmapWhereInput | Prisma.RoadmapWhereInput[]
   OR?: Prisma.RoadmapWhereInput[]
   NOT?: Prisma.RoadmapWhereInput | Prisma.RoadmapWhereInput[]
+  reasoning?: Prisma.StringNullableFilter<"Roadmap"> | string | null
   generatedAt?: Prisma.DateTimeFilter<"Roadmap"> | Date | string
   weeks?: Prisma.RoadmapWeekListRelationFilter
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -192,6 +202,7 @@ export type RoadmapWhereUniqueInput = Prisma.AtLeast<{
 export type RoadmapOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  reasoning?: Prisma.SortOrderInput | Prisma.SortOrder
   generatedAt?: Prisma.SortOrder
   _count?: Prisma.RoadmapCountOrderByAggregateInput
   _max?: Prisma.RoadmapMaxOrderByAggregateInput
@@ -204,11 +215,13 @@ export type RoadmapScalarWhereWithAggregatesInput = {
   NOT?: Prisma.RoadmapScalarWhereWithAggregatesInput | Prisma.RoadmapScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Roadmap"> | string
   userId?: Prisma.StringWithAggregatesFilter<"Roadmap"> | string
+  reasoning?: Prisma.StringNullableWithAggregatesFilter<"Roadmap"> | string | null
   generatedAt?: Prisma.DateTimeWithAggregatesFilter<"Roadmap"> | Date | string
 }
 
 export type RoadmapCreateInput = {
   id?: string
+  reasoning?: string | null
   generatedAt?: Date | string
   weeks?: Prisma.RoadmapWeekCreateNestedManyWithoutRoadmapInput
   user: Prisma.UserCreateNestedOneWithoutRoadmapsInput
@@ -217,12 +230,14 @@ export type RoadmapCreateInput = {
 export type RoadmapUncheckedCreateInput = {
   id?: string
   userId: string
+  reasoning?: string | null
   generatedAt?: Date | string
   weeks?: Prisma.RoadmapWeekUncheckedCreateNestedManyWithoutRoadmapInput
 }
 
 export type RoadmapUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  reasoning?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   weeks?: Prisma.RoadmapWeekUpdateManyWithoutRoadmapNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutRoadmapsNestedInput
@@ -231,6 +246,7 @@ export type RoadmapUpdateInput = {
 export type RoadmapUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  reasoning?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   weeks?: Prisma.RoadmapWeekUncheckedUpdateManyWithoutRoadmapNestedInput
 }
@@ -238,17 +254,20 @@ export type RoadmapUncheckedUpdateInput = {
 export type RoadmapCreateManyInput = {
   id?: string
   userId: string
+  reasoning?: string | null
   generatedAt?: Date | string
 }
 
 export type RoadmapUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  reasoning?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RoadmapUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  reasoning?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -265,18 +284,21 @@ export type RoadmapOrderByRelationAggregateInput = {
 export type RoadmapCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  reasoning?: Prisma.SortOrder
   generatedAt?: Prisma.SortOrder
 }
 
 export type RoadmapMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  reasoning?: Prisma.SortOrder
   generatedAt?: Prisma.SortOrder
 }
 
 export type RoadmapMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  reasoning?: Prisma.SortOrder
   generatedAt?: Prisma.SortOrder
 }
 
@@ -343,12 +365,14 @@ export type RoadmapUpdateOneRequiredWithoutWeeksNestedInput = {
 
 export type RoadmapCreateWithoutUserInput = {
   id?: string
+  reasoning?: string | null
   generatedAt?: Date | string
   weeks?: Prisma.RoadmapWeekCreateNestedManyWithoutRoadmapInput
 }
 
 export type RoadmapUncheckedCreateWithoutUserInput = {
   id?: string
+  reasoning?: string | null
   generatedAt?: Date | string
   weeks?: Prisma.RoadmapWeekUncheckedCreateNestedManyWithoutRoadmapInput
 }
@@ -385,11 +409,13 @@ export type RoadmapScalarWhereInput = {
   NOT?: Prisma.RoadmapScalarWhereInput | Prisma.RoadmapScalarWhereInput[]
   id?: Prisma.StringFilter<"Roadmap"> | string
   userId?: Prisma.StringFilter<"Roadmap"> | string
+  reasoning?: Prisma.StringNullableFilter<"Roadmap"> | string | null
   generatedAt?: Prisma.DateTimeFilter<"Roadmap"> | Date | string
 }
 
 export type RoadmapCreateWithoutWeeksInput = {
   id?: string
+  reasoning?: string | null
   generatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutRoadmapsInput
 }
@@ -397,6 +423,7 @@ export type RoadmapCreateWithoutWeeksInput = {
 export type RoadmapUncheckedCreateWithoutWeeksInput = {
   id?: string
   userId: string
+  reasoning?: string | null
   generatedAt?: Date | string
 }
 
@@ -418,6 +445,7 @@ export type RoadmapUpdateToOneWithWhereWithoutWeeksInput = {
 
 export type RoadmapUpdateWithoutWeeksInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  reasoning?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutRoadmapsNestedInput
 }
@@ -425,28 +453,33 @@ export type RoadmapUpdateWithoutWeeksInput = {
 export type RoadmapUncheckedUpdateWithoutWeeksInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  reasoning?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RoadmapCreateManyUserInput = {
   id?: string
+  reasoning?: string | null
   generatedAt?: Date | string
 }
 
 export type RoadmapUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  reasoning?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   weeks?: Prisma.RoadmapWeekUpdateManyWithoutRoadmapNestedInput
 }
 
 export type RoadmapUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  reasoning?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   weeks?: Prisma.RoadmapWeekUncheckedUpdateManyWithoutRoadmapNestedInput
 }
 
 export type RoadmapUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  reasoning?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -484,6 +517,7 @@ export type RoadmapCountOutputTypeCountWeeksArgs<ExtArgs extends runtime.Types.E
 export type RoadmapSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
+  reasoning?: boolean
   generatedAt?: boolean
   weeks?: boolean | Prisma.Roadmap$weeksArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -493,6 +527,7 @@ export type RoadmapSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
 export type RoadmapSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
+  reasoning?: boolean
   generatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["roadmap"]>
@@ -500,6 +535,7 @@ export type RoadmapSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
 export type RoadmapSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
+  reasoning?: boolean
   generatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["roadmap"]>
@@ -507,10 +543,11 @@ export type RoadmapSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
 export type RoadmapSelectScalar = {
   id?: boolean
   userId?: boolean
+  reasoning?: boolean
   generatedAt?: boolean
 }
 
-export type RoadmapOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "generatedAt", ExtArgs["result"]["roadmap"]>
+export type RoadmapOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "reasoning" | "generatedAt", ExtArgs["result"]["roadmap"]>
 export type RoadmapInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   weeks?: boolean | Prisma.Roadmap$weeksArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -532,6 +569,7 @@ export type $RoadmapPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     userId: string
+    reasoning: string | null
     generatedAt: Date
   }, ExtArgs["result"]["roadmap"]>
   composites: {}
@@ -960,6 +998,7 @@ export interface Prisma__RoadmapClient<T, Null = never, ExtArgs extends runtime.
 export interface RoadmapFieldRefs {
   readonly id: Prisma.FieldRef<"Roadmap", 'String'>
   readonly userId: Prisma.FieldRef<"Roadmap", 'String'>
+  readonly reasoning: Prisma.FieldRef<"Roadmap", 'String'>
   readonly generatedAt: Prisma.FieldRef<"Roadmap", 'DateTime'>
 }
     

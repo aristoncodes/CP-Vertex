@@ -43,6 +43,7 @@ export type PostMortemMinAggregateOutputType = {
   howFixed: string | null
   difficultyFelt: number | null
   confidenceNext: string | null
+  aiAnalysis: string | null
   xpAwarded: number | null
   createdAt: Date | null
 }
@@ -54,6 +55,7 @@ export type PostMortemMaxAggregateOutputType = {
   howFixed: string | null
   difficultyFelt: number | null
   confidenceNext: string | null
+  aiAnalysis: string | null
   xpAwarded: number | null
   createdAt: Date | null
 }
@@ -66,6 +68,7 @@ export type PostMortemCountAggregateOutputType = {
   howFixed: number
   difficultyFelt: number
   confidenceNext: number
+  aiAnalysis: number
   xpAwarded: number
   createdAt: number
   _all: number
@@ -89,6 +92,7 @@ export type PostMortemMinAggregateInputType = {
   howFixed?: true
   difficultyFelt?: true
   confidenceNext?: true
+  aiAnalysis?: true
   xpAwarded?: true
   createdAt?: true
 }
@@ -100,6 +104,7 @@ export type PostMortemMaxAggregateInputType = {
   howFixed?: true
   difficultyFelt?: true
   confidenceNext?: true
+  aiAnalysis?: true
   xpAwarded?: true
   createdAt?: true
 }
@@ -112,6 +117,7 @@ export type PostMortemCountAggregateInputType = {
   howFixed?: true
   difficultyFelt?: true
   confidenceNext?: true
+  aiAnalysis?: true
   xpAwarded?: true
   createdAt?: true
   _all?: true
@@ -211,6 +217,7 @@ export type PostMortemGroupByOutputType = {
   howFixed: string | null
   difficultyFelt: number
   confidenceNext: string
+  aiAnalysis: string | null
   xpAwarded: number
   createdAt: Date
   _count: PostMortemCountAggregateOutputType | null
@@ -246,6 +253,7 @@ export type PostMortemWhereInput = {
   howFixed?: Prisma.StringNullableFilter<"PostMortem"> | string | null
   difficultyFelt?: Prisma.IntFilter<"PostMortem"> | number
   confidenceNext?: Prisma.StringFilter<"PostMortem"> | string
+  aiAnalysis?: Prisma.StringNullableFilter<"PostMortem"> | string | null
   xpAwarded?: Prisma.IntFilter<"PostMortem"> | number
   createdAt?: Prisma.DateTimeFilter<"PostMortem"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -260,6 +268,7 @@ export type PostMortemOrderByWithRelationInput = {
   howFixed?: Prisma.SortOrderInput | Prisma.SortOrder
   difficultyFelt?: Prisma.SortOrder
   confidenceNext?: Prisma.SortOrder
+  aiAnalysis?: Prisma.SortOrderInput | Prisma.SortOrder
   xpAwarded?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
@@ -277,6 +286,7 @@ export type PostMortemWhereUniqueInput = Prisma.AtLeast<{
   howFixed?: Prisma.StringNullableFilter<"PostMortem"> | string | null
   difficultyFelt?: Prisma.IntFilter<"PostMortem"> | number
   confidenceNext?: Prisma.StringFilter<"PostMortem"> | string
+  aiAnalysis?: Prisma.StringNullableFilter<"PostMortem"> | string | null
   xpAwarded?: Prisma.IntFilter<"PostMortem"> | number
   createdAt?: Prisma.DateTimeFilter<"PostMortem"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -291,6 +301,7 @@ export type PostMortemOrderByWithAggregationInput = {
   howFixed?: Prisma.SortOrderInput | Prisma.SortOrder
   difficultyFelt?: Prisma.SortOrder
   confidenceNext?: Prisma.SortOrder
+  aiAnalysis?: Prisma.SortOrderInput | Prisma.SortOrder
   xpAwarded?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.PostMortemCountOrderByAggregateInput
@@ -311,6 +322,7 @@ export type PostMortemScalarWhereWithAggregatesInput = {
   howFixed?: Prisma.StringNullableWithAggregatesFilter<"PostMortem"> | string | null
   difficultyFelt?: Prisma.IntWithAggregatesFilter<"PostMortem"> | number
   confidenceNext?: Prisma.StringWithAggregatesFilter<"PostMortem"> | string
+  aiAnalysis?: Prisma.StringNullableWithAggregatesFilter<"PostMortem"> | string | null
   xpAwarded?: Prisma.IntWithAggregatesFilter<"PostMortem"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PostMortem"> | Date | string
 }
@@ -321,6 +333,7 @@ export type PostMortemCreateInput = {
   howFixed?: string | null
   difficultyFelt: number
   confidenceNext: string
+  aiAnalysis?: string | null
   xpAwarded?: number
   createdAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutPostMortemsInput
@@ -335,6 +348,7 @@ export type PostMortemUncheckedCreateInput = {
   howFixed?: string | null
   difficultyFelt: number
   confidenceNext: string
+  aiAnalysis?: string | null
   xpAwarded?: number
   createdAt?: Date | string
 }
@@ -345,6 +359,7 @@ export type PostMortemUpdateInput = {
   howFixed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficultyFelt?: Prisma.IntFieldUpdateOperationsInput | number
   confidenceNext?: Prisma.StringFieldUpdateOperationsInput | string
+  aiAnalysis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   xpAwarded?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutPostMortemsNestedInput
@@ -359,6 +374,7 @@ export type PostMortemUncheckedUpdateInput = {
   howFixed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficultyFelt?: Prisma.IntFieldUpdateOperationsInput | number
   confidenceNext?: Prisma.StringFieldUpdateOperationsInput | string
+  aiAnalysis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   xpAwarded?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -371,6 +387,7 @@ export type PostMortemCreateManyInput = {
   howFixed?: string | null
   difficultyFelt: number
   confidenceNext: string
+  aiAnalysis?: string | null
   xpAwarded?: number
   createdAt?: Date | string
 }
@@ -381,6 +398,7 @@ export type PostMortemUpdateManyMutationInput = {
   howFixed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficultyFelt?: Prisma.IntFieldUpdateOperationsInput | number
   confidenceNext?: Prisma.StringFieldUpdateOperationsInput | string
+  aiAnalysis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   xpAwarded?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -393,6 +411,7 @@ export type PostMortemUncheckedUpdateManyInput = {
   howFixed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficultyFelt?: Prisma.IntFieldUpdateOperationsInput | number
   confidenceNext?: Prisma.StringFieldUpdateOperationsInput | string
+  aiAnalysis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   xpAwarded?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -428,6 +447,7 @@ export type PostMortemCountOrderByAggregateInput = {
   howFixed?: Prisma.SortOrder
   difficultyFelt?: Prisma.SortOrder
   confidenceNext?: Prisma.SortOrder
+  aiAnalysis?: Prisma.SortOrder
   xpAwarded?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -444,6 +464,7 @@ export type PostMortemMaxOrderByAggregateInput = {
   howFixed?: Prisma.SortOrder
   difficultyFelt?: Prisma.SortOrder
   confidenceNext?: Prisma.SortOrder
+  aiAnalysis?: Prisma.SortOrder
   xpAwarded?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -455,6 +476,7 @@ export type PostMortemMinOrderByAggregateInput = {
   howFixed?: Prisma.SortOrder
   difficultyFelt?: Prisma.SortOrder
   confidenceNext?: Prisma.SortOrder
+  aiAnalysis?: Prisma.SortOrder
   xpAwarded?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -553,6 +575,7 @@ export type PostMortemCreateWithoutUserInput = {
   howFixed?: string | null
   difficultyFelt: number
   confidenceNext: string
+  aiAnalysis?: string | null
   xpAwarded?: number
   createdAt?: Date | string
   submission: Prisma.SubmissionCreateNestedOneWithoutPostMortemInput
@@ -565,6 +588,7 @@ export type PostMortemUncheckedCreateWithoutUserInput = {
   howFixed?: string | null
   difficultyFelt: number
   confidenceNext: string
+  aiAnalysis?: string | null
   xpAwarded?: number
   createdAt?: Date | string
 }
@@ -606,6 +630,7 @@ export type PostMortemScalarWhereInput = {
   howFixed?: Prisma.StringNullableFilter<"PostMortem"> | string | null
   difficultyFelt?: Prisma.IntFilter<"PostMortem"> | number
   confidenceNext?: Prisma.StringFilter<"PostMortem"> | string
+  aiAnalysis?: Prisma.StringNullableFilter<"PostMortem"> | string | null
   xpAwarded?: Prisma.IntFilter<"PostMortem"> | number
   createdAt?: Prisma.DateTimeFilter<"PostMortem"> | Date | string
 }
@@ -616,6 +641,7 @@ export type PostMortemCreateWithoutSubmissionInput = {
   howFixed?: string | null
   difficultyFelt: number
   confidenceNext: string
+  aiAnalysis?: string | null
   xpAwarded?: number
   createdAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutPostMortemsInput
@@ -628,6 +654,7 @@ export type PostMortemUncheckedCreateWithoutSubmissionInput = {
   howFixed?: string | null
   difficultyFelt: number
   confidenceNext: string
+  aiAnalysis?: string | null
   xpAwarded?: number
   createdAt?: Date | string
 }
@@ -654,6 +681,7 @@ export type PostMortemUpdateWithoutSubmissionInput = {
   howFixed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficultyFelt?: Prisma.IntFieldUpdateOperationsInput | number
   confidenceNext?: Prisma.StringFieldUpdateOperationsInput | string
+  aiAnalysis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   xpAwarded?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutPostMortemsNestedInput
@@ -666,6 +694,7 @@ export type PostMortemUncheckedUpdateWithoutSubmissionInput = {
   howFixed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficultyFelt?: Prisma.IntFieldUpdateOperationsInput | number
   confidenceNext?: Prisma.StringFieldUpdateOperationsInput | string
+  aiAnalysis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   xpAwarded?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -677,6 +706,7 @@ export type PostMortemCreateManyUserInput = {
   howFixed?: string | null
   difficultyFelt: number
   confidenceNext: string
+  aiAnalysis?: string | null
   xpAwarded?: number
   createdAt?: Date | string
 }
@@ -687,6 +717,7 @@ export type PostMortemUpdateWithoutUserInput = {
   howFixed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficultyFelt?: Prisma.IntFieldUpdateOperationsInput | number
   confidenceNext?: Prisma.StringFieldUpdateOperationsInput | string
+  aiAnalysis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   xpAwarded?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submission?: Prisma.SubmissionUpdateOneRequiredWithoutPostMortemNestedInput
@@ -699,6 +730,7 @@ export type PostMortemUncheckedUpdateWithoutUserInput = {
   howFixed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficultyFelt?: Prisma.IntFieldUpdateOperationsInput | number
   confidenceNext?: Prisma.StringFieldUpdateOperationsInput | string
+  aiAnalysis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   xpAwarded?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -710,6 +742,7 @@ export type PostMortemUncheckedUpdateManyWithoutUserInput = {
   howFixed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficultyFelt?: Prisma.IntFieldUpdateOperationsInput | number
   confidenceNext?: Prisma.StringFieldUpdateOperationsInput | string
+  aiAnalysis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   xpAwarded?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -724,6 +757,7 @@ export type PostMortemSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   howFixed?: boolean
   difficultyFelt?: boolean
   confidenceNext?: boolean
+  aiAnalysis?: boolean
   xpAwarded?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -738,6 +772,7 @@ export type PostMortemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   howFixed?: boolean
   difficultyFelt?: boolean
   confidenceNext?: boolean
+  aiAnalysis?: boolean
   xpAwarded?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -752,6 +787,7 @@ export type PostMortemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   howFixed?: boolean
   difficultyFelt?: boolean
   confidenceNext?: boolean
+  aiAnalysis?: boolean
   xpAwarded?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -766,11 +802,12 @@ export type PostMortemSelectScalar = {
   howFixed?: boolean
   difficultyFelt?: boolean
   confidenceNext?: boolean
+  aiAnalysis?: boolean
   xpAwarded?: boolean
   createdAt?: boolean
 }
 
-export type PostMortemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "submissionId" | "failureReasons" | "howFixed" | "difficultyFelt" | "confidenceNext" | "xpAwarded" | "createdAt", ExtArgs["result"]["postMortem"]>
+export type PostMortemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "submissionId" | "failureReasons" | "howFixed" | "difficultyFelt" | "confidenceNext" | "aiAnalysis" | "xpAwarded" | "createdAt", ExtArgs["result"]["postMortem"]>
 export type PostMortemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   submission?: boolean | Prisma.SubmissionDefaultArgs<ExtArgs>
@@ -798,6 +835,7 @@ export type $PostMortemPayload<ExtArgs extends runtime.Types.Extensions.Internal
     howFixed: string | null
     difficultyFelt: number
     confidenceNext: string
+    aiAnalysis: string | null
     xpAwarded: number
     createdAt: Date
   }, ExtArgs["result"]["postMortem"]>
@@ -1232,6 +1270,7 @@ export interface PostMortemFieldRefs {
   readonly howFixed: Prisma.FieldRef<"PostMortem", 'String'>
   readonly difficultyFelt: Prisma.FieldRef<"PostMortem", 'Int'>
   readonly confidenceNext: Prisma.FieldRef<"PostMortem", 'String'>
+  readonly aiAnalysis: Prisma.FieldRef<"PostMortem", 'String'>
   readonly xpAwarded: Prisma.FieldRef<"PostMortem", 'Int'>
   readonly createdAt: Prisma.FieldRef<"PostMortem", 'DateTime'>
 }

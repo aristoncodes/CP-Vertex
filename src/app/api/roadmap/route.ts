@@ -1,6 +1,7 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { rateLimits, checkRateLimit } from "@/lib/ratelimit"
+import { generateAIRoadmap } from "@/lib/intelligence"
 
 export async function GET() {
   try {
@@ -60,58 +61,38 @@ export async function POST(request: Request) {
     const rateLimited = await checkRateLimit(rateLimits.api, session.user.id)
     if (rateLimited) return rateLimited
 
-    // Get user's weakest tags
-    const weakTags = await prisma.topicScore.findMany({
-      where: { userId: session.user.id },
-      orderBy: { score: "asc" },
-      take: 4,
-      include: { tag: true },
-    })
+    const result = await generateAIRoadmap(session.user.id)
 
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { cfRating: true },
-    })
-    const userRating = user?.cfRating || 800
-
-    // Delete existing roadmap
-    const existing = await prisma.roadmap.findUnique({
-      where: { userId: session.user.id },
-    })
-    if (existing) {
-      await prisma.roadmapWeek.deleteMany({ where: { roadmapId: existing.id } })
-      await prisma.roadmap.delete({ where: { id: existing.id } })
+    if (!result) {
+      return Response.json(
+        { error: "Failed to generate roadmap. Make sure you have topic scores (sync CF data first)." },
+        { status: 400 }
+      )
     }
 
-    // Generate 4-week roadmap targeting weak tags
-    const roadmap = await prisma.roadmap.create({
-      data: {
-        userId: session.user.id,
-        weeks: {
-          create: weakTags.map((tag, i) => ({
-            weekNumber: i + 1,
-            tagId: tag.tagId,
-            targetCount: 5 + i, // increasing difficulty
-            minRating: Math.max(800, userRating - 100),
-            maxRating: userRating + 200 + i * 100,
-          })),
-        },
-      },
-      include: { weeks: true },
+    // Enrich with tag names
+    const tagIds = result.weeks.map((w: any) => w.tagId)
+    const tags = await prisma.tag.findMany({
+      where: { id: { in: tagIds } },
     })
+    const tagMap = new Map(tags.map((t) => [t.id, t]))
 
     return Response.json({
-      message: "Roadmap generated",
+      message: "AI Roadmap generated",
       roadmap: {
-        id: roadmap.id,
-        generatedAt: roadmap.generatedAt,
-        weeks: roadmap.weeks.map((w) => ({
+        id: result.id,
+        reasoning: result.reasoning,
+        generatedAt: result.generatedAt,
+        weeks: result.weeks.map((w: any) => ({
           weekNumber: w.weekNumber,
-          tagId: w.tagId,
+          tag: tagMap.get(w.tagId)?.name ?? "unknown",
           targetCount: w.targetCount,
           minRating: w.minRating,
           maxRating: w.maxRating,
           progress: w.progress,
+          why: w.why,
+          subtopics: w.subtopics,
+          progressPercent: Math.round((w.progress / w.targetCount) * 100),
         })),
       },
     })
@@ -120,3 +101,4 @@ export async function POST(request: Request) {
     return Response.json({ error: "Internal server error" }, { status: 500 })
   }
 }
+

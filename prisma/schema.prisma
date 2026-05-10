@@ -60,6 +60,7 @@ model User {
   contestParticipations  ContestParticipation[]
   upsolveItems           UpsolveItem[]
   contestSettings        UserContestSettings?
+  problemHints           ProblemHint[]
 
   @@index([cfHandle])
   @@index([xp])
@@ -116,6 +117,7 @@ model Problem {
   tags         ProblemTag[]
   submissions  Submission[]
   upsolveItems UpsolveItem[]
+  hints        ProblemHint[]
 
   @@index([rating])
 }
@@ -185,6 +187,7 @@ model PostMortem {
   howFixed       String?  @db.Text
   difficultyFelt Int
   confidenceNext String
+  aiAnalysis     String?  @db.Text
   xpAwarded      Int      @default(30)
   createdAt      DateTime @default(now())
 
@@ -210,21 +213,40 @@ model CoachInsight {
 model Roadmap {
   id          String        @id @default(cuid())
   userId      String        @unique
+  reasoning   String?       @db.Text
   weeks       RoadmapWeek[]
   generatedAt DateTime      @default(now())
   user        User          @relation(fields: [userId], references: [id])
 }
 
 model RoadmapWeek {
-  id          String  @id @default(cuid())
+  id          String   @id @default(cuid())
   roadmapId   String
   weekNumber  Int
   tagId       String
   targetCount Int
   minRating   Int
   maxRating   Int
-  progress    Int     @default(0)
-  roadmap     Roadmap @relation(fields: [roadmapId], references: [id])
+  progress    Int      @default(0)
+  why         String?  @db.Text
+  subtopics   String[]
+  roadmap     Roadmap  @relation(fields: [roadmapId], references: [id])
+}
+
+model ProblemHint {
+  id          String   @id @default(cuid())
+  userId      String
+  problemId   String
+  hintLevel   Int      @default(1)
+  hintText    String   @db.Text
+  xpCost      Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id])
+  problem     Problem  @relation(fields: [problemId], references: [id])
+
+  @@unique([userId, problemId, hintLevel])
+  @@index([userId, problemId])
 }
 
 // ─── Game Layer ───────────────────────────────────────

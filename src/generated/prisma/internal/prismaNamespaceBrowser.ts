@@ -64,6 +64,7 @@ export const ModelName = {
   CoachInsight: 'CoachInsight',
   Roadmap: 'Roadmap',
   RoadmapWeek: 'RoadmapWeek',
+  ProblemHint: 'ProblemHint',
   Mission: 'Mission',
   UserMission: 'UserMission',
   Badge: 'Badge',
@@ -234,6 +235,7 @@ export const PostMortemScalarFieldEnum = {
   howFixed: 'howFixed',
   difficultyFelt: 'difficultyFelt',
   confidenceNext: 'confidenceNext',
+  aiAnalysis: 'aiAnalysis',
   xpAwarded: 'xpAwarded',
   createdAt: 'createdAt'
 } as const
@@ -258,6 +260,7 @@ export type CoachInsightScalarFieldEnum = (typeof CoachInsightScalarFieldEnum)[k
 export const RoadmapScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
+  reasoning: 'reasoning',
   generatedAt: 'generatedAt'
 } as const
 
@@ -272,10 +275,25 @@ export const RoadmapWeekScalarFieldEnum = {
   targetCount: 'targetCount',
   minRating: 'minRating',
   maxRating: 'maxRating',
-  progress: 'progress'
+  progress: 'progress',
+  why: 'why',
+  subtopics: 'subtopics'
 } as const
 
 export type RoadmapWeekScalarFieldEnum = (typeof RoadmapWeekScalarFieldEnum)[keyof typeof RoadmapWeekScalarFieldEnum]
+
+
+export const ProblemHintScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  problemId: 'problemId',
+  hintLevel: 'hintLevel',
+  hintText: 'hintText',
+  xpCost: 'xpCost',
+  createdAt: 'createdAt'
+} as const
+
+export type ProblemHintScalarFieldEnum = (typeof ProblemHintScalarFieldEnum)[keyof typeof ProblemHintScalarFieldEnum]
 
 
 export const MissionScalarFieldEnum = {

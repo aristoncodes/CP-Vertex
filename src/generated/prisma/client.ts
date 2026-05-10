@@ -107,6 +107,11 @@ export type Roadmap = Prisma.RoadmapModel
  */
 export type RoadmapWeek = Prisma.RoadmapWeekModel
 /**
+ * Model ProblemHint
+ * 
+ */
+export type ProblemHint = Prisma.ProblemHintModel
+/**
  * Model Mission
  * 
  */

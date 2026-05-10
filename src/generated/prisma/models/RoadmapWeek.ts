@@ -51,6 +51,7 @@ export type RoadmapWeekMinAggregateOutputType = {
   minRating: number | null
   maxRating: number | null
   progress: number | null
+  why: string | null
 }
 
 export type RoadmapWeekMaxAggregateOutputType = {
@@ -62,6 +63,7 @@ export type RoadmapWeekMaxAggregateOutputType = {
   minRating: number | null
   maxRating: number | null
   progress: number | null
+  why: string | null
 }
 
 export type RoadmapWeekCountAggregateOutputType = {
@@ -73,6 +75,8 @@ export type RoadmapWeekCountAggregateOutputType = {
   minRating: number
   maxRating: number
   progress: number
+  why: number
+  subtopics: number
   _all: number
 }
 
@@ -102,6 +106,7 @@ export type RoadmapWeekMinAggregateInputType = {
   minRating?: true
   maxRating?: true
   progress?: true
+  why?: true
 }
 
 export type RoadmapWeekMaxAggregateInputType = {
@@ -113,6 +118,7 @@ export type RoadmapWeekMaxAggregateInputType = {
   minRating?: true
   maxRating?: true
   progress?: true
+  why?: true
 }
 
 export type RoadmapWeekCountAggregateInputType = {
@@ -124,6 +130,8 @@ export type RoadmapWeekCountAggregateInputType = {
   minRating?: true
   maxRating?: true
   progress?: true
+  why?: true
+  subtopics?: true
   _all?: true
 }
 
@@ -222,6 +230,8 @@ export type RoadmapWeekGroupByOutputType = {
   minRating: number
   maxRating: number
   progress: number
+  why: string | null
+  subtopics: string[]
   _count: RoadmapWeekCountAggregateOutputType | null
   _avg: RoadmapWeekAvgAggregateOutputType | null
   _sum: RoadmapWeekSumAggregateOutputType | null
@@ -256,6 +266,8 @@ export type RoadmapWeekWhereInput = {
   minRating?: Prisma.IntFilter<"RoadmapWeek"> | number
   maxRating?: Prisma.IntFilter<"RoadmapWeek"> | number
   progress?: Prisma.IntFilter<"RoadmapWeek"> | number
+  why?: Prisma.StringNullableFilter<"RoadmapWeek"> | string | null
+  subtopics?: Prisma.StringNullableListFilter<"RoadmapWeek">
   roadmap?: Prisma.XOR<Prisma.RoadmapScalarRelationFilter, Prisma.RoadmapWhereInput>
 }
 
@@ -268,6 +280,8 @@ export type RoadmapWeekOrderByWithRelationInput = {
   minRating?: Prisma.SortOrder
   maxRating?: Prisma.SortOrder
   progress?: Prisma.SortOrder
+  why?: Prisma.SortOrderInput | Prisma.SortOrder
+  subtopics?: Prisma.SortOrder
   roadmap?: Prisma.RoadmapOrderByWithRelationInput
 }
 
@@ -283,6 +297,8 @@ export type RoadmapWeekWhereUniqueInput = Prisma.AtLeast<{
   minRating?: Prisma.IntFilter<"RoadmapWeek"> | number
   maxRating?: Prisma.IntFilter<"RoadmapWeek"> | number
   progress?: Prisma.IntFilter<"RoadmapWeek"> | number
+  why?: Prisma.StringNullableFilter<"RoadmapWeek"> | string | null
+  subtopics?: Prisma.StringNullableListFilter<"RoadmapWeek">
   roadmap?: Prisma.XOR<Prisma.RoadmapScalarRelationFilter, Prisma.RoadmapWhereInput>
 }, "id">
 
@@ -295,6 +311,8 @@ export type RoadmapWeekOrderByWithAggregationInput = {
   minRating?: Prisma.SortOrder
   maxRating?: Prisma.SortOrder
   progress?: Prisma.SortOrder
+  why?: Prisma.SortOrderInput | Prisma.SortOrder
+  subtopics?: Prisma.SortOrder
   _count?: Prisma.RoadmapWeekCountOrderByAggregateInput
   _avg?: Prisma.RoadmapWeekAvgOrderByAggregateInput
   _max?: Prisma.RoadmapWeekMaxOrderByAggregateInput
@@ -314,6 +332,8 @@ export type RoadmapWeekScalarWhereWithAggregatesInput = {
   minRating?: Prisma.IntWithAggregatesFilter<"RoadmapWeek"> | number
   maxRating?: Prisma.IntWithAggregatesFilter<"RoadmapWeek"> | number
   progress?: Prisma.IntWithAggregatesFilter<"RoadmapWeek"> | number
+  why?: Prisma.StringNullableWithAggregatesFilter<"RoadmapWeek"> | string | null
+  subtopics?: Prisma.StringNullableListFilter<"RoadmapWeek">
 }
 
 export type RoadmapWeekCreateInput = {
@@ -324,6 +344,8 @@ export type RoadmapWeekCreateInput = {
   minRating: number
   maxRating: number
   progress?: number
+  why?: string | null
+  subtopics?: Prisma.RoadmapWeekCreatesubtopicsInput | string[]
   roadmap: Prisma.RoadmapCreateNestedOneWithoutWeeksInput
 }
 
@@ -336,6 +358,8 @@ export type RoadmapWeekUncheckedCreateInput = {
   minRating: number
   maxRating: number
   progress?: number
+  why?: string | null
+  subtopics?: Prisma.RoadmapWeekCreatesubtopicsInput | string[]
 }
 
 export type RoadmapWeekUpdateInput = {
@@ -346,6 +370,8 @@ export type RoadmapWeekUpdateInput = {
   minRating?: Prisma.IntFieldUpdateOperationsInput | number
   maxRating?: Prisma.IntFieldUpdateOperationsInput | number
   progress?: Prisma.IntFieldUpdateOperationsInput | number
+  why?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtopics?: Prisma.RoadmapWeekUpdatesubtopicsInput | string[]
   roadmap?: Prisma.RoadmapUpdateOneRequiredWithoutWeeksNestedInput
 }
 
@@ -358,6 +384,8 @@ export type RoadmapWeekUncheckedUpdateInput = {
   minRating?: Prisma.IntFieldUpdateOperationsInput | number
   maxRating?: Prisma.IntFieldUpdateOperationsInput | number
   progress?: Prisma.IntFieldUpdateOperationsInput | number
+  why?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtopics?: Prisma.RoadmapWeekUpdatesubtopicsInput | string[]
 }
 
 export type RoadmapWeekCreateManyInput = {
@@ -369,6 +397,8 @@ export type RoadmapWeekCreateManyInput = {
   minRating: number
   maxRating: number
   progress?: number
+  why?: string | null
+  subtopics?: Prisma.RoadmapWeekCreatesubtopicsInput | string[]
 }
 
 export type RoadmapWeekUpdateManyMutationInput = {
@@ -379,6 +409,8 @@ export type RoadmapWeekUpdateManyMutationInput = {
   minRating?: Prisma.IntFieldUpdateOperationsInput | number
   maxRating?: Prisma.IntFieldUpdateOperationsInput | number
   progress?: Prisma.IntFieldUpdateOperationsInput | number
+  why?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtopics?: Prisma.RoadmapWeekUpdatesubtopicsInput | string[]
 }
 
 export type RoadmapWeekUncheckedUpdateManyInput = {
@@ -390,6 +422,8 @@ export type RoadmapWeekUncheckedUpdateManyInput = {
   minRating?: Prisma.IntFieldUpdateOperationsInput | number
   maxRating?: Prisma.IntFieldUpdateOperationsInput | number
   progress?: Prisma.IntFieldUpdateOperationsInput | number
+  why?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtopics?: Prisma.RoadmapWeekUpdatesubtopicsInput | string[]
 }
 
 export type RoadmapWeekListRelationFilter = {
@@ -411,6 +445,8 @@ export type RoadmapWeekCountOrderByAggregateInput = {
   minRating?: Prisma.SortOrder
   maxRating?: Prisma.SortOrder
   progress?: Prisma.SortOrder
+  why?: Prisma.SortOrder
+  subtopics?: Prisma.SortOrder
 }
 
 export type RoadmapWeekAvgOrderByAggregateInput = {
@@ -430,6 +466,7 @@ export type RoadmapWeekMaxOrderByAggregateInput = {
   minRating?: Prisma.SortOrder
   maxRating?: Prisma.SortOrder
   progress?: Prisma.SortOrder
+  why?: Prisma.SortOrder
 }
 
 export type RoadmapWeekMinOrderByAggregateInput = {
@@ -441,6 +478,7 @@ export type RoadmapWeekMinOrderByAggregateInput = {
   minRating?: Prisma.SortOrder
   maxRating?: Prisma.SortOrder
   progress?: Prisma.SortOrder
+  why?: Prisma.SortOrder
 }
 
 export type RoadmapWeekSumOrderByAggregateInput = {
@@ -493,6 +531,15 @@ export type RoadmapWeekUncheckedUpdateManyWithoutRoadmapNestedInput = {
   deleteMany?: Prisma.RoadmapWeekScalarWhereInput | Prisma.RoadmapWeekScalarWhereInput[]
 }
 
+export type RoadmapWeekCreatesubtopicsInput = {
+  set: string[]
+}
+
+export type RoadmapWeekUpdatesubtopicsInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
 export type RoadmapWeekCreateWithoutRoadmapInput = {
   id?: string
   weekNumber: number
@@ -501,6 +548,8 @@ export type RoadmapWeekCreateWithoutRoadmapInput = {
   minRating: number
   maxRating: number
   progress?: number
+  why?: string | null
+  subtopics?: Prisma.RoadmapWeekCreatesubtopicsInput | string[]
 }
 
 export type RoadmapWeekUncheckedCreateWithoutRoadmapInput = {
@@ -511,6 +560,8 @@ export type RoadmapWeekUncheckedCreateWithoutRoadmapInput = {
   minRating: number
   maxRating: number
   progress?: number
+  why?: string | null
+  subtopics?: Prisma.RoadmapWeekCreatesubtopicsInput | string[]
 }
 
 export type RoadmapWeekCreateOrConnectWithoutRoadmapInput = {
@@ -551,6 +602,8 @@ export type RoadmapWeekScalarWhereInput = {
   minRating?: Prisma.IntFilter<"RoadmapWeek"> | number
   maxRating?: Prisma.IntFilter<"RoadmapWeek"> | number
   progress?: Prisma.IntFilter<"RoadmapWeek"> | number
+  why?: Prisma.StringNullableFilter<"RoadmapWeek"> | string | null
+  subtopics?: Prisma.StringNullableListFilter<"RoadmapWeek">
 }
 
 export type RoadmapWeekCreateManyRoadmapInput = {
@@ -561,6 +614,8 @@ export type RoadmapWeekCreateManyRoadmapInput = {
   minRating: number
   maxRating: number
   progress?: number
+  why?: string | null
+  subtopics?: Prisma.RoadmapWeekCreatesubtopicsInput | string[]
 }
 
 export type RoadmapWeekUpdateWithoutRoadmapInput = {
@@ -571,6 +626,8 @@ export type RoadmapWeekUpdateWithoutRoadmapInput = {
   minRating?: Prisma.IntFieldUpdateOperationsInput | number
   maxRating?: Prisma.IntFieldUpdateOperationsInput | number
   progress?: Prisma.IntFieldUpdateOperationsInput | number
+  why?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtopics?: Prisma.RoadmapWeekUpdatesubtopicsInput | string[]
 }
 
 export type RoadmapWeekUncheckedUpdateWithoutRoadmapInput = {
@@ -581,6 +638,8 @@ export type RoadmapWeekUncheckedUpdateWithoutRoadmapInput = {
   minRating?: Prisma.IntFieldUpdateOperationsInput | number
   maxRating?: Prisma.IntFieldUpdateOperationsInput | number
   progress?: Prisma.IntFieldUpdateOperationsInput | number
+  why?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtopics?: Prisma.RoadmapWeekUpdatesubtopicsInput | string[]
 }
 
 export type RoadmapWeekUncheckedUpdateManyWithoutRoadmapInput = {
@@ -591,6 +650,8 @@ export type RoadmapWeekUncheckedUpdateManyWithoutRoadmapInput = {
   minRating?: Prisma.IntFieldUpdateOperationsInput | number
   maxRating?: Prisma.IntFieldUpdateOperationsInput | number
   progress?: Prisma.IntFieldUpdateOperationsInput | number
+  why?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtopics?: Prisma.RoadmapWeekUpdatesubtopicsInput | string[]
 }
 
 
@@ -604,6 +665,8 @@ export type RoadmapWeekSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   minRating?: boolean
   maxRating?: boolean
   progress?: boolean
+  why?: boolean
+  subtopics?: boolean
   roadmap?: boolean | Prisma.RoadmapDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["roadmapWeek"]>
 
@@ -616,6 +679,8 @@ export type RoadmapWeekSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   minRating?: boolean
   maxRating?: boolean
   progress?: boolean
+  why?: boolean
+  subtopics?: boolean
   roadmap?: boolean | Prisma.RoadmapDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["roadmapWeek"]>
 
@@ -628,6 +693,8 @@ export type RoadmapWeekSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   minRating?: boolean
   maxRating?: boolean
   progress?: boolean
+  why?: boolean
+  subtopics?: boolean
   roadmap?: boolean | Prisma.RoadmapDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["roadmapWeek"]>
 
@@ -640,9 +707,11 @@ export type RoadmapWeekSelectScalar = {
   minRating?: boolean
   maxRating?: boolean
   progress?: boolean
+  why?: boolean
+  subtopics?: boolean
 }
 
-export type RoadmapWeekOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "roadmapId" | "weekNumber" | "tagId" | "targetCount" | "minRating" | "maxRating" | "progress", ExtArgs["result"]["roadmapWeek"]>
+export type RoadmapWeekOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "roadmapId" | "weekNumber" | "tagId" | "targetCount" | "minRating" | "maxRating" | "progress" | "why" | "subtopics", ExtArgs["result"]["roadmapWeek"]>
 export type RoadmapWeekInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   roadmap?: boolean | Prisma.RoadmapDefaultArgs<ExtArgs>
 }
@@ -667,6 +736,8 @@ export type $RoadmapWeekPayload<ExtArgs extends runtime.Types.Extensions.Interna
     minRating: number
     maxRating: number
     progress: number
+    why: string | null
+    subtopics: string[]
   }, ExtArgs["result"]["roadmapWeek"]>
   composites: {}
 }
@@ -1099,6 +1170,8 @@ export interface RoadmapWeekFieldRefs {
   readonly minRating: Prisma.FieldRef<"RoadmapWeek", 'Int'>
   readonly maxRating: Prisma.FieldRef<"RoadmapWeek", 'Int'>
   readonly progress: Prisma.FieldRef<"RoadmapWeek", 'Int'>
+  readonly why: Prisma.FieldRef<"RoadmapWeek", 'String'>
+  readonly subtopics: Prisma.FieldRef<"RoadmapWeek", 'String[]'>
 }
     
 

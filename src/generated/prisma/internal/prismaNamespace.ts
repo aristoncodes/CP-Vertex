@@ -397,6 +397,7 @@ export const ModelName = {
   CoachInsight: 'CoachInsight',
   Roadmap: 'Roadmap',
   RoadmapWeek: 'RoadmapWeek',
+  ProblemHint: 'ProblemHint',
   Mission: 'Mission',
   UserMission: 'UserMission',
   Badge: 'Badge',
@@ -429,7 +430,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "account" | "session" | "verificationToken" | "problem" | "tag" | "problemTag" | "submission" | "topicScore" | "postMortem" | "coachInsight" | "roadmap" | "roadmapWeek" | "mission" | "userMission" | "badge" | "userBadge" | "journalEntry" | "duel" | "team" | "teamMember" | "weeklyReview" | "virtualContest" | "algorithmArticle" | "algorithmProblem" | "notification" | "friendship" | "contestParticipation" | "upsolveItem" | "userContestSettings"
+    modelProps: "user" | "account" | "session" | "verificationToken" | "problem" | "tag" | "problemTag" | "submission" | "topicScore" | "postMortem" | "coachInsight" | "roadmap" | "roadmapWeek" | "problemHint" | "mission" | "userMission" | "badge" | "userBadge" | "journalEntry" | "duel" | "team" | "teamMember" | "weeklyReview" | "virtualContest" | "algorithmArticle" | "algorithmProblem" | "notification" | "friendship" | "contestParticipation" | "upsolveItem" | "userContestSettings"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1392,6 +1393,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.RoadmapWeekCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.RoadmapWeekCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProblemHint: {
+      payload: Prisma.$ProblemHintPayload<ExtArgs>
+      fields: Prisma.ProblemHintFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProblemHintFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProblemHintPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProblemHintFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProblemHintPayload>
+        }
+        findFirst: {
+          args: Prisma.ProblemHintFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProblemHintPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProblemHintFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProblemHintPayload>
+        }
+        findMany: {
+          args: Prisma.ProblemHintFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProblemHintPayload>[]
+        }
+        create: {
+          args: Prisma.ProblemHintCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProblemHintPayload>
+        }
+        createMany: {
+          args: Prisma.ProblemHintCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProblemHintCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProblemHintPayload>[]
+        }
+        delete: {
+          args: Prisma.ProblemHintDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProblemHintPayload>
+        }
+        update: {
+          args: Prisma.ProblemHintUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProblemHintPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProblemHintDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProblemHintUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProblemHintUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProblemHintPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProblemHintUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProblemHintPayload>
+        }
+        aggregate: {
+          args: Prisma.ProblemHintAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProblemHint>
+        }
+        groupBy: {
+          args: Prisma.ProblemHintGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProblemHintGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProblemHintCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProblemHintCountAggregateOutputType> | number
         }
       }
     }
@@ -2827,6 +2902,7 @@ export const PostMortemScalarFieldEnum = {
   howFixed: 'howFixed',
   difficultyFelt: 'difficultyFelt',
   confidenceNext: 'confidenceNext',
+  aiAnalysis: 'aiAnalysis',
   xpAwarded: 'xpAwarded',
   createdAt: 'createdAt'
 } as const
@@ -2851,6 +2927,7 @@ export type CoachInsightScalarFieldEnum = (typeof CoachInsightScalarFieldEnum)[k
 export const RoadmapScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
+  reasoning: 'reasoning',
   generatedAt: 'generatedAt'
 } as const
 
@@ -2865,10 +2942,25 @@ export const RoadmapWeekScalarFieldEnum = {
   targetCount: 'targetCount',
   minRating: 'minRating',
   maxRating: 'maxRating',
-  progress: 'progress'
+  progress: 'progress',
+  why: 'why',
+  subtopics: 'subtopics'
 } as const
 
 export type RoadmapWeekScalarFieldEnum = (typeof RoadmapWeekScalarFieldEnum)[keyof typeof RoadmapWeekScalarFieldEnum]
+
+
+export const ProblemHintScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  problemId: 'problemId',
+  hintLevel: 'hintLevel',
+  hintText: 'hintText',
+  xpCost: 'xpCost',
+  createdAt: 'createdAt'
+} as const
+
+export type ProblemHintScalarFieldEnum = (typeof ProblemHintScalarFieldEnum)[keyof typeof ProblemHintScalarFieldEnum]
 
 
 export const MissionScalarFieldEnum = {
@@ -3366,6 +3458,7 @@ export type GlobalOmitConfig = {
   coachInsight?: Prisma.CoachInsightOmit
   roadmap?: Prisma.RoadmapOmit
   roadmapWeek?: Prisma.RoadmapWeekOmit
+  problemHint?: Prisma.ProblemHintOmit
   mission?: Prisma.MissionOmit
   userMission?: Prisma.UserMissionOmit
   badge?: Prisma.BadgeOmit

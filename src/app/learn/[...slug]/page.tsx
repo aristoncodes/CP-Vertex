@@ -5,6 +5,7 @@ import remarkMath from "remark-math"
 import rehypeKatex from "rehype-katex"
 import "katex/dist/katex.min.css"
 import Link from "next/link"
+import { AISummaryCard } from "@/components/ui/AISummaryCard"
 
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string[] }> }) {
   const resolvedParams = await params
@@ -246,6 +247,13 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
               background: "var(--border)",
               marginBottom: 40,
             }} />
+
+            {/* AI Summary */}
+            <AISummaryCard
+              slug={fullSlug}
+              title={article.title}
+              contentPreview={cleanContent.substring(0, 3000)}
+            />
 
             {/* ── Markdown Body ── */}
             <article style={{
