@@ -73,7 +73,11 @@ function DashboardMain({ profile }: { profile: any }) {
 
   // Determine greeting based on time
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  let greeting = "Good evening";
+  if (hour >= 5 && hour < 12) greeting = "Good morning";
+  else if (hour >= 12 && hour < 17) greeting = "Good afternoon";
+  else if (hour >= 17 && hour < 22) greeting = "Good evening";
+  else greeting = "Late night coding";
 
   return (
     <>
