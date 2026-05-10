@@ -141,7 +141,7 @@ export async function POST(
     // Fetch problems to include in response (matching GET route shape)
     const duelProblems = await prisma.problem.findMany({
       where: { id: { in: updated.problemIds } },
-      select: { id: true, title: true, rating: true, cfLink: true },
+      select: { id: true, title: true, rating: true, cfLink: true, cfId: true },
     })
     const sortedProblems = updated.problemIds
       .map(pid => duelProblems.find(p => p.id === pid))

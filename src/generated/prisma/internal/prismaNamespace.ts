@@ -3164,6 +3164,7 @@ export const ContestParticipationScalarFieldEnum = {
   problemsSolved: 'problemsSolved',
   totalProblems: 'totalProblems',
   participatedAt: 'participatedAt',
+  aiAnalysis: 'aiAnalysis',
   createdAt: 'createdAt'
 } as const
 

@@ -61,6 +61,7 @@ export type ContestParticipationMinAggregateOutputType = {
   problemsSolved: number | null
   totalProblems: number | null
   participatedAt: Date | null
+  aiAnalysis: string | null
   createdAt: Date | null
 }
 
@@ -77,6 +78,7 @@ export type ContestParticipationMaxAggregateOutputType = {
   problemsSolved: number | null
   totalProblems: number | null
   participatedAt: Date | null
+  aiAnalysis: string | null
   createdAt: Date | null
 }
 
@@ -93,6 +95,7 @@ export type ContestParticipationCountAggregateOutputType = {
   problemsSolved: number
   totalProblems: number
   participatedAt: number
+  aiAnalysis: number
   createdAt: number
   _all: number
 }
@@ -133,6 +136,7 @@ export type ContestParticipationMinAggregateInputType = {
   problemsSolved?: true
   totalProblems?: true
   participatedAt?: true
+  aiAnalysis?: true
   createdAt?: true
 }
 
@@ -149,6 +153,7 @@ export type ContestParticipationMaxAggregateInputType = {
   problemsSolved?: true
   totalProblems?: true
   participatedAt?: true
+  aiAnalysis?: true
   createdAt?: true
 }
 
@@ -165,6 +170,7 @@ export type ContestParticipationCountAggregateInputType = {
   problemsSolved?: true
   totalProblems?: true
   participatedAt?: true
+  aiAnalysis?: true
   createdAt?: true
   _all?: true
 }
@@ -268,6 +274,7 @@ export type ContestParticipationGroupByOutputType = {
   problemsSolved: number
   totalProblems: number
   participatedAt: Date
+  aiAnalysis: string | null
   createdAt: Date
   _count: ContestParticipationCountAggregateOutputType | null
   _avg: ContestParticipationAvgAggregateOutputType | null
@@ -307,6 +314,7 @@ export type ContestParticipationWhereInput = {
   problemsSolved?: Prisma.IntFilter<"ContestParticipation"> | number
   totalProblems?: Prisma.IntFilter<"ContestParticipation"> | number
   participatedAt?: Prisma.DateTimeFilter<"ContestParticipation"> | Date | string
+  aiAnalysis?: Prisma.StringNullableFilter<"ContestParticipation"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ContestParticipation"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   upsolveItems?: Prisma.UpsolveItemListRelationFilter
@@ -325,6 +333,7 @@ export type ContestParticipationOrderByWithRelationInput = {
   problemsSolved?: Prisma.SortOrder
   totalProblems?: Prisma.SortOrder
   participatedAt?: Prisma.SortOrder
+  aiAnalysis?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   upsolveItems?: Prisma.UpsolveItemOrderByRelationAggregateInput
@@ -347,6 +356,7 @@ export type ContestParticipationWhereUniqueInput = Prisma.AtLeast<{
   problemsSolved?: Prisma.IntFilter<"ContestParticipation"> | number
   totalProblems?: Prisma.IntFilter<"ContestParticipation"> | number
   participatedAt?: Prisma.DateTimeFilter<"ContestParticipation"> | Date | string
+  aiAnalysis?: Prisma.StringNullableFilter<"ContestParticipation"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ContestParticipation"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   upsolveItems?: Prisma.UpsolveItemListRelationFilter
@@ -365,6 +375,7 @@ export type ContestParticipationOrderByWithAggregationInput = {
   problemsSolved?: Prisma.SortOrder
   totalProblems?: Prisma.SortOrder
   participatedAt?: Prisma.SortOrder
+  aiAnalysis?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.ContestParticipationCountOrderByAggregateInput
   _avg?: Prisma.ContestParticipationAvgOrderByAggregateInput
@@ -389,6 +400,7 @@ export type ContestParticipationScalarWhereWithAggregatesInput = {
   problemsSolved?: Prisma.IntWithAggregatesFilter<"ContestParticipation"> | number
   totalProblems?: Prisma.IntWithAggregatesFilter<"ContestParticipation"> | number
   participatedAt?: Prisma.DateTimeWithAggregatesFilter<"ContestParticipation"> | Date | string
+  aiAnalysis?: Prisma.StringNullableWithAggregatesFilter<"ContestParticipation"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ContestParticipation"> | Date | string
 }
 
@@ -404,6 +416,7 @@ export type ContestParticipationCreateInput = {
   problemsSolved?: number
   totalProblems?: number
   participatedAt: Date | string
+  aiAnalysis?: string | null
   createdAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutContestParticipationsInput
   upsolveItems?: Prisma.UpsolveItemCreateNestedManyWithoutContestParticipationInput
@@ -422,6 +435,7 @@ export type ContestParticipationUncheckedCreateInput = {
   problemsSolved?: number
   totalProblems?: number
   participatedAt: Date | string
+  aiAnalysis?: string | null
   createdAt?: Date | string
   upsolveItems?: Prisma.UpsolveItemUncheckedCreateNestedManyWithoutContestParticipationInput
 }
@@ -438,6 +452,7 @@ export type ContestParticipationUpdateInput = {
   problemsSolved?: Prisma.IntFieldUpdateOperationsInput | number
   totalProblems?: Prisma.IntFieldUpdateOperationsInput | number
   participatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  aiAnalysis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutContestParticipationsNestedInput
   upsolveItems?: Prisma.UpsolveItemUpdateManyWithoutContestParticipationNestedInput
@@ -456,6 +471,7 @@ export type ContestParticipationUncheckedUpdateInput = {
   problemsSolved?: Prisma.IntFieldUpdateOperationsInput | number
   totalProblems?: Prisma.IntFieldUpdateOperationsInput | number
   participatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  aiAnalysis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   upsolveItems?: Prisma.UpsolveItemUncheckedUpdateManyWithoutContestParticipationNestedInput
 }
@@ -473,6 +489,7 @@ export type ContestParticipationCreateManyInput = {
   problemsSolved?: number
   totalProblems?: number
   participatedAt: Date | string
+  aiAnalysis?: string | null
   createdAt?: Date | string
 }
 
@@ -488,6 +505,7 @@ export type ContestParticipationUpdateManyMutationInput = {
   problemsSolved?: Prisma.IntFieldUpdateOperationsInput | number
   totalProblems?: Prisma.IntFieldUpdateOperationsInput | number
   participatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  aiAnalysis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -504,6 +522,7 @@ export type ContestParticipationUncheckedUpdateManyInput = {
   problemsSolved?: Prisma.IntFieldUpdateOperationsInput | number
   totalProblems?: Prisma.IntFieldUpdateOperationsInput | number
   participatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  aiAnalysis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -535,6 +554,7 @@ export type ContestParticipationCountOrderByAggregateInput = {
   problemsSolved?: Prisma.SortOrder
   totalProblems?: Prisma.SortOrder
   participatedAt?: Prisma.SortOrder
+  aiAnalysis?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -562,6 +582,7 @@ export type ContestParticipationMaxOrderByAggregateInput = {
   problemsSolved?: Prisma.SortOrder
   totalProblems?: Prisma.SortOrder
   participatedAt?: Prisma.SortOrder
+  aiAnalysis?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -578,6 +599,7 @@ export type ContestParticipationMinOrderByAggregateInput = {
   problemsSolved?: Prisma.SortOrder
   totalProblems?: Prisma.SortOrder
   participatedAt?: Prisma.SortOrder
+  aiAnalysis?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -665,6 +687,7 @@ export type ContestParticipationCreateWithoutUserInput = {
   problemsSolved?: number
   totalProblems?: number
   participatedAt: Date | string
+  aiAnalysis?: string | null
   createdAt?: Date | string
   upsolveItems?: Prisma.UpsolveItemCreateNestedManyWithoutContestParticipationInput
 }
@@ -681,6 +704,7 @@ export type ContestParticipationUncheckedCreateWithoutUserInput = {
   problemsSolved?: number
   totalProblems?: number
   participatedAt: Date | string
+  aiAnalysis?: string | null
   createdAt?: Date | string
   upsolveItems?: Prisma.UpsolveItemUncheckedCreateNestedManyWithoutContestParticipationInput
 }
@@ -727,6 +751,7 @@ export type ContestParticipationScalarWhereInput = {
   problemsSolved?: Prisma.IntFilter<"ContestParticipation"> | number
   totalProblems?: Prisma.IntFilter<"ContestParticipation"> | number
   participatedAt?: Prisma.DateTimeFilter<"ContestParticipation"> | Date | string
+  aiAnalysis?: Prisma.StringNullableFilter<"ContestParticipation"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ContestParticipation"> | Date | string
 }
 
@@ -742,6 +767,7 @@ export type ContestParticipationCreateWithoutUpsolveItemsInput = {
   problemsSolved?: number
   totalProblems?: number
   participatedAt: Date | string
+  aiAnalysis?: string | null
   createdAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutContestParticipationsInput
 }
@@ -759,6 +785,7 @@ export type ContestParticipationUncheckedCreateWithoutUpsolveItemsInput = {
   problemsSolved?: number
   totalProblems?: number
   participatedAt: Date | string
+  aiAnalysis?: string | null
   createdAt?: Date | string
 }
 
@@ -790,6 +817,7 @@ export type ContestParticipationUpdateWithoutUpsolveItemsInput = {
   problemsSolved?: Prisma.IntFieldUpdateOperationsInput | number
   totalProblems?: Prisma.IntFieldUpdateOperationsInput | number
   participatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  aiAnalysis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutContestParticipationsNestedInput
 }
@@ -807,6 +835,7 @@ export type ContestParticipationUncheckedUpdateWithoutUpsolveItemsInput = {
   problemsSolved?: Prisma.IntFieldUpdateOperationsInput | number
   totalProblems?: Prisma.IntFieldUpdateOperationsInput | number
   participatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  aiAnalysis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -822,6 +851,7 @@ export type ContestParticipationCreateManyUserInput = {
   problemsSolved?: number
   totalProblems?: number
   participatedAt: Date | string
+  aiAnalysis?: string | null
   createdAt?: Date | string
 }
 
@@ -837,6 +867,7 @@ export type ContestParticipationUpdateWithoutUserInput = {
   problemsSolved?: Prisma.IntFieldUpdateOperationsInput | number
   totalProblems?: Prisma.IntFieldUpdateOperationsInput | number
   participatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  aiAnalysis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   upsolveItems?: Prisma.UpsolveItemUpdateManyWithoutContestParticipationNestedInput
 }
@@ -853,6 +884,7 @@ export type ContestParticipationUncheckedUpdateWithoutUserInput = {
   problemsSolved?: Prisma.IntFieldUpdateOperationsInput | number
   totalProblems?: Prisma.IntFieldUpdateOperationsInput | number
   participatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  aiAnalysis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   upsolveItems?: Prisma.UpsolveItemUncheckedUpdateManyWithoutContestParticipationNestedInput
 }
@@ -869,6 +901,7 @@ export type ContestParticipationUncheckedUpdateManyWithoutUserInput = {
   problemsSolved?: Prisma.IntFieldUpdateOperationsInput | number
   totalProblems?: Prisma.IntFieldUpdateOperationsInput | number
   participatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  aiAnalysis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -916,6 +949,7 @@ export type ContestParticipationSelect<ExtArgs extends runtime.Types.Extensions.
   problemsSolved?: boolean
   totalProblems?: boolean
   participatedAt?: boolean
+  aiAnalysis?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   upsolveItems?: boolean | Prisma.ContestParticipation$upsolveItemsArgs<ExtArgs>
@@ -935,6 +969,7 @@ export type ContestParticipationSelectCreateManyAndReturn<ExtArgs extends runtim
   problemsSolved?: boolean
   totalProblems?: boolean
   participatedAt?: boolean
+  aiAnalysis?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["contestParticipation"]>
@@ -952,6 +987,7 @@ export type ContestParticipationSelectUpdateManyAndReturn<ExtArgs extends runtim
   problemsSolved?: boolean
   totalProblems?: boolean
   participatedAt?: boolean
+  aiAnalysis?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["contestParticipation"]>
@@ -969,10 +1005,11 @@ export type ContestParticipationSelectScalar = {
   problemsSolved?: boolean
   totalProblems?: boolean
   participatedAt?: boolean
+  aiAnalysis?: boolean
   createdAt?: boolean
 }
 
-export type ContestParticipationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "contestId" | "contestName" | "division" | "ratingBefore" | "ratingAfter" | "ratingChange" | "rank" | "problemsSolved" | "totalProblems" | "participatedAt" | "createdAt", ExtArgs["result"]["contestParticipation"]>
+export type ContestParticipationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "contestId" | "contestName" | "division" | "ratingBefore" | "ratingAfter" | "ratingChange" | "rank" | "problemsSolved" | "totalProblems" | "participatedAt" | "aiAnalysis" | "createdAt", ExtArgs["result"]["contestParticipation"]>
 export type ContestParticipationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   upsolveItems?: boolean | Prisma.ContestParticipation$upsolveItemsArgs<ExtArgs>
@@ -1004,6 +1041,7 @@ export type $ContestParticipationPayload<ExtArgs extends runtime.Types.Extension
     problemsSolved: number
     totalProblems: number
     participatedAt: Date
+    aiAnalysis: string | null
     createdAt: Date
   }, ExtArgs["result"]["contestParticipation"]>
   composites: {}
@@ -1442,6 +1480,7 @@ export interface ContestParticipationFieldRefs {
   readonly problemsSolved: Prisma.FieldRef<"ContestParticipation", 'Int'>
   readonly totalProblems: Prisma.FieldRef<"ContestParticipation", 'Int'>
   readonly participatedAt: Prisma.FieldRef<"ContestParticipation", 'DateTime'>
+  readonly aiAnalysis: Prisma.FieldRef<"ContestParticipation", 'String'>
   readonly createdAt: Prisma.FieldRef<"ContestParticipation", 'DateTime'>
 }
     

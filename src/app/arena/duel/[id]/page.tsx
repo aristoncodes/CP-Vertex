@@ -13,7 +13,7 @@ interface DuelData {
   questionCount: number;
   player1: { name: string; cfHandle: string };
   player2: { name: string; cfHandle: string };
-  problems: { id: string; title: string; rating: number; cfLink: string }[];
+  problems: { id: string; title: string; rating: number; cfLink: string; cfId?: string }[];
   p1WaCount: number;
   p2WaCount: number;
   p1Progress: number;
@@ -133,6 +133,55 @@ export default function DuelCombatPage() {
     const timer = setInterval(updateCountdown, 1000);
     return () => clearInterval(timer);
   }, [duel?.status, duel?.startedAt, id]);
+
+  // Client-side polling for AC submissions
+  useEffect(() => {
+    if (!duel || duel.status !== "active" || !userId) return;
+    const isPlayer2 = userId === duel.player2Id;
+    const myProgress = isPlayer2 ? duel.p2Progress : duel.p1Progress;
+    
+    if (myProgress >= duel.questionCount) return;
+    if (verifying) return; // Pause polling during server verification
+
+    const myCfHandle = isPlayer2 ? duel.player2.cfHandle : duel.player1.cfHandle;
+    const currentProblem = duel.problems[myProgress];
+    if (!myCfHandle || !currentProblem?.cfId) return;
+
+    let timeoutId: NodeJS.Timeout;
+
+    const pollCodeforces = async () => {
+      try {
+        const res = await fetch(`https://codeforces.com/api/user.status?handle=${myCfHandle}&from=1&count=5`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.status === "OK") {
+            const startedAtMs = new Date(duel.startedAt).getTime();
+            const solved = data.result.some((sub: any) => {
+              if (sub.verdict !== "OK") return false;
+              if (sub.creationTimeSeconds * 1000 < startedAtMs) return false;
+              const subCfId = `${sub.problem.contestId}${sub.problem.index}`;
+              return subCfId === currentProblem.cfId;
+            });
+
+            if (solved) {
+              handleVerify();
+              return; // Stop polling, let verify update the state
+            }
+          }
+        }
+      } catch (err) {
+        // silent fail on network errors
+      }
+      
+      timeoutId = setTimeout(pollCodeforces, 5000);
+    };
+
+    // Start polling after 5 seconds
+    timeoutId = setTimeout(pollCodeforces, 5000);
+
+    return () => clearTimeout(timeoutId);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [duel?.status, duel?.p1Progress, duel?.p2Progress, userId, verifying]);
 
   if (loading) return <DashboardLayout><div style={{ padding: 48, textAlign: "center", color: "var(--text-muted)" }}>Loading duel...</div></DashboardLayout>;
   if (!duel) return null;
@@ -357,7 +406,7 @@ export default function DuelCombatPage() {
               {duel.status === "active" && myProgress < duel.questionCount && (
                 <button className="n-btn-primary" onClick={handleVerify} disabled={verifying} style={{ padding: "12px 32px" }}>
                   <span className="material-symbols-outlined" style={{ fontSize: 16 }}>verified</span>
-                  {verifying ? "Checking..." : "Verify Submission"}
+                  {verifying ? "Checking..." : "Force Verify (Auto-polling active)"}
                 </button>
               )}
               {duel.status === "completed" && duel.winnerId && (

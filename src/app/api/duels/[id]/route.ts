@@ -65,7 +65,7 @@ export async function GET(
 
     const problems = await prisma.problem.findMany({
       where: { id: { in: duel.problemIds } },
-      select: { id: true, title: true, rating: true, cfLink: true },
+      select: { id: true, title: true, rating: true, cfLink: true, cfId: true },
     })
     
     // Sort problems to match the order in problemIds
