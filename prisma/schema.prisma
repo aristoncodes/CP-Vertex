@@ -462,6 +462,7 @@ model ContestParticipation {
   problemsSolved Int           @default(0)
   totalProblems  Int           @default(0)
   participatedAt DateTime
+  aiAnalysis     String?       @db.Text
   createdAt      DateTime      @default(now())
 
   user           User          @relation(fields: [userId], references: [id])

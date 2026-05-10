@@ -171,6 +171,60 @@ Respond with JSON only:
   return analysis;
 }
 
+export interface ContestAnalysis {
+  overallAssessment: string;
+  timeManagement: string;
+  criticalMistake: string;
+  actionPlan: string;
+}
+
+export async function analyzeContest(userId: string, participationId: string): Promise<ContestAnalysis | null> {
+  const participation = await prisma.contestParticipation.findUnique({
+    where: { id: participationId },
+    include: {
+      upsolveItems: {
+        include: { problem: true }
+      }
+    }
+  });
+
+  if (!participation || participation.userId !== userId) return null;
+
+  const failedItems = participation.upsolveItems.map(item =>
+    `- Problem: ${item.problem.title} (Rating: ${item.problem.rating}) - Status: ${item.lastVerdict || "Not attempted"} (${item.attemptCount} attempts)`
+  ).join("\n");
+
+  const userPrompt = `Student Contest Participation Record:
+Contest: ${participation.contestName} (Div ${participation.division || "?"})
+Rating Change: ${participation.ratingChange !== null ? (participation.ratingChange > 0 ? "+" : "") + participation.ratingChange : "Unrated"}
+Problems Solved: ${participation.problemsSolved} / ${participation.totalProblems}
+
+Failed/Upsolve Problems (What went wrong):
+${failedItems || "No failed problems recorded."}
+
+Your Mission:
+Provide a brutally honest, highly technical post-mortem analysis of their entire contest performance.
+Analyze their failure states based on the problems they couldn't solve or struggled with. Look at the problem ratings to estimate their current skill ceiling.
+
+Respond with JSON only:
+{
+  "overallAssessment": "1-2 sentence high-level view of their performance (e.g., 'Solid start, but hit a wall at 1600-level Constructive Algorithms.')",
+  "timeManagement": "Assess their strategy and attempt counts (e.g., 'Wasted 3 attempts on B instead of moving to C when stuck.')",
+  "criticalMistake": "The biggest technical or strategic error they made during this contest.",
+  "actionPlan": "A 2-step plan for upsolving these specific failures and improving for the next contest."
+}`;
+
+  const analysis = await callGeminiJSON<ContestAnalysis>(SYSTEM_PROMPT, userPrompt);
+  if (!analysis) return null;
+
+  await prisma.contestParticipation.update({
+    where: { id: participationId },
+    data: { aiAnalysis: JSON.stringify(analysis) },
+  });
+
+  return analysis;
+}
+
 // ─── Feature 3: AI Progressive Hints ─────────────────
 const HINT_XP_COSTS = [0, 10, 25, 50]; // Level 1=free, 2=10xp, 3=25xp, 4=50xp
 

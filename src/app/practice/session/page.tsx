@@ -5,6 +5,7 @@ import { Suspense, useEffect, useState, useCallback, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/ToastProvider";
 import { HintButton } from "@/components/ui/HintButton";
+import { PostMortemModal } from "@/components/ui/PostMortemModal";
 
 interface SessionProblem {
   id: string;
@@ -79,7 +80,8 @@ function SessionContent() {
   const [loading, setLoading] = useState(true);
   const [completed, setCompleted] = useState<Set<string>>(new Set());
   const [verifying, setVerifying] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState<Record<string, { type: "success" | "error" | "info"; message: string; editorialUrl?: string }>>({});
+  const [feedback, setFeedback] = useState<Record<string, { type: "success" | "error" | "info"; message: string; editorialUrl?: string; submissionId?: string }>>({});
+  const [postMortemOpen, setPostMortemOpen] = useState<{ problemId: string; submissionId: string; title: string } | null>(null);
 
   const timer = useTimer(config.timerMinutes);
 
@@ -123,6 +125,7 @@ function SessionContent() {
               ? `✅ Accepted in ${data.language}! +${data.xpAwarded} XP`
               : `✅ ${data.message}`,
             editorialUrl: data.editorialUrl,
+            submissionId: data.submissionId,
           },
         }));
 
@@ -291,13 +294,28 @@ function SessionContent() {
                     </span>
                     {fb.message}
                     {/* Editorial link (#16) */}
+                    {fb.type === "success" && fb.submissionId && (
+                      <button
+                        onClick={() => setPostMortemOpen({ problemId: p.id, submissionId: fb.submissionId!, title: p.title })}
+                        style={{
+                          marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 4,
+                          fontSize: 12, fontWeight: 600, color: "var(--warning)",
+                          padding: "3px 10px", cursor: "pointer",
+                          background: "rgba(210,153,34,0.08)", borderRadius: 6,
+                          border: "1px solid rgba(210,153,34,0.2)",
+                        }}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: 14 }}>science</span>
+                        Post-Mortem
+                      </button>
+                    )}
                     {fb.editorialUrl && fb.type === "success" && (
                       <a
                         href={fb.editorialUrl}
                         target="_blank"
                         rel="noreferrer"
                         style={{
-                          marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 4,
+                          display: "inline-flex", alignItems: "center", gap: 4,
                           fontSize: 12, fontWeight: 600, color: "var(--primary)",
                           textDecoration: "none", padding: "3px 10px",
                           background: "var(--primary-light)", borderRadius: 6,
@@ -305,7 +323,7 @@ function SessionContent() {
                         }}
                       >
                         <span className="material-symbols-outlined" style={{ fontSize: 14 }}>article</span>
-                        Post-Mortem
+                        Editorial
                       </a>
                     )}
                   </div>
@@ -352,6 +370,14 @@ function SessionContent() {
             Time&apos;s up! You can still verify remaining problems, but the session timer has expired.
           </span>
         </div>
+      )}
+      {/* Post-Mortem Modal */}
+      {postMortemOpen && (
+        <PostMortemModal
+          submissionId={postMortemOpen.submissionId}
+          problemTitle={postMortemOpen.title}
+          onClose={() => setPostMortemOpen(null)}
+        />
       )}
     </DashboardLayout>
   );

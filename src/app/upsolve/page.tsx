@@ -201,17 +201,31 @@ function groupByContest(items: UpsolveItem[]) {
 
 // ── Contest Group ────────────────────────────────────────────────
 function ContestGroup({ participation, items, highlight }: {
-  participation: ContestParticipation
+  participation: ContestParticipation & { aiAnalysis?: string }
   items: UpsolveItem[]
   highlight?: string
 }) {
+  const [analysis, setAnalysis] = useState<any>(participation.aiAnalysis ? JSON.parse(participation.aiAnalysis) : null)
+  const [loading, setLoading] = useState(false)
+
   const date = new Date(participation.participatedAt).toLocaleDateString("en-GB", {
     day: "numeric", month: "short", year: "numeric",
   })
 
+  const handlePostMortem = async () => {
+    setLoading(true)
+    try {
+      const res = await fetch(`/api/postmortems/contest/${participation.id}`, { method: "POST" })
+      const data = await res.json()
+      if (data.analysis) setAnalysis(data.analysis)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div style={{ marginBottom: 24 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10, flexWrap: "wrap" }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>
           {participation.contestName}
         </div>
@@ -230,8 +244,59 @@ function ContestGroup({ participation, items, highlight }: {
             Div {participation.division}
           </span>
         )}
-        <span style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 500, marginLeft: "auto" }}>{date}</span>
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
+          <span style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 500 }}>{date}</span>
+          {!analysis && !loading && (
+            <button
+              onClick={handlePostMortem}
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 4,
+                fontSize: 12, fontWeight: 600, color: "var(--warning)",
+                padding: "4px 10px", cursor: "pointer",
+                background: "rgba(210,153,34,0.08)", borderRadius: 6,
+                border: "1px solid rgba(210,153,34,0.2)",
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: 14 }}>science</span>
+              Post-Mortem
+            </button>
+          )}
+          {loading && (
+            <span className="material-symbols-outlined" style={{ fontSize: 16, color: "var(--primary)", animation: "spin 1s linear infinite" }}>
+              neurology
+            </span>
+          )}
+        </div>
       </div>
+
+      {analysis && (
+        <div className="n-card" style={{ padding: "16px 20px", marginBottom: 12, background: "var(--surface-low)", borderLeft: "3px solid var(--primary)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12 }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 18, color: "var(--primary)", fontVariationSettings: "'FILL' 1" }}>neurology</span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>Coach&apos;s Contest Post-Mortem</span>
+          </div>
+          
+          <div style={{ display: "grid", gap: 12 }}>
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "var(--info)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 2 }}>Overall Assessment</div>
+              <div style={{ fontSize: 13, color: "var(--text-primary)", lineHeight: 1.5 }}>{analysis.overallAssessment}</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "var(--warning)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 2 }}>Critical Mistake</div>
+              <div style={{ fontSize: 13, color: "var(--text-primary)", lineHeight: 1.5 }}>{analysis.criticalMistake}</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "var(--danger)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 2 }}>Time Management</div>
+              <div style={{ fontSize: 13, color: "var(--text-primary)", lineHeight: 1.5 }}>{analysis.timeManagement}</div>
+            </div>
+            <div style={{ padding: "10px 14px", background: "var(--success-light)", borderRadius: 8, marginTop: 4 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "var(--success)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>⚡ Action Plan</div>
+              <div style={{ fontSize: 13, color: "var(--text-primary)", lineHeight: 1.5 }}>{analysis.actionPlan}</div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         {items.map((item) => (
           <UpsolveItemRow

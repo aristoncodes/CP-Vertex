@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
           where: { cfSubmissionId: String(accepted.id) },
         })
         if (!existingSub) {
-          await prisma.submission.create({
+          const createdSub = await prisma.submission.create({
             data: {
               userId: session.user.id,
               cfSubmissionId: String(accepted.id),
@@ -135,6 +135,7 @@ export async function POST(request: NextRequest) {
           return Response.json({
             verified: true,
             verdict: "OK",
+            submissionId: createdSub.id,
             language: accepted.programmingLanguage,
             timeMs: accepted.timeConsumedMillis,
             xpAwarded: ratingXP,
@@ -149,6 +150,7 @@ export async function POST(request: NextRequest) {
       return Response.json({
         verified: true,
         verdict: "OK",
+        submissionId: existingSub?.id || null,
         language: accepted.programmingLanguage,
         timeMs: accepted.timeConsumedMillis,
         xpAwarded: 0,
