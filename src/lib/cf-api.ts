@@ -11,17 +11,33 @@ const MIN_INTERVAL_MS = 1100 // slightly over 1 second to be safe
 const MAX_RETRIES = 3
 const BASE_BACKOFF_MS = 2000
 
+let lastRequestPromise = Promise.resolve()
+
 /**
  * Wait until enough time has passed since the last CF API call.
- * This ensures global rate-limiting to ~1 req/sec within this process.
+ * This ensures global rate-limiting to ~1 req/sec within this process,
+ * strictly queuing concurrent requests.
  */
 async function acquireSlot(): Promise<void> {
+  const previousPromise = lastRequestPromise
+  
+  let resolveNext!: () => void
+  lastRequestPromise = new Promise((resolve) => {
+    resolveNext = resolve
+  })
+
+  // Wait for the person in front of us to finish their slot
+  await previousPromise
+
   const now = Date.now()
   const elapsed = now - lastRequestTime
   if (elapsed < MIN_INTERVAL_MS) {
     await sleep(MIN_INTERVAL_MS - elapsed)
   }
+  
   lastRequestTime = Date.now()
+  // Release the next person in line
+  resolveNext()
 }
 
 function sleep(ms: number): Promise<void> {
