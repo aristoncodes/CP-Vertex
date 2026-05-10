@@ -3,6 +3,7 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ContestPrepCard } from "@/components/ui/ContestPrepCard";
 
 interface Contest {
   id: number;
@@ -98,6 +99,9 @@ export default function ContestsPage() {
         <h1 style={{ fontSize: 24, fontWeight: 800, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>Contests</h1>
         <p style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 4, fontWeight: 500 }}>Live calendar & virtual contest simulation</p>
       </div>
+
+      {/* AI Contest Prep */}
+      <ContestPrepCard />
 
       {activeSession && (
         <div className="n-card" style={{ padding: "18px 24px", borderColor: "var(--primary)", background: "var(--primary-light)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>

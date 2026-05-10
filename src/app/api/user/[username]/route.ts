@@ -101,6 +101,8 @@ export async function GET(
           targetCount: activeWeek.targetCount,
           minRating: activeWeek.minRating,
           maxRating: activeWeek.maxRating,
+          why: activeWeek.why || null,
+          subtopics: activeWeek.subtopics || [],
         };
       }
     }

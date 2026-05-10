@@ -4,6 +4,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Suspense, useEffect, useState, useCallback, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/ToastProvider";
+import { HintButton } from "@/components/ui/HintButton";
 
 interface SessionProblem {
   id: string;
@@ -308,6 +309,11 @@ function SessionContent() {
                       </a>
                     )}
                   </div>
+                )}
+
+                {/* AI Hints */}
+                {!isCompleted && (
+                  <HintButton problemId={p.id} />
                 )}
               </div>
             );

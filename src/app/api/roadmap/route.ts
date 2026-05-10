@@ -33,6 +33,7 @@ export async function GET() {
     return Response.json({
       roadmap: {
         id: roadmap.id,
+        reasoning: roadmap.reasoning,
         generatedAt: roadmap.generatedAt,
         weeks: roadmap.weeks.map((w) => ({
           weekNumber: w.weekNumber,
@@ -41,6 +42,8 @@ export async function GET() {
           minRating: w.minRating,
           maxRating: w.maxRating,
           progress: w.progress,
+          why: w.why,
+          subtopics: w.subtopics,
           progressPercent: Math.round((w.progress / w.targetCount) * 100),
         })),
       },

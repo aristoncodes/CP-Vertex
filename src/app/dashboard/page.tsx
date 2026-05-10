@@ -300,24 +300,77 @@ function IntelPanel({ profile }: { profile: any }) {
 
       {/* Weekly Target */}
       <div>
-        <div className="n-section-label">Weekly Target</div>
+        <div className="n-section-label" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <span>
+            <span className="material-symbols-outlined" style={{ fontSize: 14, verticalAlign: "middle", marginRight: 4, color: "var(--accent, var(--primary))", fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
+            AI Roadmap
+          </span>
+          <button
+            className="n-btn-primary"
+            style={{ fontSize: 11, padding: "4px 10px" }}
+            onClick={async () => {
+              try {
+                await fetch("/api/roadmap", { method: "POST" });
+                window.location.reload();
+              } catch { /* ignore */ }
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 12 }}>refresh</span>
+            Generate
+          </button>
+        </div>
         <div className="n-card" style={{ padding: "16px 18px" }}>
           {wt ? (
-            <div style={{ fontSize: 14, lineHeight: 2, color: "var(--text-secondary)" }}>
-              <span style={{ color: "var(--text-muted)", fontSize: 12 }}>Target:</span>{" "}
-              <span style={{ color: "var(--primary)", fontWeight: 600, textTransform: "capitalize" }}>{wt.tag}</span>
-              <br />
-              <span style={{ color: "var(--text-muted)", fontSize: 12 }}>Objective:</span> {wt.targetCount} problems ({wt.minRating}–{wt.maxRating})
-              <br />
-              <span style={{ color: "var(--text-muted)", fontSize: 12 }}>Progress:</span>{" "}
-              <span style={{ color: wt.progress >= wt.targetCount ? "var(--success)" : "var(--primary)", fontWeight: 600 }}>
-                {wt.progress} / {wt.targetCount}
-              </span>
+            <div style={{ fontSize: 14, color: "var(--text-secondary)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                <span style={{ color: "var(--primary)", fontWeight: 700, textTransform: "capitalize", fontSize: 15 }}>{wt.tag}</span>
+                <span style={{
+                  color: wt.progress >= wt.targetCount ? "var(--success)" : "var(--primary)",
+                  fontWeight: 700, fontSize: 13,
+                }}>
+                  {wt.progress}/{wt.targetCount}
+                </span>
+              </div>
+              {/* Progress bar */}
+              <div style={{ height: 4, borderRadius: 2, background: "var(--surface-high, var(--surface-low))", marginBottom: 8 }}>
+                <div style={{
+                  height: "100%", borderRadius: 2,
+                  background: wt.progress >= wt.targetCount ? "var(--success)" : "var(--primary)",
+                  width: `${Math.min(100, (wt.progress / wt.targetCount) * 100)}%`,
+                  transition: "width 0.5s ease",
+                }} />
+              </div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                {wt.minRating}–{wt.maxRating} rated · {wt.targetCount} problems
+              </div>
+              {/* AI Reasoning / Why */}
+              {wt.why && (
+                <div style={{
+                  marginTop: 10, padding: "8px 12px",
+                  background: "var(--surface-high, var(--surface-low))",
+                  borderRadius: 8, borderLeft: "3px solid var(--accent, var(--primary))",
+                  fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.5, fontStyle: "italic",
+                }}>
+                  {wt.why}
+                </div>
+              )}
+              {/* Subtopics */}
+              {wt.subtopics && wt.subtopics.length > 0 && (
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
+                  {wt.subtopics.map((s: string, i: number) => (
+                    <span key={i} style={{
+                      fontSize: 10, padding: "2px 8px", borderRadius: 6,
+                      background: "var(--primary-light)", color: "var(--primary)",
+                      fontWeight: 600,
+                    }}>{s}</span>
+                  ))}
+                </div>
+              )}
             </div>
           ) : (
             <div style={{ fontSize: 13, color: "var(--text-muted)", textAlign: "center", padding: "12px 0" }}>
-              No active target.<br/>
-              <span style={{ fontSize: 12 }}>Generate a Learning Roadmap to get started.</span>
+              No active roadmap.<br/>
+              <span style={{ fontSize: 12 }}>Click Generate to create an AI-powered training plan.</span>
             </div>
           )}
         </div>
