@@ -114,102 +114,101 @@ export default function BossFightPage() {
   };
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: bossState === "defeated"
-        ? "linear-gradient(135deg, #f0fdf4 0%, #f7fafe 50%, #f0fdf4 100%)"
-        : "linear-gradient(135deg, #fef2f2 0%, #f7fafe 50%, #fef2f2 100%)",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      fontFamily: "'Inter', sans-serif",
-      padding: 32,
-    }}>
-      <div style={{ fontSize: 13, fontWeight: 700, color: bossState === "defeated" ? "var(--success)" : "var(--danger)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 16 }}>
-        {bossState === "defeated" ? "✓ Threat Eliminated" : "⚠ High-Level Threat Detected"}
-      </div>
-
-      <h1 style={{ fontSize: "clamp(36px, 6vw, 64px)", fontWeight: 900, color: "var(--text-primary)", textAlign: "center", letterSpacing: "-0.03em", maxWidth: 700, textDecoration: bossState === "defeated" ? "line-through" : "none", opacity: bossState === "defeated" ? 0.6 : 1 }}>
-        {boss.title}
-      </h1>
-
-      <div style={{ display: "flex", gap: 40, marginTop: 32 }}>
-        <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)", marginBottom: 4 }}>Rating</div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: "var(--danger)" }}>{boss.rating}</div>
+    <DashboardLayout>
+      <div style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        fontFamily: "'Inter', sans-serif",
+        padding: "48px 32px",
+        minHeight: "60vh",
+      }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: bossState === "defeated" ? "var(--success)" : "var(--danger)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 16 }}>
+          {bossState === "defeated" ? "✓ Threat Eliminated" : "⚠ High-Level Threat Detected"}
         </div>
-        <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)", marginBottom: 4 }}>XP Reward</div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: "var(--warning)" }}>500</div>
+
+        <h1 style={{ fontSize: "clamp(36px, 6vw, 64px)", fontWeight: 900, color: "var(--text-primary)", textAlign: "center", letterSpacing: "-0.03em", maxWidth: 700, textDecoration: bossState === "defeated" ? "line-through" : "none", opacity: bossState === "defeated" ? 0.6 : 1 }}>
+          {boss.title}
+        </h1>
+
+        <div style={{ display: "flex", gap: 40, marginTop: 32 }}>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)", marginBottom: 4 }}>Rating</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: "var(--danger)" }}>{boss.rating}</div>
+          </div>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)", marginBottom: 4 }}>XP Reward</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: "var(--warning)" }}>500</div>
+          </div>
         </div>
-      </div>
 
-      <div style={{ display: "flex", gap: 8, marginTop: 32, flexWrap: "wrap", justifyContent: "center" }}>
-        {boss.tags.map(tag => (
-          <span key={tag} className="n-badge" style={{ background: "var(--danger-light)", color: "var(--danger)", padding: "4px 14px", fontSize: 12 }}>
-            {tag}
-          </span>
-        ))}
-      </div>
-
-      {/* Status message */}
-      {verifyMessage && (
-        <div style={{
-          marginTop: 32,
-          padding: "12px 24px",
-          borderRadius: 12,
-          background: bossState === "defeated" ? "var(--success-light)" : "var(--warning-light)",
-          color: bossState === "defeated" ? "var(--success)" : "var(--warning)",
-          fontSize: 14,
-          fontWeight: 600,
-          textAlign: "center",
-          maxWidth: 500,
-        }}>
-          {verifyMessage}
+        <div style={{ display: "flex", gap: 8, marginTop: 32, flexWrap: "wrap", justifyContent: "center" }}>
+          {boss.tags.map(tag => (
+            <span key={tag} className="n-badge" style={{ background: "var(--danger-light)", color: "var(--danger)", padding: "4px 14px", fontSize: 12 }}>
+              {tag}
+            </span>
+          ))}
         </div>
-      )}
 
-      <div style={{ display: "flex", gap: 12, marginTop: verifyMessage ? 24 : 56 }}>
-        {bossState !== "defeated" && bossState !== "verifying" && (
-          bossState === "idle" ? (
-            <button
-              className="n-btn-primary"
-              style={{ padding: "16px 48px", fontSize: 16 }}
-              onClick={handleEngage}
-            >
-              Engage Boss →
+        {/* Status message */}
+        {verifyMessage && (
+          <div style={{
+            marginTop: 32,
+            padding: "12px 24px",
+            borderRadius: 12,
+            background: bossState === "defeated" ? "var(--success-light)" : "var(--warning-light)",
+            color: bossState === "defeated" ? "var(--success)" : "var(--warning)",
+            fontSize: 14,
+            fontWeight: 600,
+            textAlign: "center",
+            maxWidth: 500,
+          }}>
+            {verifyMessage}
+          </div>
+        )}
+
+        <div style={{ display: "flex", gap: 12, marginTop: verifyMessage ? 24 : 56 }}>
+          {bossState !== "defeated" && bossState !== "verifying" && (
+            bossState === "idle" ? (
+              <button
+                className="n-btn-primary"
+                style={{ padding: "16px 48px", fontSize: 16 }}
+                onClick={handleEngage}
+              >
+                Engage Boss →
+              </button>
+            ) : (
+              <a
+                href={boss.cfLink}
+                target="_blank"
+                rel="noreferrer"
+                className="n-btn-primary"
+                style={{ padding: "16px 48px", fontSize: 16, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8 }}
+              >
+                Open Problem ↗
+              </a>
+            )
+          )}
+          {bossState === "verifying" && (
+            <button className="n-btn-primary" style={{ padding: "16px 48px", fontSize: 16, opacity: 0.7 }} disabled>
+              Verifying...
             </button>
-          ) : (
-            <a
-              href={boss.cfLink}
-              target="_blank"
-              rel="noreferrer"
-              className="n-btn-primary"
-              style={{ padding: "16px 48px", fontSize: 16, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8 }}
+          )}
+          {(bossState === "engaged" || bossState === "failed") && (
+            <button
+              className="n-btn-secondary"
+              style={{ padding: "16px 32px", fontSize: 16, background: "var(--success-light)", color: "var(--success)", border: "1px solid var(--success)" }}
+              onClick={handleVerify}
             >
-              Open Problem ↗
-            </a>
-          )
-        )}
-        {bossState === "verifying" && (
-          <button className="n-btn-primary" style={{ padding: "16px 48px", fontSize: 16, opacity: 0.7 }} disabled>
-            Verifying...
+              Verify Submission ✓
+            </button>
+          )}
+          <button className="n-btn-secondary" style={{ padding: "16px 32px", fontSize: 16 }} onClick={handleRetreat}>
+            {bossState === "defeated" ? "Return to Base" : "Retreat"}
           </button>
-        )}
-        {(bossState === "engaged" || bossState === "failed") && (
-          <button
-            className="n-btn-secondary"
-            style={{ padding: "16px 32px", fontSize: 16, background: "var(--success-light)", color: "var(--success)", border: "1px solid var(--success)" }}
-            onClick={handleVerify}
-          >
-            Verify Submission ✓
-          </button>
-        )}
-        <button className="n-btn-secondary" style={{ padding: "16px 32px", fontSize: 16 }} onClick={handleRetreat}>
-          {bossState === "defeated" ? "Return to Base" : "Retreat"}
-        </button>
+        </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }
