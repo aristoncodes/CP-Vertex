@@ -51,25 +51,33 @@ export async function GET() {
       missionTemplates = await prisma.mission.findMany()
     }
 
-    // Pick 3 random missions
-    const shuffled = missionTemplates.sort(() => Math.random() - 0.5)
-    const selected = shuffled.slice(0, Math.min(3, shuffled.length))
-
-    // Create user missions for today
+    // Check if userMissions for today already exist in the database (in case Redis was flushed)
     const todayDate = new Date(today)
-    const userMissions = await Promise.all(
-      selected.map((m) =>
-        prisma.userMission.create({
-          data: {
-            userId: session.user.id,
-            missionId: m.id,
-            date: todayDate,
-            target: 1,
-          },
-          include: { mission: true },
-        })
+    let userMissions = await prisma.userMission.findMany({
+      where: { userId: session.user.id, date: todayDate },
+      include: { mission: true },
+    })
+
+    if (userMissions.length === 0) {
+      // Pick 3 random missions
+      const shuffled = missionTemplates.sort(() => Math.random() - 0.5)
+      const selected = shuffled.slice(0, Math.min(3, shuffled.length))
+
+      // Create user missions for today
+      userMissions = await Promise.all(
+        selected.map((m) =>
+          prisma.userMission.create({
+            data: {
+              userId: session.user.id,
+              missionId: m.id,
+              date: todayDate,
+              target: 1,
+            },
+            include: { mission: true },
+          })
+        )
       )
-    )
+    }
 
     // Cache mission IDs for 24 hours
     const missionIds = userMissions.map((um) => um.id)
