@@ -212,7 +212,7 @@ function IntelPanel({ profile }: { profile: any }) {
   const [loadingMissions, setLoadingMissions] = useState(true);
 
   useEffect(() => {
-    fetch("/api/missions/today")
+    fetch("/api/missions/today?t=" + Date.now())
       .then((res) => res.json())
       .then((data) => {
         if (data.missions && data.missions.length > 0) {

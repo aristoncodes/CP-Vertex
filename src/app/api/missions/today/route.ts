@@ -2,6 +2,8 @@ import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { redis } from "@/lib/redis"
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   try {
     const session = await auth()
@@ -21,19 +23,21 @@ export async function GET() {
         include: { mission: true },
       })
 
-      return Response.json({
-        missions: missions.map((um) => ({
-          id: um.id,
-          type: um.mission.type,
-          title: um.mission.title,
-          description: um.mission.description,
-          xpReward: um.mission.xpReward,
-          completed: um.completed,
-          completedAt: um.completedAt,
-          progress: um.progress,
-          target: um.target,
-        })),
-      })
+      if (missions.length > 0) {
+        return Response.json({
+          missions: missions.map((um) => ({
+            id: um.id,
+            type: um.mission.type,
+            title: um.mission.title,
+            description: um.mission.description,
+            xpReward: um.mission.xpReward,
+            completed: um.completed,
+            completedAt: um.completedAt,
+            progress: um.progress,
+            target: um.target,
+          })),
+        })
+      }
     }
 
     // Get all mission templates
