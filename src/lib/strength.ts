@@ -54,7 +54,7 @@ export async function computeTopicScore(
     },
     include: { problem: true },
     orderBy: { submittedAt: "desc" },
-    take: 300,
+    take: 500,
   })
 
   const acSubs = subs.filter((s) => s.verdict === "OK")
@@ -65,25 +65,51 @@ export async function computeTopicScore(
     return { score: 0, trend: "stable", acCount: 0, totalAttempts: 0, avgAttempts: 0 }
   }
 
-  // Base score
-  let score = (acCount / totalAttempts) * 100
+  /*
+   * Weighted Topic Score (0–100):
+   *
+   *   Component 1: AC Rate         (35 pts max)
+   *     = (acCount / totalAttempts) × 35
+   *
+   *   Component 2: Difficulty       (30 pts max)
+   *     = (avg rating of AC'd problems / user avg rating) × 30, capped at 30
+   *     Rewards solving problems at or above your level.
+   *
+   *   Component 3: Volume           (20 pts max)
+   *     = min(1, acCount / 30) × 20
+   *     Saturates at 30 solves — you need enough problems to prove competence.
+   *
+   *   Component 4: Recency          (15 pts max)
+   *     = min(1, recentACs / 5) × 15
+   *     Saturates at 5 solves in last 30 days. Rewards active practice.
+   */
 
-  // Hard bonus: +5 per problem above user avg rating
+  // Component 1: AC Rate (0–35)
+  const acRate = acCount / totalAttempts
+  const acRateScore = acRate * 35
+
+  // Component 2: Difficulty (0–30)
   const userAvg = await getUserAvgRating(userId)
-  const hardACs = acSubs.filter((s) => (s.problem.rating ?? 0) > userAvg)
-  score += hardACs.length * 5
+  const topicRatings = acSubs
+    .map((s) => s.problem.rating ?? 0)
+    .filter((r) => r > 0)
+  const avgTopicRating = topicRatings.length > 0
+    ? topicRatings.reduce((a, b) => a + b, 0) / topicRatings.length
+    : 0
+  // Ratio: if you solve 1400-rated problems and your avg is 1200, ratio = 1.17
+  const difficultyRatio = userAvg > 0 ? Math.min(1.5, avgTopicRating / userAvg) : 0
+  const difficultyScore = (difficultyRatio / 1.5) * 30
 
-  // Recency bonus: +3 per AC in last 30 days
+  // Component 3: Volume (0–20)
+  // Logarithmic saturation: 30 solves = full marks, scales smoothly
+  const volumeScore = Math.min(1, acCount / 30) * 20
+
+  // Component 4: Recency (0–15)
   const recentACs = acSubs.filter((s) => s.submittedAt > thirtyDaysAgo())
-  score += recentACs.length * 3
+  const recencyScore = Math.min(1, recentACs.length / 5) * 15
 
-  // WA penalty: -5 per extra WA before AC (average)
-  const acProblemIds = acSubs.map((s) => s.problemId)
-  const avgWA = await getAvgWABeforeAC(userId, acProblemIds)
-  score -= Math.max(0, avgWA - 1) * 5
-
-  // Clamp 0-100
-  const finalScore = Math.max(0, Math.min(100, Math.round(score)))
+  const rawScore = acRateScore + difficultyScore + volumeScore + recencyScore
+  const finalScore = Math.max(0, Math.min(100, Math.round(rawScore)))
 
   // Determine trend
   const prev = await prisma.topicScore.findUnique({
