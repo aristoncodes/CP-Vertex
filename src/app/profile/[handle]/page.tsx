@@ -340,7 +340,7 @@ export default function ProfilePage() {
             </tr>
           </thead>
           <tbody>
-            {(profile.topicScores || []).map((t: any) => {
+            {(profile.topicScores || []).slice().sort((a: any, b: any) => b.score - a.score).map((t: any) => {
               const acRate = t.attempted > 0 ? Math.round((t.solved / t.attempted) * 100) : 0;
               const trendIcon = t.trend === "up" ? "trending_up" : t.trend === "down" ? "trending_down" : "trending_flat";
               const trendColor = t.trend === "up" ? "var(--success)" : t.trend === "down" ? "var(--danger)" : "var(--text-muted)";

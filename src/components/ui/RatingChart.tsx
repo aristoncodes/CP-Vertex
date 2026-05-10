@@ -1,14 +1,14 @@
 "use client";
 
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  ReferenceLine
+  ReferenceLine,
+  Area,
+  AreaChart,
 } from "recharts";
 
 interface CFRatingChange {
@@ -20,6 +20,16 @@ interface CFRatingChange {
   oldRating: number;
   newRating: number;
 }
+
+/* CF rating band thresholds */
+const BANDS = [
+  { value: 1200, label: "Pupil", color: "#22c55e" },
+  { value: 1400, label: "Specialist", color: "#06b6d4" },
+  { value: 1600, label: "Expert", color: "#3b82f6" },
+  { value: 1900, label: "CM", color: "#a855f7" },
+  { value: 2100, label: "Master", color: "#FF8C00" },
+  { value: 2400, label: "GM", color: "#dc2626" },
+];
 
 export function RatingChart({ data = [] }: { data?: CFRatingChange[] }) {
   if (!data || data.length === 0) {
@@ -34,7 +44,7 @@ export function RatingChart({ data = [] }: { data?: CFRatingChange[] }) {
   }
 
   const chartData = data.map((d) => ({
-    date: new Date(d.ratingUpdateTimeSeconds * 1000).toLocaleDateString(undefined, { month: "short", year: "numeric" }),
+    date: new Date(d.ratingUpdateTimeSeconds * 1000).toLocaleDateString(undefined, { month: "short", year: "2-digit" }),
     rating: d.newRating,
     oldRating: d.oldRating,
     contest: d.contestName,
@@ -44,10 +54,14 @@ export function RatingChart({ data = [] }: { data?: CFRatingChange[] }) {
 
   const maxRating = Math.max(...chartData.map(d => d.rating));
   const minRating = Math.min(...chartData.map(d => d.rating));
+  const currentRating = chartData[chartData.length - 1]?.rating || 0;
 
-  // Determine standard CF color bands based on max rating for Y axis domain
-  const yMax = Math.ceil((maxRating + 100) / 100) * 100;
-  const yMin = Math.max(0, Math.floor((minRating - 100) / 100) * 100);
+  // Y axis domain with padding
+  const yMax = Math.ceil((maxRating + 150) / 100) * 100;
+  const yMin = Math.max(0, Math.floor((minRating - 150) / 100) * 100);
+
+  // Only show bands within the visible Y range
+  const visibleBands = BANDS.filter(b => b.value >= yMin && b.value <= yMax);
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
@@ -57,18 +71,26 @@ export function RatingChart({ data = [] }: { data?: CFRatingChange[] }) {
         <div style={{
           background: "var(--surface-card)",
           border: "1px solid var(--border)",
-          padding: "10px",
-          borderRadius: "8px",
+          padding: "10px 12px",
+          borderRadius: "10px",
           fontSize: "12px",
           color: "var(--text-primary)",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-          maxWidth: "250px"
+          boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+          maxWidth: "250px",
+          lineHeight: 1.5,
         }}>
-          <div style={{ fontWeight: 800, marginBottom: "4px" }}>{d.contest}</div>
-          <div style={{ color: "var(--text-muted)", marginBottom: "8px" }}>{d.date} • Rank {d.rank}</div>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span>Rating: <strong>{d.rating}</strong></span>
-            <span style={{ color: isPositive ? "var(--success)" : "var(--danger)", fontWeight: "bold" }}>
+          <div style={{ fontWeight: 700, marginBottom: "4px", fontSize: 13 }}>{d.contest}</div>
+          <div style={{ color: "var(--text-muted)", marginBottom: "6px", fontSize: 11 }}>{d.date} · Rank #{d.rank}</div>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center" }}>
+            <span>Rating: <strong style={{ fontSize: 15 }}>{d.rating}</strong></span>
+            <span style={{
+              color: isPositive ? "var(--success)" : "var(--danger)",
+              fontWeight: 700,
+              fontSize: 13,
+              background: isPositive ? "var(--success-light)" : "var(--danger-light)",
+              padding: "2px 8px",
+              borderRadius: 6,
+            }}>
               {isPositive ? "+" : ""}{d.delta}
             </span>
           </div>
@@ -79,24 +101,31 @@ export function RatingChart({ data = [] }: { data?: CFRatingChange[] }) {
   };
 
   return (
-    <div className="n-card" style={{ padding: "18px 22px", height: "100%", display: "flex", flexDirection: "column" }}>
+    <div className="n-card" style={{ padding: "18px 22px", display: "flex", flexDirection: "column" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
         <div className="n-section-label" style={{ margin: 0 }}>Rating History</div>
-        <div style={{ fontSize: "12px", color: "var(--text-muted)" }}>
-          Max: <strong style={{ color: "var(--text-primary)" }}>{maxRating}</strong>
+        <div style={{ display: "flex", gap: 16, fontSize: "12px", color: "var(--text-muted)" }}>
+          <span>Current: <strong style={{ color: "var(--text-primary)" }}>{currentRating}</strong></span>
+          <span>Peak: <strong style={{ color: "var(--warning)" }}>{maxRating}</strong></span>
         </div>
       </div>
       
-      <div style={{ flex: 1, minHeight: 200, position: "relative" }}>
+      <div style={{ width: "100%", height: 260 }}>
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+          <AreaChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+            <defs>
+              <linearGradient id="ratingGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="var(--info)" stopOpacity={0.25} />
+                <stop offset="100%" stopColor="var(--info)" stopOpacity={0.02} />
+              </linearGradient>
+            </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
             <XAxis 
               dataKey="date" 
               tick={{ fontSize: 10, fill: "var(--text-muted)" }} 
               tickLine={false}
               axisLine={false}
-              minTickGap={30}
+              minTickGap={40}
             />
             <YAxis 
               domain={[yMin, yMax]} 
@@ -105,16 +134,34 @@ export function RatingChart({ data = [] }: { data?: CFRatingChange[] }) {
               axisLine={false}
             />
             <Tooltip content={<CustomTooltip />} />
-            <Line 
-              type="monotone" 
-              dataKey="rating" 
-              stroke="var(--info)" 
-              strokeWidth={3}
+            {/* CF-style rating band lines */}
+            {visibleBands.map(band => (
+              <ReferenceLine
+                key={band.value}
+                y={band.value}
+                stroke={band.color}
+                strokeDasharray="4 4"
+                strokeOpacity={0.4}
+                label={{
+                  value: band.label,
+                  position: "right",
+                  fontSize: 9,
+                  fill: band.color,
+                  fontWeight: 600,
+                }}
+              />
+            ))}
+            <Area
+              type="monotone"
+              dataKey="rating"
+              stroke="var(--info)"
+              strokeWidth={2.5}
+              fill="url(#ratingGrad)"
               dot={{ r: 3, fill: "var(--info)", strokeWidth: 0 }}
-              activeDot={{ r: 5, fill: "white", stroke: "var(--info)", strokeWidth: 2 }}
+              activeDot={{ r: 6, fill: "var(--surface-card)", stroke: "var(--info)", strokeWidth: 2.5 }}
               animationDuration={1000}
             />
-          </LineChart>
+          </AreaChart>
         </ResponsiveContainer>
       </div>
     </div>
