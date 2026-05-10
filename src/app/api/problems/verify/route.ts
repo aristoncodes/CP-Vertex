@@ -92,6 +92,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Also record it in our DB if not already there
+      let existingSubId: string | null = null
       const problem = await prisma.problem.findUnique({ where: { cfId }, select: { id: true, rating: true, cfId: true, editorialUrl: true } })
       if (problem) {
         const existingSub = await prisma.submission.findUnique({
@@ -144,13 +145,15 @@ export async function POST(request: NextRequest) {
             editorialUrl: problem.editorialUrl || `https://codeforces.com/blog/entry/${targetContestId}`,
             message: `Accepted! +${ratingXP} XP` + (leveledUp ? ` 🎉 Level Up to ${newLevel}!` : ""),
           })
+        } else {
+          existingSubId = existingSub.id
         }
       }
 
       return Response.json({
         verified: true,
         verdict: "OK",
-        submissionId: existingSub?.id || null,
+        submissionId: existingSubId,
         language: accepted.programmingLanguage,
         timeMs: accepted.timeConsumedMillis,
         xpAwarded: 0,
