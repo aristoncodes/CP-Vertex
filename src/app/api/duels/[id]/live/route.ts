@@ -2,18 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 /**
- * GET /api/duels/[duelId]/live — Duel live status for spectators
+ * GET /api/duels/[id]/live — Duel live status for spectators
  * Implements #17: Basic duel spectator mode
  */
 export async function GET(
   _req: NextRequest,
-  { params }: { params: Promise<{ duelId: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { duelId } = await params;
+    const { id } = await params;
 
     const duel = await prisma.duel.findUnique({
-      where: { id: duelId },
+      where: { id },
       include: {
         player1: { select: { name: true, cfHandle: true, level: true } },
         player2: { select: { name: true, cfHandle: true, level: true } },
@@ -51,7 +51,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error("GET /api/duels/[duelId]/live error:", error);
+    console.error("GET /api/duels/[id]/live error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
