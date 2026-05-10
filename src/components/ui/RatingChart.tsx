@@ -31,6 +31,16 @@ const BANDS = [
   { value: 2400, label: "GM", color: "#dc2626" },
 ];
 
+function getRankColor(rating: number): string {
+  if (rating >= 2400) return "#dc2626";  // GM — red
+  if (rating >= 2100) return "#FF8C00";  // Master — orange
+  if (rating >= 1900) return "#a855f7";  // CM — purple
+  if (rating >= 1600) return "#3b82f6";  // Expert — blue
+  if (rating >= 1400) return "#06b6d4";  // Specialist — cyan
+  if (rating >= 1200) return "#22c55e";  // Pupil — green
+  return "#6b7280";                       // Newbie — grey
+}
+
 export function RatingChart({ data = [] }: { data?: CFRatingChange[] }) {
   if (!data || data.length === 0) {
     return (
@@ -105,8 +115,8 @@ export function RatingChart({ data = [] }: { data?: CFRatingChange[] }) {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
         <div className="n-section-label" style={{ margin: 0 }}>Rating History</div>
         <div style={{ display: "flex", gap: 16, fontSize: "12px", color: "var(--text-muted)" }}>
-          <span>Current: <strong style={{ color: "var(--text-primary)" }}>{currentRating}</strong></span>
-          <span>Peak: <strong style={{ color: "var(--warning)" }}>{maxRating}</strong></span>
+          <span>Current: <strong style={{ color: getRankColor(currentRating) }}>{currentRating}</strong></span>
+          <span>Peak: <strong style={{ color: getRankColor(maxRating) }}>{maxRating}</strong></span>
         </div>
       </div>
       
