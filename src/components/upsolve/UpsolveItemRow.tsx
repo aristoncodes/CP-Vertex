@@ -30,6 +30,7 @@ interface UpsolveItemProps {
   showContest?: boolean
   onSkip?: (id: string) => void
   highlight?: boolean
+  minimal?: boolean
 }
 
 function ratingColor(rating: number): string {
@@ -74,7 +75,7 @@ function verdictChip(type: string, lastVerdict: string | null, attemptCount: num
   )
 }
 
-export function UpsolveItemRow({ item, showContest, onSkip, highlight }: UpsolveItemProps) {
+export function UpsolveItemRow({ item, showContest, onSkip, highlight, minimal }: UpsolveItemProps) {
   const router = useRouter()
 
   return (
@@ -97,7 +98,7 @@ export function UpsolveItemRow({ item, showContest, onSkip, highlight }: Upsolve
     >
       {/* Left */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        {showContest && (
+        {!minimal && showContest && (
           <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500, marginBottom: 3 }}>
             {item.contestParticipation.contestName}
             {item.contestParticipation.ratingChange !== null && (
@@ -108,7 +109,7 @@ export function UpsolveItemRow({ item, showContest, onSkip, highlight }: Upsolve
           </div>
         )}
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          {verdictChip(item.type, item.lastVerdict, item.attemptCount)}
+          {!minimal && verdictChip(item.type, item.lastVerdict, item.attemptCount)}
           <a
             href={item.problem.cfLink}
             target="_blank"
@@ -127,21 +128,23 @@ export function UpsolveItemRow({ item, showContest, onSkip, highlight }: Upsolve
             {item.problem.title}
           </a>
         </div>
-        <div style={{ display: "flex", gap: 4, marginTop: 4, flexWrap: "wrap" }}>
-          {item.problem.tags.slice(0, 3).map((t) => (
-            <span
-              key={t.tag.name}
-              className="n-tag"
-              style={{ fontSize: 10, padding: "2px 8px" }}
-            >
-              {t.tag.name}
-            </span>
-          ))}
-        </div>
+        {!minimal && (
+          <div style={{ display: "flex", gap: 4, marginTop: 4, flexWrap: "wrap" }}>
+            {item.problem.tags.slice(0, 3).map((t) => (
+              <span
+                key={t.tag.name}
+                className="n-tag"
+                style={{ fontSize: 10, padding: "2px 8px" }}
+              >
+                {t.tag.name}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Right */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, flexShrink: 0 }}>
+      <div style={{ display: "flex", flexDirection: minimal ? "row" : "column", alignItems: minimal ? "center" : "flex-end", gap: minimal ? 12 : 4, flexShrink: 0 }}>
         <span className="n-badge" style={{
           fontSize: 13,
           fontWeight: 800,
@@ -150,8 +153,8 @@ export function UpsolveItemRow({ item, showContest, onSkip, highlight }: Upsolve
         }}>
           {item.problem.rating || "?"}
         </span>
-        <XPMultiplierBadge multiplier={item.xpMultiplier} />
-        <CountdownTimer deadlineAt={item.deadlineAt} xpMultiplier={item.xpMultiplier} />
+        {!minimal && <XPMultiplierBadge multiplier={item.xpMultiplier} />}
+        {!minimal && <CountdownTimer deadlineAt={item.deadlineAt} xpMultiplier={item.xpMultiplier} />}
       </div>
 
       {/* Arrow */}

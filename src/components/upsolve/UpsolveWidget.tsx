@@ -116,7 +116,7 @@ export function UpsolveWidget() {
           <UpsolveItemRow
             key={item.id}
             item={item}
-            showContest={true}
+            minimal={true}
           />
         ))}
       </div>
