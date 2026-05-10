@@ -66,6 +66,25 @@ export async function PATCH(
         console.error("Codeforces verification failed:", error)
         return Response.json({ error: "Failed to reach Codeforces to verify your mission. Try again later." }, { status: 503 })
       }
+    } else if (userMission.mission.type === "boss" || userMission.mission.title.toLowerCase().includes("boss")) {
+      return Response.json({
+        error: "To complete this mission, you must engage and defeat the Boss in the Arena!"
+      }, { status: 400 })
+    } else if (userMission.mission.type === "duel" || userMission.mission.title.toLowerCase().includes("duel")) {
+      const todayStart = new Date(userMission.date)
+      const wonDuels = await prisma.duel.count({
+        where: {
+          winnerId: session.user.id,
+          startedAt: { gte: todayStart },
+        }
+      })
+      
+      const targetCount = userMission.mission.title.match(/Win (\d+) Duel/i) ? parseInt(userMission.mission.title.match(/Win (\d+) Duel/i)![1]) : 1
+      if (wonDuels < targetCount) {
+        return Response.json({
+          error: `Mission not completed yet. You have won ${wonDuels}/${targetCount} Duels today. Go to the Arena to challenge someone!`
+        }, { status: 400 })
+      }
     }
 
     // Mark complete
