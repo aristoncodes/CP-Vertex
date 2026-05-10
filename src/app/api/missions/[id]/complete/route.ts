@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { rateLimits, checkRateLimit } from "@/lib/ratelimit"
 import { awardXP } from "@/lib/xp"
 import { emitXPGain, emitLevelUp } from "@/lib/realtime"
+import { getCFSubmissions } from "@/lib/cf-api"
 import { NextRequest } from "next/server"
 
 export async function PATCH(
@@ -22,7 +23,7 @@ export async function PATCH(
 
     const userMission = await prisma.userMission.findFirst({
       where: { id, userId: session.user.id },
-      include: { mission: true },
+      include: { mission: true, user: { select: { cfHandle: true } } },
     })
 
     if (!userMission) {
@@ -31,6 +32,40 @@ export async function PATCH(
 
     if (userMission.completed) {
       return Response.json({ error: "Mission already completed" }, { status: 400 })
+    }
+
+    // Verify via Codeforces API if it's a tag-based problem-solving mission
+    const match = userMission.mission.title.match(/Solve (\d+) (.+) problems/i)
+    if (match && userMission.user.cfHandle) {
+      const targetCount = parseInt(match[1])
+      const targetTag = match[2].toLowerCase().trim()
+      
+      try {
+        const submissions = await getCFSubmissions(userMission.user.cfHandle, 1, 100)
+        const missionStartSeconds = Math.floor(new Date(userMission.date).getTime() / 1000)
+        
+        const validSolvedIds = new Set<string>()
+        
+        for (const sub of submissions) {
+          if (sub.creationTimeSeconds < missionStartSeconds) break // submissions are sorted newest first
+          
+          if (sub.verdict === "OK") {
+            const hasTag = sub.problem.tags.some(t => t.toLowerCase() === targetTag || (targetTag === "dynamic programming" && t.toLowerCase() === "dp"))
+            if (hasTag) {
+              validSolvedIds.add(`${sub.problem.contestId}-${sub.problem.index}`)
+            }
+          }
+        }
+        
+        if (validSolvedIds.size < targetCount) {
+          return Response.json({ 
+            error: `Mission not completed yet. You have solved ${validSolvedIds.size}/${targetCount} '${targetTag}' problems today. Keep going!` 
+          }, { status: 400 })
+        }
+      } catch (error) {
+        console.error("Codeforces verification failed:", error)
+        return Response.json({ error: "Failed to reach Codeforces to verify your mission. Try again later." }, { status: 503 })
+      }
     }
 
     // Mark complete
