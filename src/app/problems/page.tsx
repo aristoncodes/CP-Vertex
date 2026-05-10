@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 
 interface Problem {
@@ -45,7 +46,9 @@ function ProblemsMain() {
   const [search, setSearch] = useState("");
   const [sortCol, setSortCol] = useState<"rating" | "solvedCount" | "title">("rating");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
-  const [tagFilter, setTagFilter] = useState("");
+  const searchParams = useSearchParams();
+  const initialTag = searchParams.get("tag") || "";
+  const [tagFilter, setTagFilter] = useState(initialTag);
 
   const [picked, setPicked] = useState<PickedProblem | null>(null);
   const [picking, setPicking] = useState(false);
@@ -278,7 +281,13 @@ function ProblemsMain() {
 export default function ProblemsPage() {
   return (
     <DashboardLayout>
-      <ProblemsMain />
+      <Suspense fallback={
+        <div style={{ padding: 40, textAlign: "center", color: "var(--text-muted)" }}>
+          Loading problems...
+        </div>
+      }>
+        <ProblemsMain />
+      </Suspense>
     </DashboardLayout>
   );
 }

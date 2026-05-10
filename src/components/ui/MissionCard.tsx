@@ -35,7 +35,13 @@ export function MissionCard({ mission, onComplete }: { mission: Mission; onCompl
       } else if (mission.label.toLowerCase().includes("post-mortem")) {
         router.push('/problems');
       } else {
-        router.push('/problems');
+        const match = mission.label.match(/Solve \d+ (.+) problems/i);
+        if (match) {
+          const tag = match[1].toLowerCase().trim();
+          router.push(`/problems?tag=${encodeURIComponent(tag)}`);
+        } else {
+          router.push('/problems');
+        }
       }
     }
   };
