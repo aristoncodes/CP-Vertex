@@ -6,10 +6,11 @@ interface CreateDuelParams {
   questionCount: number;
   minRating?: number;
   maxRating?: number;
+  timeLimit?: number;
 }
 
 export class DuelService {
-  static async createDuel({ userId, opponentId, questionCount, minRating, maxRating }: CreateDuelParams) {
+  static async createDuel({ userId, opponentId, questionCount, minRating, maxRating, timeLimit = 120 }: CreateDuelParams) {
     if (opponentId === userId) {
       throw new Error("Cannot duel yourself")
     }
@@ -68,6 +69,7 @@ export class DuelService {
         player2Id: opponentId,
         problemIds: selectedProblems,
         questionCount,
+        timeLimit,
         endsAt,
       },
     })
@@ -83,6 +85,7 @@ export class DuelService {
           duelId: duel.id,
           challengerName,
           questionCount,
+          timeLimit,
           minRating: finalMin,
           maxRating: finalMax,
         },

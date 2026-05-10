@@ -27,9 +27,14 @@ export async function PATCH(
       return Response.json({ error: "Duel is not pending" }, { status: 400 })
     }
 
+    const now = new Date();
     const updated = await prisma.duel.update({
       where: { id },
-      data: { status: "active" },
+      data: {
+        status: "active",
+        startedAt: now,
+        endsAt: new Date(now.getTime() + duel.timeLimit * 60 * 1000),
+      },
     })
 
     // Notify player1 that their challenge was accepted

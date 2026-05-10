@@ -40,6 +40,7 @@ export default function MatchmakingPage() {
   const [showModal, setShowModal] = useState(false);
   const [selectedOpponent, setSelectedOpponent] = useState<SearchResult | null>(null);
   const [questionCount, setQuestionCount] = useState(1);
+  const [timeLimit, setTimeLimit] = useState(120);
   const [minRating, setMinRating] = useState("");
   const [maxRating, setMaxRating] = useState("");
   const [sending, setSending] = useState(false);
@@ -75,6 +76,7 @@ export default function MatchmakingPage() {
     setMinRating(String(avgRating - 100));
     setMaxRating(String(avgRating + 100));
     setQuestionCount(1);
+    setTimeLimit(120);
     setShowModal(true);
   };
 
@@ -85,6 +87,7 @@ export default function MatchmakingPage() {
       const payload: Record<string, unknown> = {
         opponentId: selectedOpponent.id,
         questionCount,
+        timeLimit,
       };
       if (minRating) payload.minRating = parseInt(minRating);
       if (maxRating) payload.maxRating = parseInt(maxRating);
@@ -289,6 +292,36 @@ export default function MatchmakingPage() {
                       <div style={{ fontSize: 10, fontWeight: 500, color: "var(--text-muted)", marginTop: 2 }}>
                         {n === 1 ? "Sprint" : n === 3 ? "Standard" : "Marathon"}
                       </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Time Limit */}
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)", display: "block", marginBottom: 10 }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 16, verticalAlign: "middle", marginRight: 6 }}>timer</span>
+                  Time Limit
+                </label>
+                <div style={{ display: "flex", gap: 10 }}>
+                  {[15, 30, 60, 120].map(minutes => (
+                    <button
+                      key={minutes}
+                      onClick={() => setTimeLimit(minutes)}
+                      style={{
+                        flex: 1,
+                        padding: "12px 0",
+                        borderRadius: 10,
+                        border: timeLimit === minutes ? "2px solid var(--primary)" : "1px solid var(--border)",
+                        background: timeLimit === minutes ? "var(--primary-light)" : "var(--surface-low)",
+                        color: timeLimit === minutes ? "var(--primary)" : "var(--text-secondary)",
+                        fontSize: 15,
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        transition: "all 0.15s",
+                      }}
+                    >
+                      {minutes >= 60 ? `${minutes / 60}h` : `${minutes}m`}
                     </button>
                   ))}
                 </div>

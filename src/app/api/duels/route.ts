@@ -8,6 +8,7 @@ const createDuelSchema = z.object({
   questionCount: z.number().int().min(1).max(5).optional().default(1),
   minRating: z.number().optional(),
   maxRating: z.number().optional(),
+  timeLimit: z.number().int().min(5).max(300).optional().default(120),
 })
 
 export const POST = withAuth(async (request, userId) => {
@@ -25,14 +26,15 @@ export const POST = withAuth(async (request, userId) => {
       )
     }
 
-    const { opponentId, questionCount, minRating, maxRating } = parsed.data
+    const { opponentId, questionCount, minRating, maxRating, timeLimit } = parsed.data
 
     const duel = await DuelService.createDuel({
       userId,
       opponentId,
       questionCount,
       minRating,
-      maxRating
+      maxRating,
+      timeLimit
     })
 
     return Response.json({
@@ -41,6 +43,7 @@ export const POST = withAuth(async (request, userId) => {
         problemIds: duel.problemIds,
         status: duel.status,
         questionCount: duel.questionCount,
+        timeLimit: duel.timeLimit,
         endsAt: duel.endsAt,
       },
     })

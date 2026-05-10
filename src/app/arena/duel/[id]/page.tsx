@@ -32,6 +32,7 @@ export default function DuelCombatPage() {
   const [declining, setDeclining] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
+  const [activeCountdown, setActiveCountdown] = useState<number | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -133,6 +134,32 @@ export default function DuelCombatPage() {
     const timer = setInterval(updateCountdown, 1000);
     return () => clearInterval(timer);
   }, [duel?.status, duel?.startedAt, id]);
+
+  // Active combat countdown timer
+  useEffect(() => {
+    if (!duel || duel.status !== "active") {
+      setActiveCountdown(null);
+      return;
+    }
+
+    const updateActiveTimer = () => {
+      const remainingMs = new Date(duel.endsAt).getTime() - Date.now();
+      if (remainingMs <= 0) {
+        setActiveCountdown(0);
+        // Backend handles auto-expiry on verify, but we can trigger it or just let UI show 0
+        fetch(`/api/duels/${id}/verify`, { method: "POST" })
+          .then(r => r.json())
+          .then(d => { if (d.duel) setDuel(d.duel); })
+          .catch(() => {});
+      } else {
+        setActiveCountdown(Math.floor(remainingMs / 1000));
+      }
+    };
+
+    updateActiveTimer();
+    const timer = setInterval(updateActiveTimer, 1000);
+    return () => clearInterval(timer);
+  }, [duel?.status, duel?.endsAt, id]);
 
   // Client-side polling for AC submissions
   useEffect(() => {
@@ -242,6 +269,21 @@ export default function DuelCombatPage() {
             color: "var(--info)",
           }}>
             {duel.questionCount} questions
+          </span>
+        )}
+        {activeCountdown !== null && (
+          <span style={{
+            padding: "4px 10px",
+            borderRadius: 20,
+            fontSize: 11,
+            fontWeight: 700,
+            background: activeCountdown <= 300 ? "var(--danger-light)" : "var(--surface-high)",
+            color: activeCountdown <= 300 ? "var(--danger)" : "var(--text-primary)",
+            display: "flex", alignItems: "center", gap: 4,
+            transition: "all 0.3s",
+          }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 14 }}>timer</span>
+            {Math.floor(activeCountdown / 60)}:{String(activeCountdown % 60).padStart(2, "0")}
           </span>
         )}
       </div>

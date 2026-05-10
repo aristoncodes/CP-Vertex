@@ -320,6 +320,7 @@ model Duel {
   status        String    @default("pending")
   winnerId      String?
   questionCount Int       @default(1)
+  timeLimit     Int       @default(120)
   startedAt     DateTime  @default(now())
   endsAt        DateTime
   p1WaCount     Int       @default(0)
