@@ -92,22 +92,18 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
       <div style={{
         fontFamily: "'Inter', sans-serif",
-        background: "#f7fafe",
-        color: "#181c1f",
+        background: "var(--surface)",
+        color: "var(--text-primary)",
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
       }}>
 
         {/* ─── Top Navigation Bar ─── */}
-        <header style={{
+        <header className="n-glass" style={{
           position: "sticky",
           top: 0,
           zIndex: 100,
-          background: "rgba(255,255,255,0.82)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          borderBottom: "1px solid rgba(194,198,214,0.25)",
         }}>
           <div style={{
             maxWidth: 1200,
@@ -126,25 +122,25 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                 height: 36,
                 borderRadius: "50%",
                 textDecoration: "none",
-                color: "#0366D6",
+                color: "var(--primary)",
               }}>
                 <span className="material-symbols-outlined" style={{ fontSize: 22 }}>arrow_back</span>
               </Link>
               <Link href="/learn" style={{
                 textDecoration: "none",
-                color: "#181c1f",
+                color: "var(--text-primary)",
                 display: "flex",
                 alignItems: "center",
                 gap: 8,
               }}>
-                <span className="material-symbols-outlined" style={{ color: "#0366D6", fontSize: 24 }}>menu_book</span>
+                <span className="material-symbols-outlined" style={{ color: "var(--primary)", fontSize: 24 }}>menu_book</span>
                 <span style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-0.03em" }}>Intel Database</span>
               </Link>
             </div>
             <Link href="/learn" style={{
               fontSize: 13,
               fontWeight: 600,
-              color: "#0366d6",
+              color: "var(--primary)",
               textDecoration: "none",
             }}>
               ← Back to Library
@@ -167,9 +163,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           <main style={{
             flex: 1,
             minWidth: 0,
-            background: "#ffffff",
+            background: "var(--surface-card)",
             borderRadius: 16,
-            border: "1px solid rgba(194,198,214,0.3)",
+            border: "1px solid var(--border)",
             padding: "48px 56px",
           }}>
 
@@ -180,10 +176,10 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
               gap: 8,
               fontSize: 13,
               fontWeight: 500,
-              color: "#727785",
+              color: "var(--text-muted)",
               marginBottom: 32,
             }}>
-              <Link href="/learn" style={{ color: "#0366d6", textDecoration: "none" }}>Intel Database</Link>
+              <Link href="/learn" style={{ color: "var(--primary)", textDecoration: "none" }}>Intel Database</Link>
               <span className="material-symbols-outlined" style={{ fontSize: 14, opacity: 0.4 }}>chevron_right</span>
               <span>{article.category}</span>
               <span className="material-symbols-outlined" style={{ fontSize: 14, opacity: 0.4 }}>chevron_right</span>
@@ -196,7 +192,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
               fontWeight: 800,
               letterSpacing: "-0.03em",
               lineHeight: 1.15,
-              color: "#181c1f",
+              color: "var(--text-primary)",
               margin: "0 0 12px 0",
             }}>
               {article.title}
@@ -211,8 +207,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             }}>
               {article.tags.map(tag => (
                 <span key={tag} style={{
-                  background: "#eef1f5",
-                  color: "#405681",
+                  background: "var(--surface-high)",
+                  color: "var(--text-secondary)",
                   padding: "4px 12px",
                   borderRadius: 20,
                   fontSize: 11,
@@ -223,8 +219,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                 </span>
               ))}
               <span style={{
-                background: "rgba(3,102,214,0.08)",
-                color: "#004fa8",
+                background: "var(--primary-light)",
+                color: "var(--primary)",
                 padding: "4px 12px",
                 borderRadius: 20,
                 fontSize: 11,
@@ -233,8 +229,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                 Difficulty {article.difficulty}
               </span>
               <span style={{
-                background: "#f1f4f8",
-                color: "#727785",
+                background: "var(--surface-high)",
+                color: "var(--text-muted)",
                 padding: "4px 12px",
                 borderRadius: 20,
                 fontSize: 11,
@@ -247,7 +243,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             {/* Divider */}
             <div style={{
               height: 1,
-              background: "rgba(194,198,214,0.35)",
+              background: "var(--border)",
               marginBottom: 40,
             }} />
 
@@ -255,7 +251,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             <article style={{
               fontSize: 17,
               lineHeight: 1.75,
-              color: "#2d3134",
+              color: "var(--text-secondary)",
               fontWeight: 400,
             }}>
               <ReactMarkdown
@@ -264,50 +260,50 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                 components={{
                   h1: ({node, ...props}) => (
                     <h1 style={{
-                      fontSize: 32, fontWeight: 800, color: "#181c1f",
+                      fontSize: 32, fontWeight: 800, color: "var(--text-primary)",
                       marginTop: 48, marginBottom: 20, letterSpacing: "-0.02em", lineHeight: 1.2,
                     }} {...props} />
                   ),
                   h2: ({node, ...props}) => (
                     <h2 style={{
-                      fontSize: 26, fontWeight: 700, color: "#181c1f",
+                      fontSize: 26, fontWeight: 700, color: "var(--text-primary)",
                       marginTop: 48, marginBottom: 20, paddingBottom: 10,
-                      borderBottom: "1px solid rgba(194,198,214,0.35)", letterSpacing: "-0.02em",
+                      borderBottom: "1px solid var(--border)", letterSpacing: "-0.02em",
                       lineHeight: 1.25,
                     }} {...props} />
                   ),
                   h3: ({node, ...props}) => (
                     <h3 style={{
-                      fontSize: 21, fontWeight: 700, color: "#181c1f",
+                      fontSize: 21, fontWeight: 700, color: "var(--text-primary)",
                       marginTop: 36, marginBottom: 16, letterSpacing: "-0.01em",
                       lineHeight: 1.3,
                     }} {...props} />
                   ),
                   h4: ({node, ...props}) => (
                     <h4 style={{
-                      fontSize: 18, fontWeight: 700, color: "#181c1f",
+                      fontSize: 18, fontWeight: 700, color: "var(--text-primary)",
                       marginTop: 28, marginBottom: 12,
                     }} {...props} />
                   ),
                   p: ({node, ...props}) => (
-                    <p style={{ marginTop: 0, marginBottom: 20, color: "#424753" }} {...props} />
+                    <p style={{ marginTop: 0, marginBottom: 20, color: "var(--text-secondary)" }} {...props} />
                   ),
                   ul: ({node, ...props}) => (
-                    <ul style={{ marginBottom: 20, paddingLeft: 24, listStyleType: "disc", color: "#424753" }} {...props} />
+                    <ul style={{ marginBottom: 20, paddingLeft: 24, listStyleType: "disc", color: "var(--text-secondary)" }} {...props} />
                   ),
                   ol: ({node, ...props}) => (
-                    <ol style={{ marginBottom: 20, paddingLeft: 24, listStyleType: "decimal", color: "#424753" }} {...props} />
+                    <ol style={{ marginBottom: 20, paddingLeft: 24, listStyleType: "decimal", color: "var(--text-secondary)" }} {...props} />
                   ),
                   li: ({node, ...props}) => (
                     <li style={{ marginBottom: 8, lineHeight: 1.7 }} {...props} />
                   ),
                   blockquote: ({node, ...props}) => (
                     <blockquote style={{
-                      borderLeft: "4px solid #0366d6",
-                      background: "#f1f4f8",
+                      borderLeft: "4px solid var(--primary)",
+                      background: "var(--surface-high)",
                       padding: "16px 20px",
                       margin: "24px 0",
-                      color: "#2d3134",
+                      color: "var(--text-secondary)",
                       fontStyle: "italic",
                       borderRadius: "0 10px 10px 0",
                     }} {...props} />
@@ -349,13 +345,13 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                     if (inline) {
                       return (
                         <code style={{
-                          background: "#f1f4f8",
+                          background: "var(--surface-high)",
                           padding: "2px 7px",
                           borderRadius: 5,
                           fontFamily: "'SF Mono', 'Fira Code', 'JetBrains Mono', monospace",
                           fontSize: "0.85em",
-                          color: "#004fa8",
-                          border: "1px solid rgba(194,198,214,0.3)",
+                          color: "var(--primary)",
+                          border: "1px solid var(--border)",
                         }} {...props}>
                           {children}
                         </code>
@@ -369,18 +365,18 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                           margin: "28px 0",
                           borderRadius: 12,
                           overflow: "hidden",
-                          border: "1px solid rgba(194,198,214,0.4)",
+                          border: "1px solid var(--border)",
                         }}>
                           <div style={{
-                            background: "#ebeef2",
+                            background: "var(--surface-high)",
                             padding: "8px 16px",
-                            borderBottom: "1px solid rgba(194,198,214,0.4)",
+                            borderBottom: "1px solid var(--border)",
                             display: "flex",
                             alignItems: "center",
                             gap: 8,
                             fontSize: 11,
                             fontWeight: 700,
-                            color: "#727785",
+                            color: "var(--text-muted)",
                             textTransform: "uppercase",
                             letterSpacing: "0.05em",
                             fontFamily: "'SF Mono', monospace",
@@ -389,7 +385,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                             {langLabels[lang] || lang}
                           </div>
                           <pre style={{
-                            background: "#fafcfe",
+                            background: "var(--surface-low)",
                             padding: "20px 24px",
                             overflowX: "auto",
                             margin: 0,
@@ -397,7 +393,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                             <code style={{
                               fontFamily: "'SF Mono', 'Fira Code', 'JetBrains Mono', monospace",
                               fontSize: 14,
-                              color: "#181c1f",
+                              color: "var(--text-primary)",
                               lineHeight: 1.6,
                             }} {...props}>
                               {children}
@@ -411,17 +407,17 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                     // Render as a simple pre block without the "CODE" header
                     return (
                       <pre style={{
-                        background: "#f7f9fb",
+                        background: "var(--surface-high)",
                         padding: "20px 24px",
                         borderRadius: 10,
-                        border: "1px solid rgba(194,198,214,0.25)",
+                        border: "1px solid var(--border)",
                         overflowX: "auto",
                         margin: "24px 0",
                       }}>
                         <code style={{
                           fontFamily: "'SF Mono', 'Fira Code', 'JetBrains Mono', monospace",
                           fontSize: 14,
-                          color: "#2d3134",
+                          color: "var(--text-secondary)",
                           lineHeight: 1.6,
                         }} {...props}>
                           {children}
@@ -431,7 +427,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                   },
                   a: ({node, ...props}) => (
                     <a style={{
-                      color: "#0366d6",
+                      color: "var(--primary)",
                       textDecoration: "none",
                       borderBottom: "1px solid rgba(3,102,214,0.3)",
                     }} {...props} />
@@ -447,26 +443,26 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                   ),
                   th: ({node, ...props}) => (
                     <th style={{
-                      borderBottom: "2px solid #c2c6d6",
+                      borderBottom: "2px solid var(--border-strong)",
                       padding: "10px 14px",
                       textAlign: "left",
-                      color: "#181c1f",
+                      color: "var(--text-primary)",
                       fontWeight: 700,
                       fontSize: 13,
                     }} {...props} />
                   ),
                   td: ({node, ...props}) => (
                     <td style={{
-                      borderBottom: "1px solid rgba(194,198,214,0.4)",
+                      borderBottom: "1px solid var(--border)",
                       padding: "10px 14px",
-                      color: "#424753",
+                      color: "var(--text-secondary)",
                     }} {...props} />
                   ),
                   hr: ({node, ...props}) => (
                     <hr style={{
                       border: "none",
                       height: 1,
-                      background: "rgba(194,198,214,0.35)",
+                      background: "var(--border)",
                       margin: "40px 0",
                     }} {...props} />
                   ),
@@ -497,9 +493,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
             {/* Metadata Card */}
             <div style={{
-              background: "#ffffff",
+              background: "var(--surface-card)",
               borderRadius: 16,
-              border: "1px solid rgba(194,198,214,0.3)",
+              border: "1px solid var(--border)",
               padding: "24px 20px",
             }}>
               <div style={{
@@ -507,7 +503,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                 fontWeight: 700,
                 textTransform: "uppercase",
                 letterSpacing: "0.12em",
-                color: "#727785",
+                color: "var(--text-muted)",
                 marginBottom: 16,
               }}>
                 Article Metadata
@@ -519,9 +515,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                   alignItems: "center",
                   gap: 10,
                   padding: "10px 12px",
-                  background: "rgba(3,102,214,0.06)",
+                  background: "var(--primary-light)",
                   borderRadius: 10,
-                  color: "#0366d6",
+                  color: "var(--primary)",
                   fontSize: 14,
                   fontWeight: 600,
                 }}>
@@ -533,9 +529,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                   alignItems: "center",
                   gap: 10,
                   padding: "10px 12px",
-                  background: "#f1f4f8",
+                  background: "var(--surface-high)",
                   borderRadius: 10,
-                  color: "#424753",
+                  color: "var(--text-secondary)",
                   fontSize: 14,
                   fontWeight: 500,
                 }}>
@@ -547,9 +543,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                   alignItems: "center",
                   gap: 10,
                   padding: "10px 12px",
-                  background: "#f1f4f8",
+                  background: "var(--surface-high)",
                   borderRadius: 10,
-                  color: "#424753",
+                  color: "var(--text-secondary)",
                   fontSize: 14,
                   fontWeight: 500,
                 }}>
@@ -562,9 +558,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             {/* Practice Targets */}
             {article.problems.length > 0 && (
               <div style={{
-                background: "#ffffff",
+                background: "var(--surface-card)",
                 borderRadius: 16,
-                border: "1px solid rgba(194,198,214,0.3)",
+                border: "1px solid var(--border)",
                 padding: "24px 20px",
               }}>
                 <div style={{
@@ -572,7 +568,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                   fontWeight: 700,
                   textTransform: "uppercase",
                   letterSpacing: "0.12em",
-                  color: "#727785",
+                  color: "var(--text-muted)",
                   marginBottom: 16,
                   display: "flex",
                   alignItems: "center",
@@ -595,8 +591,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                         justifyContent: "space-between",
                         padding: "10px 12px",
                         borderRadius: 10,
-                        background: "#f7fafe",
-                        border: "1px solid rgba(194,198,214,0.25)",
+                        background: "var(--surface-high)",
+                        border: "1px solid var(--border)",
                         textDecoration: "none",
                         transition: "border-color 0.15s, background 0.15s",
                       }}
@@ -605,7 +601,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                         <div style={{
                           fontSize: 13,
                           fontWeight: 600,
-                          color: "#181c1f",
+                          color: "var(--text-primary)",
                           lineHeight: 1.3,
                           marginBottom: 2,
                         }}>
@@ -614,7 +610,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                         <div style={{
                           fontSize: 10,
                           fontWeight: 700,
-                          color: "#727785",
+                          color: "var(--text-muted)",
                           textTransform: "uppercase",
                           letterSpacing: "0.08em",
                         }}>
@@ -623,7 +619,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                       </div>
                       <span className="material-symbols-outlined" style={{
                         fontSize: 16,
-                        color: "#c2c6d6",
+                        color: "var(--text-faint)",
                         flexShrink: 0,
                         marginLeft: 8,
                       }}>open_in_new</span>

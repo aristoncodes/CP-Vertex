@@ -117,20 +117,16 @@ export default function LearnPage() {
 
       <div style={{
         fontFamily: "'Inter', sans-serif",
-        background: "#f7fafe",
-        color: "#181c1f",
+        background: "var(--surface)",
+        color: "var(--text-primary)",
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
       }}>
 
         {/* ─── Header ─── */}
-        <header style={{
+        <header className="n-glass" style={{
           position: "sticky", top: 0, zIndex: 100,
-          background: "rgba(255,255,255,0.85)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          borderBottom: "1px solid rgba(194,198,214,0.25)",
         }}>
           <div style={{
             maxWidth: 1100, margin: "0 auto", padding: "14px 32px",
@@ -138,9 +134,9 @@ export default function LearnPage() {
           }}>
             <Link href="/learn" style={{
               display: "flex", alignItems: "center", gap: 10,
-              textDecoration: "none", color: "#181c1f",
+              textDecoration: "none", color: "var(--text-primary)",
             }}>
-              <span className="material-symbols-outlined" style={{ color: "#0366D6", fontSize: 26 }}>menu_book</span>
+              <span className="material-symbols-outlined" style={{ color: "var(--primary)", fontSize: 26 }}>menu_book</span>
               <span style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.03em" }}>Intel Database</span>
             </Link>
 
@@ -148,7 +144,7 @@ export default function LearnPage() {
               <div style={{ position: "relative" }}>
                 <span className="material-symbols-outlined" style={{
                   position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)",
-                  fontSize: 20, color: "#727785",
+                  fontSize: 20, color: "var(--text-muted)",
                 }}>search</span>
                 <input
                   type="text"
@@ -157,13 +153,13 @@ export default function LearnPage() {
                   onChange={(e) => { setSearch(e.target.value); setExpandedCategory(null); }}
                   style={{
                     paddingLeft: 40, paddingRight: 16, paddingTop: 10, paddingBottom: 10,
-                    background: "#f1f4f8", border: "1px solid rgba(194,198,214,0.3)",
-                    borderRadius: 10, fontSize: 14, color: "#181c1f", outline: "none",
+                    background: "var(--surface-high)", border: "1px solid var(--border)",
+                    borderRadius: 10, fontSize: 14, color: "var(--text-primary)", outline: "none",
                     width: 220, fontFamily: "'Inter', sans-serif",
                   }}
                 />
               </div>
-              <Link href="/dashboard" style={{ fontSize: 13, fontWeight: 600, color: "#0366d6", textDecoration: "none", whiteSpace: "nowrap" }}>
+              <Link href="/dashboard" style={{ fontSize: 13, fontWeight: 600, color: "var(--primary)", textDecoration: "none", whiteSpace: "nowrap" }}>
                 ← CP Vertex
               </Link>
             </div>
@@ -175,23 +171,23 @@ export default function LearnPage() {
 
           {/* Hero */}
           <div style={{ marginBottom: 48 }}>
-            <h1 style={{ fontSize: 42, fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 1.1, color: "#181c1f", margin: 0 }}>
+            <h1 style={{ fontSize: 42, fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 1.1, color: "var(--text-primary)", margin: 0 }}>
               Algorithmic Intel Database
             </h1>
-            <p style={{ fontSize: 17, lineHeight: 1.6, color: "#424753", marginTop: 14, maxWidth: 600 }}>
+            <p style={{ fontSize: 17, lineHeight: 1.6, color: "var(--text-secondary)", marginTop: 14, maxWidth: 600 }}>
               Comprehensive references for competitive programming — algorithms, data structures, and mathematical theory.
             </p>
             {!loading && (
-              <div style={{ display: "flex", gap: 20, marginTop: 20, fontSize: 13, fontWeight: 600, color: "#727785" }}>
-                <span><strong style={{ color: "#0366d6" }}>{topics.length}</strong> articles</span>
-                <span><strong style={{ color: "#0366d6" }}>{categories.length}</strong> categories</span>
+              <div style={{ display: "flex", gap: 20, marginTop: 20, fontSize: 13, fontWeight: 600, color: "var(--text-muted)" }}>
+                <span><strong style={{ color: "var(--primary)" }}>{topics.length}</strong> articles</span>
+                <span><strong style={{ color: "var(--primary)" }}>{categories.length}</strong> categories</span>
               </div>
             )}
           </div>
 
           {/* Loading */}
           {loading && (
-            <div style={{ display: "flex", justifyContent: "center", padding: "96px 0", color: "#0366d6", fontSize: 15, fontWeight: 500 }}>
+            <div style={{ display: "flex", justifyContent: "center", padding: "96px 0", color: "var(--primary)", fontSize: 15, fontWeight: 500 }}>
               Loading Knowledge Base…
             </div>
           )}
@@ -212,10 +208,10 @@ export default function LearnPage() {
                     key={category}
                     onClick={() => setExpandedCategory(category)}
                     style={{
-                      background: "#ffffff",
+                      background: "var(--surface-card)",
                       borderRadius: 16,
                       padding: "28px 24px",
-                      border: "1px solid rgba(194,198,214,0.3)",
+                      border: "1px solid var(--border)",
                       cursor: "pointer",
                       textAlign: "left",
                       fontFamily: "'Inter', sans-serif",
@@ -231,7 +227,7 @@ export default function LearnPage() {
                       e.currentTarget.style.transform = "translateY(-2px)";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = "rgba(194,198,214,0.3)";
+                      e.currentTarget.style.borderColor = "var(--border)";
                       e.currentTarget.style.boxShadow = "none";
                       e.currentTarget.style.transform = "translateY(0)";
                     }}
@@ -249,10 +245,10 @@ export default function LearnPage() {
                         }}>{meta.icon}</span>
                       </div>
                       <div>
-                        <div style={{ fontSize: 18, fontWeight: 700, color: "#181c1f", letterSpacing: "-0.02em" }}>
+                        <div style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
                           {category}
                         </div>
-                        <div style={{ fontSize: 12, color: "#727785", fontWeight: 600, marginTop: 2 }}>
+                        <div style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 600, marginTop: 2 }}>
                           {count} article{count !== 1 ? "s" : ""}
                         </div>
                       </div>
@@ -260,7 +256,7 @@ export default function LearnPage() {
 
                     {/* Summary */}
                     <p style={{
-                      fontSize: 14, lineHeight: 1.55, color: "#5a6577", margin: 0, flex: 1,
+                      fontSize: 14, lineHeight: 1.55, color: "var(--text-secondary)", margin: 0, flex: 1,
                     }}>
                       {meta.summary}
                     </p>
@@ -288,9 +284,9 @@ export default function LearnPage() {
                 onClick={() => setExpandedCategory(null)}
                 style={{
                   display: "inline-flex", alignItems: "center", gap: 6,
-                  fontSize: 14, fontWeight: 600, color: "#0366d6",
-                  background: "none", border: "none", cursor: "pointer",
-                  fontFamily: "'Inter', sans-serif", padding: 0, marginBottom: 32,
+                  fontSize: 14, fontWeight: 600, color: "var(--primary)",
+                  background: "var(--surface-card)", border: "1px solid var(--border)", borderRadius: 12, cursor: "pointer",
+                  fontFamily: "'Inter', sans-serif", padding: "8px 16px", marginBottom: 32,
                 }}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_back</span>
@@ -310,16 +306,16 @@ export default function LearnPage() {
                   }}>{(CATEGORY_META[expandedCategory] || DEFAULT_META).icon}</span>
                 </div>
                 <div>
-                  <h2 style={{ fontSize: 30, fontWeight: 800, letterSpacing: "-0.03em", margin: 0, color: "#181c1f" }}>
+                  <h2 style={{ fontSize: 30, fontWeight: 800, letterSpacing: "-0.03em", margin: 0, color: "var(--text-primary)" }}>
                     {expandedCategory}
                   </h2>
-                  <p style={{ fontSize: 14, color: "#727785", margin: "4px 0 0 0", fontWeight: 500 }}>
+                  <p style={{ fontSize: 14, color: "var(--text-muted)", margin: "4px 0 0 0", fontWeight: 500 }}>
                     {Object.values(grouped[expandedCategory]).flat().length} articles
                   </p>
                 </div>
               </div>
 
-              <p style={{ fontSize: 15, lineHeight: 1.6, color: "#5a6577", marginBottom: 36, maxWidth: 600 }}>
+              <p style={{ fontSize: 15, lineHeight: 1.6, color: "var(--text-secondary)", marginBottom: 36, maxWidth: 600 }}>
                 {(CATEGORY_META[expandedCategory] || DEFAULT_META).summary}
               </p>
 
@@ -327,12 +323,12 @@ export default function LearnPage() {
               <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
                 {Object.keys(grouped[expandedCategory]).sort().map((sub) => (
                   <div key={sub} style={{
-                    background: "#ffffff", borderRadius: 14,
-                    border: "1px solid rgba(194,198,214,0.3)",
+                    background: "var(--surface-card)", borderRadius: 14,
+                    border: "1px solid var(--border)",
                     padding: "24px 28px",
                   }}>
                     <h3 style={{
-                      fontSize: 12, fontWeight: 700, color: "#727785",
+                      fontSize: 12, fontWeight: 700, color: "var(--text-muted)",
                       textTransform: "uppercase", letterSpacing: "0.1em",
                       margin: "0 0 16px 0",
                     }}>
@@ -347,23 +343,23 @@ export default function LearnPage() {
                           style={{
                             display: "flex", alignItems: "center", justifyContent: "space-between",
                             padding: "10px 14px", margin: "0 -14px", borderRadius: 10,
-                            textDecoration: "none", color: "#424753", fontSize: 15, fontWeight: 450,
+                            textDecoration: "none", color: "var(--text-secondary)", fontSize: 15, fontWeight: 450,
                             transition: "background 0.15s, color 0.15s", lineHeight: 1.4,
                           }}
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.background = "#f1f4f8";
-                            e.currentTarget.style.color = "#004fa8";
+                            e.currentTarget.style.background = "var(--surface-high)";
+                            e.currentTarget.style.color = "var(--primary)";
                           }}
                           onMouseLeave={(e) => {
                             e.currentTarget.style.background = "transparent";
-                            e.currentTarget.style.color = "#424753";
+                            e.currentTarget.style.color = "var(--text-secondary)";
                           }}
                         >
                           <span>{topic.title.replace(/\$/g, "")}</span>
                           <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0, marginLeft: 12 }}>
                             {topic.problemCount > 0 && (
                               <span style={{
-                                fontSize: 11, fontWeight: 700, color: "#0366d6",
+                                fontSize: 11, fontWeight: 700, color: "var(--primary)",
                                 background: "rgba(3,102,214,0.08)", padding: "2px 8px",
                                 borderRadius: 6,
                               }}>
@@ -393,7 +389,7 @@ export default function LearnPage() {
 
           {/* No Results */}
           {!loading && categories.length === 0 && (
-            <div style={{ textAlign: "center", padding: "96px 0", color: "#727785", fontSize: 15, fontWeight: 500 }}>
+            <div style={{ textAlign: "center", padding: "96px 0", color: "var(--text-muted)", fontSize: 15, fontWeight: 500 }}>
               No articles found matching &ldquo;{search}&rdquo;
             </div>
           )}
@@ -401,17 +397,17 @@ export default function LearnPage() {
 
         {/* ─── Footer ─── */}
         <footer style={{
-          background: "#f1f4f8", borderTop: "1px solid rgba(194,198,214,0.25)", padding: "36px 32px",
+          background: "var(--surface-low)", borderTop: "1px solid var(--border)", padding: "36px 32px",
         }}>
           <div style={{
             maxWidth: 1100, margin: "0 auto",
             display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16,
           }}>
             <div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: "#181c1f", marginBottom: 4 }}>Intel Database</div>
-              <div style={{ fontSize: 12, color: "#727785" }}>© 2026 CP Vertex · The Curated Scholar</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", marginBottom: 4 }}>Intel Database</div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>© 2026 CP Vertex · The Curated Scholar</div>
             </div>
-            <Link href="/" style={{ fontSize: 13, fontWeight: 600, color: "#0366d6", textDecoration: "none" }}>
+            <Link href="/" style={{ fontSize: 13, fontWeight: 600, color: "var(--primary)", textDecoration: "none" }}>
               Back to CP Vertex →
             </Link>
           </div>

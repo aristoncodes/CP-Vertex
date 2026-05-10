@@ -136,16 +136,13 @@ export function TopBar() {
 
   return (
     <header
+      className="n-glass"
       style={{
         position: "fixed",
         top: 0,
         left: 0,
         right: 0,
         zIndex: 100,
-        background: "rgba(255, 255, 255, 0.85)",
-        backdropFilter: "blur(20px)",
-        WebkitBackdropFilter: "blur(20px)",
-        borderBottom: "1px solid var(--border)",
       }}
     >
       {/* Row 1: Logo + User */}

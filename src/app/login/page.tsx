@@ -70,7 +70,7 @@ export default function LoginPage() {
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(135deg, #f7fafe 0%, #e8f0fe 50%, #f1f4f8 100%)",
+        background: "var(--surface)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -115,17 +115,17 @@ export default function LoginPage() {
           >
             CA
           </div>
-          <span style={{ fontSize: 24, fontWeight: 800, color: "#181c1f", letterSpacing: "-0.03em" }}>
-            Code<span style={{ color: "#0366d6" }}>Arena</span>
+          <span style={{ fontSize: 24, fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.03em" }}>
+            Code<span style={{ color: "var(--primary)" }}>Arena</span>
           </span>
         </Link>
 
         {/* Card */}
         <div
           style={{
-            background: "#ffffff",
+            background: "var(--surface-card)",
             borderRadius: 16,
-            border: "1px solid rgba(194,198,214,0.3)",
+            border: "1px solid var(--border)",
             padding: "36px 32px",
             boxShadow: "0 4px 24px rgba(0,0,0,0.06)",
           }}
@@ -136,7 +136,7 @@ export default function LoginPage() {
               display: "flex",
               gap: 0,
               marginBottom: 28,
-              borderBottom: "1px solid rgba(194,198,214,0.3)",
+              borderBottom: "1px solid var(--border)",
             }}
           >
             {(["login", "signup"] as Mode[]).map((m) => (
@@ -148,10 +148,10 @@ export default function LoginPage() {
                   padding: "12px 0",
                   fontSize: 14,
                   fontWeight: mode === m ? 600 : 500,
-                  color: mode === m ? "#0366d6" : "#727785",
+                  color: mode === m ? "var(--primary)" : "var(--text-muted)",
                   background: "transparent",
                   border: "none",
-                  borderBottom: mode === m ? "2px solid #0366d6" : "2px solid transparent",
+                  borderBottom: mode === m ? "2px solid var(--primary)" : "2px solid transparent",
                   cursor: "pointer",
                   fontFamily: "'Inter', sans-serif",
                   transition: "all 0.2s",
@@ -238,7 +238,7 @@ export default function LoginPage() {
                     transform: "translateY(-50%)",
                     background: "none",
                     border: "none",
-                    color: "#727785",
+                    color: "var(--text-muted)",
                     cursor: "pointer",
                     fontSize: 13,
                     fontWeight: 500,
@@ -290,9 +290,9 @@ export default function LoginPage() {
 
           {/* Divider */}
           <div style={{ display: "flex", alignItems: "center", gap: 16, margin: "24px 0" }}>
-            <div style={{ flex: 1, height: 1, background: "rgba(194,198,214,0.3)" }} />
-            <span style={{ fontSize: 12, color: "#9ca3af", fontWeight: 500 }}>or</span>
-            <div style={{ flex: 1, height: 1, background: "rgba(194,198,214,0.3)" }} />
+            <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
+            <span style={{ fontSize: 12, color: "var(--text-faint)", fontWeight: 500 }}>or</span>
+            <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
           </div>
 
           {/* OAuth */}
@@ -331,15 +331,15 @@ export default function LoginPage() {
               background: "none",
               border: "none",
               fontSize: 14,
-              color: "#727785",
+              color: "var(--text-muted)",
               cursor: "pointer",
               fontFamily: "'Inter', sans-serif",
             }}
           >
             {mode === "login" ? (
-              <>Don&apos;t have an account? <span style={{ color: "#0366d6", fontWeight: 600 }}>Sign up</span></>
+              <>Don&apos;t have an account? <span style={{ color: "var(--primary)", fontWeight: 600 }}>Sign up</span></>
             ) : (
-              <>Already have an account? <span style={{ color: "#0366d6", fontWeight: 600 }}>Sign in</span></>
+              <>Already have an account? <span style={{ color: "var(--primary)", fontWeight: 600 }}>Sign in</span></>
             )}
           </button>
         </div>
@@ -352,7 +352,7 @@ const labelStyle: React.CSSProperties = {
   display: "block",
   fontSize: 13,
   fontWeight: 600,
-  color: "#424753",
+  color: "var(--text-secondary)",
   marginBottom: 6,
 };
 
@@ -360,9 +360,9 @@ const inputStyle: React.CSSProperties = {
   width: "100%",
   fontSize: 14,
   padding: "11px 14px",
-  background: "#f7fafe",
-  color: "#181c1f",
-  border: "1px solid rgba(194,198,214,0.3)",
+  background: "var(--surface-high)",
+  color: "var(--text-primary)",
+  border: "1px solid var(--border)",
   borderRadius: 10,
   outline: "none",
   fontFamily: "'Inter', sans-serif",
@@ -378,11 +378,11 @@ const oauthBtnStyle: React.CSSProperties = {
   fontSize: 14,
   fontWeight: 500,
   width: "100%",
-  background: "#f7fafe",
-  border: "1px solid rgba(194,198,214,0.3)",
+  background: "var(--surface-high)",
+  border: "1px solid var(--border)",
   borderRadius: 10,
   cursor: "pointer",
-  color: "#424753",
+  color: "var(--text-secondary)",
   fontFamily: "'Inter', sans-serif",
   transition: "border-color 0.15s, background 0.15s",
 };
