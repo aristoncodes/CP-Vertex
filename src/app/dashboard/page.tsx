@@ -58,7 +58,7 @@ function DashboardMain({ profile }: { profile: any }) {
   useEffect(() => {
     fetch("/api/duels?status=pending").then(r => r.json()).then(d => {
       if (Array.isArray(d.duels)) setPendingDuels(d.duels.length);
-    }).catch(() => {});
+    }).catch(() => { });
   }, []);
 
   const user = {
@@ -75,8 +75,8 @@ function DashboardMain({ profile }: { profile: any }) {
   const hour = new Date().getHours();
   let greeting = "Good evening";
   if (hour >= 5 && hour < 12) greeting = "Good morning";
-  else if (hour >= 12 && hour < 17) greeting = "Good afternoon";
-  else if (hour >= 17 && hour < 22) greeting = "Good evening";
+  else if (hour >= 12 && hour < 16) greeting = "Good afternoon";
+  else if (hour >= 17 && hour < 20) greeting = "Good evening";
   else greeting = "Late night coding";
 
   return (
@@ -225,12 +225,12 @@ function IntelPanel({ profile }: { profile: any }) {
 
   const displayMissions = apiMissions.length > 0
     ? apiMissions.map((m) => ({
-        id: m.id,
-        label: m.title,
-        type: m.description.toUpperCase(),
-        xp: m.xpReward,
-        done: m.completed,
-      }))
+      id: m.id,
+      label: m.title,
+      type: m.description.toUpperCase(),
+      xp: m.xpReward,
+      done: m.completed,
+    }))
     : storeMissions;
 
   const handleComplete = useCallback(async (id: string) => {
@@ -373,7 +373,7 @@ function IntelPanel({ profile }: { profile: any }) {
             </div>
           ) : (
             <div style={{ fontSize: 13, color: "var(--text-muted)", textAlign: "center", padding: "12px 0" }}>
-              No active roadmap.<br/>
+              No active roadmap.<br />
               <span style={{ fontSize: 12 }}>Click Generate to create an AI-powered training plan.</span>
             </div>
           )}
