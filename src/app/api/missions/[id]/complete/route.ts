@@ -34,55 +34,64 @@ export async function PATCH(
       return Response.json({ error: "Mission already completed" }, { status: 400 })
     }
 
-    // Verify via Codeforces API if it's a tag-based problem-solving mission
-    const match = userMission.mission.title.match(/Solve (\d+) (.+) problems/i)
-    if (match && userMission.user.cfHandle) {
-      const targetCount = parseInt(match[1])
-      const targetTag = match[2].toLowerCase().trim()
+    const missionType = userMission.mission.type;
+    const missionStartSeconds = Math.floor(new Date(userMission.date).getTime() / 1000);
+    const todayStart = new Date(userMission.date);
+
+    if (missionType === "solve_tag" || missionType === "speed_solve") {
+      if (!userMission.user.cfHandle) {
+        return Response.json({ error: "Please link your Codeforces handle first." }, { status: 400 })
+      }
       
+      let targetCount = 1;
+      if (userMission.mission.title === "Daily Grind") targetCount = 2;
+      if (missionType === "speed_solve") targetCount = 3;
+
       try {
-        const submissions = await getCFSubmissions(userMission.user.cfHandle, 1, 100)
-        const missionStartSeconds = Math.floor(new Date(userMission.date).getTime() / 1000)
-        
-        const validSolvedIds = new Set<string>()
+        const submissions = await getCFSubmissions(userMission.user.cfHandle, 1, 20);
+        const validSolvedIds = new Set<string>();
         
         for (const sub of submissions) {
-          if (sub.creationTimeSeconds < missionStartSeconds) break // submissions are sorted newest first
-          
+          if (sub.creationTimeSeconds < missionStartSeconds) break;
           if (sub.verdict === "OK") {
-            const hasTag = sub.problem.tags.some(t => t.toLowerCase() === targetTag || (targetTag === "dynamic programming" && t.toLowerCase() === "dp"))
-            if (hasTag) {
-              validSolvedIds.add(`${sub.problem.contestId}-${sub.problem.index}`)
-            }
+            validSolvedIds.add(`${sub.problem.contestId}-${sub.problem.index}`);
           }
         }
         
         if (validSolvedIds.size < targetCount) {
           return Response.json({ 
-            error: `Mission not completed yet. You have solved ${validSolvedIds.size}/${targetCount} '${targetTag}' problems today. Keep going!` 
+            error: `Mission not completed yet. You have solved ${validSolvedIds.size}/${targetCount} unique problems today. Keep going!` 
           }, { status: 400 })
         }
       } catch (error) {
-        console.error("Codeforces verification failed:", error)
         return Response.json({ error: "Failed to reach Codeforces to verify your mission. Try again later." }, { status: 503 })
       }
-    } else if (userMission.mission.type === "boss" || userMission.mission.title.toLowerCase().includes("boss")) {
+    } else if (missionType === "boss_fight" || userMission.mission.title.toLowerCase().includes("boss")) {
       return Response.json({
         error: "To complete this mission, you must engage and defeat the Boss in the Arena!"
       }, { status: 400 })
-    } else if (userMission.mission.type === "duel" || userMission.mission.title.toLowerCase().includes("duel")) {
-      const todayStart = new Date(userMission.date)
+    } else if (missionType === "duel_win" || userMission.mission.title.toLowerCase().includes("duel")) {
       const wonDuels = await prisma.duel.count({
         where: {
           winnerId: session.user.id,
           startedAt: { gte: todayStart },
         }
-      })
-      
-      const targetCount = userMission.mission.title.match(/Win (\d+) Duel/i) ? parseInt(userMission.mission.title.match(/Win (\d+) Duel/i)![1]) : 1
-      if (wonDuels < targetCount) {
+      });
+      if (wonDuels < 1) {
         return Response.json({
-          error: `Mission not completed yet. You have won ${wonDuels}/${targetCount} Duels today. Go to the Arena to challenge someone!`
+          error: `Mission not completed yet. You haven't won any Duels today. Go to the Arena to challenge someone!`
+        }, { status: 400 })
+      }
+    } else if (missionType === "post_mortem") {
+      const pms = await prisma.postMortem.count({
+        where: {
+          userId: session.user.id,
+          createdAt: { gte: todayStart },
+        }
+      });
+      if (pms < 1) {
+        return Response.json({
+          error: `Mission not completed yet. You haven't written any post-mortems today. Go to an unsolved problem and reflect!`
         }, { status: 400 })
       }
     }
