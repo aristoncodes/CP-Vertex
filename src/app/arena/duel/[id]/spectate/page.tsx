@@ -17,7 +17,7 @@ interface DuelLive {
 
 export default function DuelSpectatePage() {
   const params = useParams();
-  const duelId = params.duelId as string;
+  const duelId = params.id as string;
   const [duel, setDuel] = useState<DuelLive | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
