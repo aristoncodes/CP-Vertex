@@ -20,6 +20,7 @@ interface VerifyResult {
   verified: boolean;
   verdict: string | null;
   message: string;
+  submissionId?: string | null;
   xpAwarded?: number;
   language?: string;
   timeMs?: number;
@@ -125,7 +126,7 @@ function SessionContent() {
               ? `✅ Accepted in ${data.language}! +${data.xpAwarded} XP`
               : `✅ ${data.message}`,
             editorialUrl: data.editorialUrl,
-            submissionId: data.submissionId,
+            submissionId: data.submissionId || undefined,
           },
         }));
 
