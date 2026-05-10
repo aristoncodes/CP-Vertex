@@ -322,44 +322,133 @@ export default function ProfilePage() {
         })()}
       </div>
 
-      {/* ── Topic Breakdown Table ── */}
-      <div className="n-card" style={{ padding: 0, overflow: "hidden" }}>
-        <div style={{ padding: "16px 24px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div className="n-section-label" style={{ margin: 0 }}>Topic Breakdown</div>
-          <span style={{ fontSize: 12, color: "var(--text-muted)" }}>{(profile.topicScores || []).length} topics tracked</span>
-        </div>
-        <table className="n-table">
-          <thead>
-            <tr>
-              <th>Topic</th>
-              <th style={{ width: 80, textAlign: "center" }}>Attempted</th>
-              <th style={{ width: 80, textAlign: "center" }}>Solved</th>
-              <th style={{ width: 80, textAlign: "center" }}>AC Rate</th>
-              <th style={{ width: 80, textAlign: "center" }}>Score</th>
-              <th style={{ width: 60 }}>Trend</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(profile.topicScores || []).slice().sort((a: any, b: any) => b.score - a.score).map((t: any) => {
-              const acRate = t.attempted > 0 ? Math.round((t.solved / t.attempted) * 100) : 0;
-              const trendIcon = t.trend === "up" ? "trending_up" : t.trend === "down" ? "trending_down" : "trending_flat";
-              const trendColor = t.trend === "up" ? "var(--success)" : t.trend === "down" ? "var(--danger)" : "var(--text-muted)";
-              return (
-                <tr key={t.tag}>
-                  <td style={{ fontWeight: 600, textTransform: "capitalize" }}>{t.tag}</td>
-                  <td style={{ textAlign: "center" }}>{t.attempted}</td>
-                  <td style={{ textAlign: "center", fontWeight: 600, color: "var(--success)" }}>{t.solved}</td>
-                  <td style={{ textAlign: "center" }}>{acRate}%</td>
-                  <td style={{ textAlign: "center" }}>{Math.round(t.score)}</td>
-                  <td>
-                    <span className="material-symbols-outlined" style={{ fontSize: 18, color: trendColor }}>{trendIcon}</span>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      {/* ── Topic Breakdown (Visual) ── */}
+      {(() => {
+        const topics = (profile.topicScores || []).slice().sort((a: any, b: any) => b.score - a.score);
+        const [showAll, setShowAll] = useState(false);
+        const displayed = showAll ? topics : topics.slice(0, 12);
+
+        const getStrengthColor = (score: number) => {
+          if (score >= 80) return "var(--success)";
+          if (score >= 60) return "var(--info)";
+          if (score >= 40) return "var(--warning)";
+          return "var(--danger)";
+        };
+
+        const getStrengthLabel = (score: number) => {
+          if (score >= 80) return "Strong";
+          if (score >= 60) return "Good";
+          if (score >= 40) return "Developing";
+          return "Weak";
+        };
+
+        const getStrengthBg = (score: number) => {
+          if (score >= 80) return "var(--success-light)";
+          if (score >= 60) return "var(--info-light)";
+          if (score >= 40) return "var(--warning-light)";
+          return "var(--danger-light)";
+        };
+
+        return (
+          <div className="n-card" style={{ padding: "20px 24px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+              <div className="n-section-label" style={{ margin: 0 }}>Topic Breakdown</div>
+              <span style={{ fontSize: 12, color: "var(--text-muted)" }}>{topics.length} topics tracked</span>
+            </div>
+
+            {/* Quick summary bar */}
+            <div style={{ display: "flex", gap: 16, marginBottom: 20, padding: "12px 16px", background: "var(--surface-low)", borderRadius: 12 }}>
+              {[
+                { label: "Strong (80+)", count: topics.filter((t: any) => t.score >= 80).length, color: "var(--success)" },
+                { label: "Good (60+)", count: topics.filter((t: any) => t.score >= 60 && t.score < 80).length, color: "var(--info)" },
+                { label: "Developing", count: topics.filter((t: any) => t.score >= 40 && t.score < 60).length, color: "var(--warning)" },
+                { label: "Weak (<40)", count: topics.filter((t: any) => t.score < 40).length, color: "var(--danger)" },
+              ].map(g => (
+                <div key={g.label} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12 }}>
+                  <div style={{ width: 8, height: 8, borderRadius: "50%", background: g.color }} />
+                  <span style={{ color: "var(--text-muted)" }}>{g.label}:</span>
+                  <span style={{ fontWeight: 700, color: "var(--text-primary)" }}>{g.count}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Topic cards grid */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+              {displayed.map((t: any) => {
+                const acRate = t.attempted > 0 ? Math.round((t.solved / t.attempted) * 100) : 0;
+                const scoreColor = getStrengthColor(t.score);
+                const trendIcon = t.trend === "up" ? "trending_up" : t.trend === "down" ? "trending_down" : "trending_flat";
+                const trendColor = t.trend === "up" ? "var(--success)" : t.trend === "down" ? "var(--danger)" : "var(--text-faint)";
+
+                return (
+                  <div key={t.tag} style={{
+                    padding: "14px 16px",
+                    borderRadius: 12,
+                    background: "var(--surface-low)",
+                    border: "1px solid var(--border)",
+                    transition: "all 0.2s",
+                  }}>
+                    {/* Header: Topic name + trend */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                      <span style={{
+                        fontSize: 13, fontWeight: 700, textTransform: "capitalize",
+                        color: "var(--text-primary)", letterSpacing: "-0.01em",
+                      }}>{t.tag}</span>
+                      <span className="material-symbols-outlined" style={{ fontSize: 16, color: trendColor }}>{trendIcon}</span>
+                    </div>
+
+                    {/* Progress bar */}
+                    <div style={{
+                      height: 6, borderRadius: 3,
+                      background: "var(--surface-high)",
+                      overflow: "hidden", marginBottom: 10,
+                    }}>
+                      <div style={{
+                        height: "100%", borderRadius: 3,
+                        width: `${Math.min(100, t.score)}%`,
+                        background: scoreColor,
+                        transition: "width 0.6s ease",
+                      }} />
+                    </div>
+
+                    {/* Stats row */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div style={{ display: "flex", gap: 10, fontSize: 11, color: "var(--text-muted)" }}>
+                        <span>{t.solved}<span style={{ opacity: 0.5 }}>/{t.attempted}</span></span>
+                        <span>{acRate}% AC</span>
+                      </div>
+                      <span style={{
+                        fontSize: 11, fontWeight: 700, color: scoreColor,
+                        background: getStrengthBg(t.score),
+                        padding: "2px 8px", borderRadius: 6,
+                      }}>{Math.round(t.score)}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Show more/less */}
+            {topics.length > 12 && (
+              <button
+                onClick={() => setShowAll(!showAll)}
+                style={{
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                  width: "100%", marginTop: 16, padding: "10px 0",
+                  background: "none", border: "1px solid var(--border)",
+                  borderRadius: 10, color: "var(--text-muted)", fontSize: 12,
+                  fontWeight: 600, cursor: "pointer", transition: "all 0.2s",
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
+                  {showAll ? "expand_less" : "expand_more"}
+                </span>
+                {showAll ? "Show Less" : `Show All ${topics.length} Topics`}
+              </button>
+            )}
+          </div>
+        );
+      })()}
     </DashboardLayout>
   );
 }
