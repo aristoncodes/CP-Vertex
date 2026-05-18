@@ -5,7 +5,6 @@ import { Footer } from "./Footer";
 import { useEffect } from "react";
 import { useAutoSync } from "@/hooks/useAutoSync";
 import { LinkCFPrompt } from "@/components/ui/LinkCFPrompt";
-import { LeftSidebar } from "./LeftSidebar";
 
 export function DashboardLayout({
   children,
@@ -36,7 +35,7 @@ export function DashboardLayout({
       <div
         className="layout-wrapper"
         style={{
-          maxWidth: 1400,
+          maxWidth: 1200,
           margin: "0 auto",
           paddingTop: 0, // TopBar is now relative, no clearance needed
           display: "flex",
@@ -46,9 +45,6 @@ export function DashboardLayout({
           width: "100%",
         }}
       >
-        {/* Left Sidebar */}
-        <LeftSidebar />
-
         {/* Main content area */}
         <main
           className="layout-main"
