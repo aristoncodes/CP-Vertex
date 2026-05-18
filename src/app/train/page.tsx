@@ -369,7 +369,13 @@ function TrainContent() {
         {tabs.map(tab => (
           <button
             key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
+            onClick={() => {
+              if (tab.key === "upsolve") {
+                router.push("/upsolve");
+              } else {
+                setActiveTab(tab.key);
+              }
+            }}
             style={{
               display: "flex", alignItems: "center", gap: 6,
               padding: "10px 18px", fontSize: 13,

@@ -8,9 +8,10 @@ interface MetricCardProps {
   label: string; value: string | number; delta: number;
   icon: string; color: string; loading?: boolean;
   invertDelta?: boolean;
+  info?: string;
 }
 
-function MetricCard({ label, value, delta, icon, color, loading, invertDelta }: MetricCardProps) {
+function MetricCard({ label, value, delta, icon, color, loading, invertDelta, info }: MetricCardProps) {
   if (loading) return (
     <div style={{ background: "var(--surface-low)", borderRadius: 8, padding: "16px 20px" }}>
       <Skeleton width="60%" height={12} />
@@ -34,6 +35,16 @@ function MetricCard({ label, value, delta, icon, color, loading, invertDelta }: 
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
         <span className="material-symbols-outlined" style={{ fontSize: 16, color, fontVariationSettings: "'FILL' 1" }}>{icon}</span>
         <span style={{ fontSize: 12, fontWeight: 500, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</span>
+        {info && (
+          <span
+            className="material-symbols-outlined"
+            style={{ fontSize: 14, color: "var(--text-faint)", cursor: "pointer", marginLeft: "auto" }}
+            onClick={(e) => { e.stopPropagation(); alert(info); }}
+            title="Click for info"
+          >
+            info
+          </span>
+        )}
       </div>
       <div style={{ fontSize: 22, fontWeight: 500, color: "var(--text-primary)", letterSpacing: "-0.01em" }}>{value}</div>
       <div style={{ fontSize: 12, fontWeight: 400, color: deltaColor, marginTop: 6, display: "flex", alignItems: "center", gap: 3 }}>
@@ -55,10 +66,10 @@ interface MetricRowProps {
 export function MetricRow(props: MetricRowProps) {
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }} className="stats-grid-4">
-      <MetricCard label="Current Rating" value={props.loading ? "—" : props.rating} delta={props.ratingDelta} icon="trending_up" color="#5B4FD4" loading={props.loading} />
-      <MetricCard label="Solve Rate (60d)" value={props.loading ? "—" : `${props.solveRate}%`} delta={props.solveRateDelta} icon="check_circle" color="#3B6D11" loading={props.loading} />
-      <MetricCard label="Avg Penalty" value={props.loading ? "—" : `${props.avgPenalty} min`} delta={props.avgPenaltyDelta} icon="timer" color="#BA7517" loading={props.loading} invertDelta />
-      <MetricCard label="Upsolve Backlog" value={props.loading ? "—" : props.upsolveBacklog} delta={props.upsolveBacklogDelta} icon="assignment_late" color="#A32D2D" loading={props.loading} invertDelta />
+      <MetricCard label="Current Rating" value={props.loading ? "—" : props.rating} delta={props.ratingDelta} icon="trending_up" color="#5B4FD4" loading={props.loading} info="Your current official Codeforces rating." />
+      <MetricCard label="Solve Rate (60d)" value={props.loading ? "—" : `${props.solveRate}%`} delta={props.solveRateDelta} icon="check_circle" color="#3B6D11" loading={props.loading} info="Percentage of attempted problems that you successfully solved in the last 60 days." />
+      <MetricCard label="Avg Penalty" value={props.loading ? "—" : `${props.avgPenalty} min`} delta={props.avgPenaltyDelta} icon="timer" color="#BA7517" loading={props.loading} invertDelta info="Average time penalty incurred from wrong answers and slow solves during your recent contests." />
+      <MetricCard label="Upsolve Backlog" value={props.loading ? "—" : props.upsolveBacklog} delta={props.upsolveBacklogDelta} icon="assignment_late" color="#A32D2D" loading={props.loading} invertDelta info="Number of problems from your recent rated contests that you failed to solve and haven't upsolved yet." />
     </div>
   );
 }

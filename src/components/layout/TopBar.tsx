@@ -132,10 +132,20 @@ export function TopBar() {
       } catch { /* silent */ }
     }
 
-    // Navigate to duel if applicable
+    // Navigate based on notification type
     if (notif.data?.duelId) {
       setShowNotifs(false);
-      router.push(`/arena/duel/${notif.data.duelId}`);
+      router.push(`/compete/duel/${notif.data.duelId}`);
+    } else if (notif.type.includes("friend")) {
+      setShowNotifs(false);
+      router.push("/friends");
+    } else if (notif.type.includes("upsolve")) {
+      setShowNotifs(false);
+      router.push("/upsolve");
+    } else {
+      // For general notifications like badges or xp, we can just close the menu 
+      // or optionally route to profile
+      setShowNotifs(false);
     }
   };
 
@@ -324,7 +334,7 @@ export function TopBar() {
                           display: "flex",
                           gap: 12,
                           padding: "14px 18px",
-                          cursor: notif.data?.duelId ? "pointer" : "default",
+                          cursor: "pointer",
                           borderBottom: "1px solid var(--border)",
                           background: notif.isRead ? "transparent" : "rgba(3, 102, 214, 0.03)",
                           transition: "background 0.15s",
