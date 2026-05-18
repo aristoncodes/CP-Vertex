@@ -10,6 +10,8 @@ import { useStore } from "@/store/useStore";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { UpsolveWidget } from "@/components/upsolve/UpsolveWidget";
+import { RecentActivity } from "@/components/dashboard/RecentActivity";
+import { DuelHistory } from "@/components/dashboard/DuelHistory";
 
 interface ApiMission {
   id: string;
@@ -200,6 +202,12 @@ function DashboardMain({ profile }: { profile: any }) {
           <span className="material-symbols-outlined" style={{ fontSize: 20, color: "var(--text-muted)" }}>arrow_forward</span>
         </button>
       )}
+
+      {/* ── Recent Activity + Duel Record — Two Columns ── */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+        <RecentActivity />
+        <DuelHistory />
+      </div>
     </>
   );
 }
