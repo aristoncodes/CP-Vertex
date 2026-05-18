@@ -150,9 +150,9 @@ export function useContestAnalysis(handle: string, userRating: number, refreshKe
                   // Rank by: most problems solved → lowest penalty
                   //
                   // If we remove WAs on A/B/C:
-                  //   - Save 10 min per WA (penalty reduction)
+                  //   - Save 20 min per WA (penalty reduction)
                   //   - Save debugging time (earlier AC = lower solve time)
-                  const WA_PENALTY_MINUTES = 10;
+                  const WA_PENALTY_MINUTES = 20;
                   const penaltyReduction = easyWACount * WA_PENALTY_MINUTES + Math.round(savedSeconds / 60);
                   const simulatedPenalty = Math.max(0, userRow.penalty - penaltyReduction);
                   const userSolvedCount = solved.size;
