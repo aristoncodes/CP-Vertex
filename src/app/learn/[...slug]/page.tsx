@@ -57,10 +57,19 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   // 6. Strip backticks around inline math (e.g., `$O(n)$`) so they aren't parsed as inline code
   cleanContent = cleanContent.replace(/`(\$[^$\n]+\$)`/g, '$1')
 
+  // Convert \[ \] to $$ $$ display math
+  cleanContent = cleanContent.replace(/\\\[([\s\S]*?)\\\]/g, '\n$$$$\n$1\n$$$$\n')
+  
+  // Convert \( \) to $ $ inline math
+  cleanContent = cleanContent.replace(/\\\(([\s\S]*?)\\\)/g, '$$$1$$')
+
   // 7. Fix $$ math blocks — ensure they are on their own lines
   cleanContent = cleanContent.replace(/\$\$/g, '\n$$\n')
 
-  // 7. Wrap naked LaTeX environments for KaTeX
+  // 8. Wrap naked LaTeX environments for KaTeX
+  // First, strip existing $$ around these specific environments so we don't double-wrap
+  cleanContent = cleanContent.replace(/\$\$\s*(\\begin{(?:align\*?|eqnarray\*?|gather\*?|equation\*?)}(?:[\s\S]*?)\\end{(?:align\*?|eqnarray\*?|gather\*?|equation\*?)})\s*\$\$/g, '$1')
+
   cleanContent = cleanContent
     .replace(/\\begin{align\*?}/g, '$$\n\\begin{aligned}')
     .replace(/\\end{align\*?}/g, '\n\\end{aligned}\n$$')
