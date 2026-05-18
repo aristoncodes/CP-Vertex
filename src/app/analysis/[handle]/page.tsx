@@ -17,12 +17,14 @@ import { ContestStrategy } from "@/components/analysis/ContestStrategy";
 import { TrainingRoadmap } from "@/components/analysis/TrainingRoadmap";
 import { RivalryBoard } from "@/components/analysis/RivalryBoard";
 import { SystemHealth } from "@/components/analysis/SystemHealth";
+import { ExtendedInsights } from "@/components/analysis/ExtendedInsights";
 
-const TABS = ["Overview", "Diagnose", "Strategy", "Train"] as const;
+const TABS = ["Overview", "Insights", "Diagnose", "Strategy", "Train"] as const;
 type Tab = (typeof TABS)[number];
 
 const TAB_SECTIONS: Record<Tab, string[]> = {
   Overview: ["metrics", "skillGap", "contestStrategy", "training", "rivalry", "systemHealth"],
+  Insights: ["extendedInsights"],
   Diagnose: ["metrics", "skillGap"],
   Strategy: ["contestStrategy"],
   Train: ["training", "rivalry"],
@@ -201,6 +203,14 @@ export default function AnalysisPage() {
             problems={training.problems}
             loading={training.loading}
           />
+        </>
+      )}
+
+      {/* ── Extended Insights ── */}
+      {visibleSections.includes("extendedInsights") && (
+        <>
+          <div style={{ borderTop: "0.5px solid var(--border)", margin: "4px 0" }} />
+          <ExtendedInsights handle={handle} refreshKey={refreshKey} />
         </>
       )}
 
