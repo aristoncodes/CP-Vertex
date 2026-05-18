@@ -8,13 +8,17 @@ function Skeleton({ width, height }: { width: string | number; height: string | 
 
 interface WhatIfData {
   contestName: string; contestId: number;
-  before: { rank: number; ratingDelta: number; penalty: number };
-  after: { rank: number; ratingDelta: number; penalty: number };
+  actualRank: number; actualDelta: number;
+  solvedCount: number; totalProblems: number;
+  waCount: number; tleCount: number;
+  savedMinutes: number;
+  estimatedBetterDelta: number; estimatedBetterRank: number;
 }
 
 function WhatIfPanel({ data }: { data: WhatIfData }) {
-  const rankDiff = data.before.rank - data.after.rank;
-  const deltaDiff = data.after.ratingDelta - data.before.ratingDelta;
+  const rankDiff = data.actualRank - data.estimatedBetterRank;
+  const deltaDiff = data.estimatedBetterDelta - data.actualDelta;
+  const hasImprovement = data.savedMinutes > 0;
 
   return (
     <div className="n-card" style={{ padding: "20px 24px" }}>
@@ -24,36 +28,60 @@ function WhatIfPanel({ data }: { data: WhatIfData }) {
       <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 16 }}>
         {data.contestName.length > 40 ? data.contestName.slice(0, 38) + "…" : data.contestName}
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 0 }}>
-        {/* Before */}
-        <div>
-          <div style={{ fontSize: 11, fontWeight: 500, color: "var(--text-faint)", marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.06em" }}>Before</div>
-          <StatLine label="Rank" value={`#${data.before.rank}`} />
-          <StatLine label="Δ Rating" value={data.before.ratingDelta > 0 ? `+${data.before.ratingDelta}` : `${data.before.ratingDelta}`} color={data.before.ratingDelta >= 0 ? "#3B6D11" : "#A32D2D"} />
-          <StatLine label="Penalty" value={`${data.before.penalty} min`} />
-        </div>
-        {/* Divider */}
-        <div style={{ width: 1, background: "var(--border)", margin: "0 20px" }} />
-        {/* After */}
-        <div>
-          <div style={{ fontSize: 11, fontWeight: 500, color: "#5B4FD4", marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.06em" }}>After (simulated)</div>
-          <StatLine label="Rank" value={`#${data.after.rank}`} diff={rankDiff > 0 ? `↑${rankDiff}` : undefined} diffColor="#3B6D11" />
-          <StatLine label="Δ Rating" value={data.after.ratingDelta > 0 ? `+${data.after.ratingDelta}` : `${data.after.ratingDelta}`} color={data.after.ratingDelta >= 0 ? "#3B6D11" : "#A32D2D"} diff={deltaDiff > 0 ? `+${deltaDiff}` : undefined} diffColor="#3B6D11" />
-          <StatLine label="Penalty" value={`${data.after.penalty} min`} />
-        </div>
+
+      {/* Actual performance */}
+      <div style={{ display: "flex", gap: 16, marginBottom: 16, flexWrap: "wrap" }}>
+        <StatChip label="Rank" value={`#${data.actualRank}`} />
+        <StatChip label="Δ Rating" value={data.actualDelta > 0 ? `+${data.actualDelta}` : `${data.actualDelta}`}
+          color={data.actualDelta >= 0 ? "#3B6D11" : "#A32D2D"} />
+        <StatChip label="Solved" value={`${data.solvedCount}/${data.totalProblems}`} />
+        <StatChip label="WA" value={`${data.waCount}`} color={data.waCount > 3 ? "#A32D2D" : "var(--text-primary)"} />
       </div>
+
+      {/* What-if result */}
+      {hasImprovement ? (
+        <div style={{
+          background: "#EAF3DE", border: "0.5px solid rgba(59,109,17,0.2)",
+          borderRadius: 10, padding: "12px 14px",
+        }}>
+          <div style={{ fontSize: 12, fontWeight: 500, color: "#3B6D11", marginBottom: 6 }}>
+            💡 If you had 0 WA on easy problems (A-C):
+          </div>
+          <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 12, color: "#3B6D11" }}>
+              Saved <strong>~{data.savedMinutes} min</strong>
+            </span>
+            {rankDiff > 0 && (
+              <span style={{ fontSize: 12, color: "#3B6D11" }}>
+                Rank <strong>↑{rankDiff}</strong> → #{data.estimatedBetterRank}
+              </span>
+            )}
+            {deltaDiff > 0 && (
+              <span style={{ fontSize: 12, color: "#3B6D11" }}>
+                Rating <strong>+{deltaDiff} more</strong>
+              </span>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div style={{
+          background: "#EAF3DE", border: "0.5px solid rgba(59,109,17,0.2)",
+          borderRadius: 10, padding: "12px 14px",
+        }}>
+          <div style={{ fontSize: 12, color: "#3B6D11" }}>
+            ✅ Clean performance — no WA on easy problems!
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-function StatLine({ label, value, color, diff, diffColor }: { label: string; value: string; color?: string; diff?: string; diffColor?: string }) {
+function StatChip({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
-    <div style={{ marginBottom: 10 }}>
-      <div style={{ fontSize: 11, color: "var(--text-faint)", marginBottom: 2 }}>{label}</div>
-      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-        <span style={{ fontSize: 16, fontWeight: 500, color: color || "var(--text-primary)" }}>{value}</span>
-        {diff && <span style={{ fontSize: 11, color: diffColor || "#3B6D11", fontWeight: 500 }}>{diff}</span>}
-      </div>
+    <div>
+      <div style={{ fontSize: 10, color: "var(--text-faint)", marginBottom: 2, textTransform: "uppercase", letterSpacing: "0.04em" }}>{label}</div>
+      <div style={{ fontSize: 16, fontWeight: 500, color: color || "var(--text-primary)" }}>{value}</div>
     </div>
   );
 }
@@ -74,15 +102,12 @@ function UpsolveRow({ problem }: { problem: UpsolveProblem }) {
       display: "flex", alignItems: "center", gap: 12, padding: "10px 0",
       borderBottom: "0.5px solid var(--border)",
     }}>
-      {/* Priority dot */}
       <div style={{ width: 8, height: 8, borderRadius: "50%", background: dotColor, flexShrink: 0 }} />
-      {/* Letter badge */}
       <div style={{
         width: 28, height: 28, borderRadius: 6, background: badgeBg,
         display: "flex", alignItems: "center", justifyContent: "center",
         fontSize: 13, fontWeight: 500, color: dotColor, flexShrink: 0,
       }}>{problem.index}</div>
-      {/* Info */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
           <a href={`https://codeforces.com/contest/${problem.contestId}/problem/${problem.index}`} target="_blank" rel="noopener noreferrer"
@@ -95,7 +120,6 @@ function UpsolveRow({ problem }: { problem: UpsolveProblem }) {
           {problem.contestName.length > 30 ? problem.contestName.slice(0, 28) + "…" : problem.contestName}
         </div>
       </div>
-      {/* Rating + tag */}
       <div style={{ textAlign: "right", flexShrink: 0 }}>
         <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)" }}>{problem.rating}</div>
         {problem.tags[0] && (
@@ -132,14 +156,11 @@ export function ContestStrategy({ whatIf, upsolvePriority, loading }: Props) {
         Contest Strategy
       </h2>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
-        {/* Left — What-If */}
         {whatIf ? <WhatIfPanel data={whatIf} /> : (
           <div className="n-card" style={{ padding: "20px 24px" }}>
             <div style={{ fontSize: 13, color: "var(--text-muted)", textAlign: "center", padding: "32px 0" }}>No rated contest data available.</div>
           </div>
         )}
-
-        {/* Right — Upsolve Priority */}
         <div className="n-card" style={{ padding: "20px 24px" }}>
           <div style={{ fontSize: 11, fontWeight: 500, color: "var(--text-muted)", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.06em" }}>
             Upsolve Priority

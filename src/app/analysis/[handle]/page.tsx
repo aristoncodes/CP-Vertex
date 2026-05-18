@@ -213,8 +213,9 @@ export default function AnalysisPage() {
             rivals={rivalry.rivals}
             ratingHistory={rivalry.ratingHistory}
             loading={rivalry.loading}
-            friendHandles={rivalry.friendHandles}
-            setFriendHandles={rivalry.setFriendHandles}
+            rivalHandles={rivalry.rivalHandles}
+            addRival={rivalry.addRival}
+            removeRival={rivalry.removeRival}
           />
         </>
       )}

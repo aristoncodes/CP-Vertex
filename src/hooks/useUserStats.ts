@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import { cfApiFetch } from "./useCFCache";
 
 interface TagStat {
@@ -82,37 +82,48 @@ export function useUserStats(handle: string, refreshKey: number = 0): UserStatsR
         const now = Math.floor(Date.now() / 1000);
         const sixtyDaysAgo = now - 60 * 24 * 3600;
         const thirtyDaysAgo = now - 30 * 24 * 3600;
-        const recent60 = submissions.filter((s: any) => s.creationTimeSeconds >= sixtyDaysAgo);
-        const recent30 = submissions.filter((s: any) => s.creationTimeSeconds >= thirtyDaysAgo && s.creationTimeSeconds < sixtyDaysAgo + 30 * 24 * 3600);
-        const ac60 = recent60.filter((s: any) => s.verdict === "OK").length;
-        const total60 = recent60.length || 1;
-        const solveRate = Math.round((ac60 / total60) * 100);
 
-        const acPrev = recent30.filter((s: any) => s.verdict === "OK").length;
-        const totalPrev = recent30.length || 1;
-        const solveRatePrev = Math.round((acPrev / totalPrev) * 100);
+        // Unique accepted problems in last 30 days vs prev 30 days
+        const acLast30 = new Set<string>();
+        const acPrev30 = new Set<string>();
+        const totalLast30 = new Set<string>();
+        const totalPrev30 = new Set<string>();
+
+        for (const s of submissions) {
+          const pid = `${s.problem.contestId}-${s.problem.index}`;
+          if (s.creationTimeSeconds >= thirtyDaysAgo) {
+            totalLast30.add(pid);
+            if (s.verdict === "OK") acLast30.add(pid);
+          } else if (s.creationTimeSeconds >= sixtyDaysAgo) {
+            totalPrev30.add(pid);
+            if (s.verdict === "OK") acPrev30.add(pid);
+          }
+        }
+
+        const solveRate = totalLast30.size > 0 ? Math.round((acLast30.size / totalLast30.size) * 100) : 0;
+        const solveRatePrev = totalPrev30.size > 0 ? Math.round((acPrev30.size / totalPrev30.size) * 100) : 0;
         const solveRateDelta = solveRate - solveRatePrev;
 
+        // --- Filter to only CONTESTANT submissions for contest metrics ---
+        const contestantSubs = submissions.filter(
+          (s: any) => s.author?.participantType === "CONTESTANT"
+        );
+
         // --- Rated contests for pace heatmap + penalty ---
-        const ratedContestIds = new Set(ratingHistory.map((r: any) => r.contestId));
-        const recentRated = sortedRatings.slice(-10);
         const last5Rated = sortedRatings.slice(-5);
         const prev5Rated = sortedRatings.slice(-10, -5);
 
-        // Average penalty calculation — only CONTESTANT submissions, capped at 5h
+        // Average penalty calculation — only CONTESTANT submissions
         const calcAvgPenalty = (contests: any[]) => {
           if (contests.length === 0) return 0;
           let totalPenalty = 0;
           let count = 0;
           for (const c of contests) {
-            const contestSubs = submissions.filter((s: any) =>
-              s.contestId === c.contestId &&
-              s.author?.participantType === "CONTESTANT"
-            );
-            const penalties = contestSubs
+            const cSubs = contestantSubs.filter((s: any) => s.contestId === c.contestId);
+            const penalties = cSubs
               .filter((s: any) => s.verdict === "OK")
               .map((s: any) => Math.floor(s.relativeTimeSeconds / 60))
-              .filter((mins: number) => mins <= 300); // cap at 5h
+              .filter((mins: number) => mins >= 0 && mins <= 300);
             if (penalties.length > 0) {
               totalPenalty += penalties.reduce((a: number, b: number) => a + b, 0) / penalties.length;
               count++;
@@ -126,6 +137,7 @@ export function useUserStats(handle: string, refreshKey: number = 0): UserStatsR
         const avgPenaltyDelta = avgPenaltyPrev ? avgPenalty - avgPenaltyPrev : 0;
 
         // --- Upsolve backlog ---
+        const ratedContestIds = new Set(ratingHistory.map((r: any) => r.contestId));
         const solvedIds = new Set<string>();
         const attemptedIds = new Set<string>();
         for (const s of submissions) {
@@ -176,15 +188,23 @@ export function useUserStats(handle: string, refreshKey: number = 0): UserStatsR
 
         const weakestTags = tagStats.slice(0, 2).map(t => t.tag);
 
-        // --- Pace Heatmap ---
-        const last3Rated = sortedRatings.slice(-3);
-        const paceHeatmap: PaceHeatmapRow[] = last3Rated.map((rEntry: any) => {
-          const contestSubs = submissions.filter((s: any) => s.contestId === rEntry.contestId);
+        // --- Pace Heatmap (CONTESTANT only) ---
+        const last5RatedForHeatmap = sortedRatings.slice(-5);
+        const paceHeatmap: PaceHeatmapRow[] = last5RatedForHeatmap.map((rEntry: any) => {
+          // Only use in-contest submissions
+          const cSubs = contestantSubs.filter((s: any) => s.contestId === rEntry.contestId);
           const cells: Record<string, { time: number | null; waCount: number; tleCount: number }> = {};
-          const problems = new Set(contestSubs.map((s: any) => s.problem.index));
 
-          for (const idx of ["A", "B", "C", "D", "E", "F"]) {
-            const probSubs = contestSubs.filter((s: any) => s.problem.index === idx);
+          // Determine which problem indices actually existed in this contest
+          const allIndices = new Set(cSubs.map((s: any) => s.problem.index));
+          const standardIndices = ["A", "B", "C", "D", "E", "F"];
+          const indices = standardIndices.filter(idx => allIndices.has(idx));
+
+          // If no standard indices matched, use whatever indices exist
+          const finalIndices = indices.length > 0 ? indices : [...allIndices].sort().slice(0, 6);
+
+          for (const idx of finalIndices) {
+            const probSubs = cSubs.filter((s: any) => s.problem.index === idx);
             if (probSubs.length === 0) {
               cells[idx] = { time: null, waCount: 0, tleCount: 0 };
               continue;
@@ -197,11 +217,11 @@ export function useUserStats(handle: string, refreshKey: number = 0): UserStatsR
             };
           }
 
-          // WA and TLE columns
+          // WA and TLE totals
           const totalWA = Object.values(cells).reduce((s, c) => s + c.waCount, 0);
           const totalTLE = Object.values(cells).reduce((s, c) => s + c.tleCount, 0);
-          cells["WA"] = { time: totalWA || null, waCount: totalWA, tleCount: 0 };
-          cells["TLE"] = { time: totalTLE || null, waCount: 0, tleCount: totalTLE };
+          cells["WA"] = { time: totalWA > 0 ? totalWA : null, waCount: totalWA, tleCount: 0 };
+          cells["TLE"] = { time: totalTLE > 0 ? totalTLE : null, waCount: 0, tleCount: totalTLE };
 
           return {
             contestId: rEntry.contestId,

@@ -6,8 +6,16 @@ import { cfApiFetch } from "./useCFCache";
 interface WhatIfData {
   contestName: string;
   contestId: number;
-  before: { rank: number; ratingDelta: number; penalty: number };
-  after: { rank: number; ratingDelta: number; penalty: number };
+  actualRank: number;
+  actualDelta: number;
+  solvedCount: number;
+  totalProblems: number;
+  waCount: number;
+  tleCount: number;
+  // What-if: "if you had 0 WA on easy problems"
+  savedMinutes: number;
+  estimatedBetterDelta: number;
+  estimatedBetterRank: number;
 }
 
 interface UpsolveProblem {
@@ -48,65 +56,89 @@ export function useContestAnalysis(handle: string, userRating: number, refreshKe
           cfApiFetch<any[]>("user.status", { handle }),
         ]);
 
-        const sortedRatings = ratingHistory.sort((a: any, b: any) => a.ratingUpdateTimeSeconds - b.ratingUpdateTimeSeconds);
+        const sortedRatings = ratingHistory.sort(
+          (a: any, b: any) => a.ratingUpdateTimeSeconds - b.ratingUpdateTimeSeconds
+        );
 
-        // --- What-If Simulator ---
+        // Only use CONTESTANT submissions for analysis
+        const contestantSubs = submissions.filter(
+          (s: any) => s.author?.participantType === "CONTESTANT"
+        );
+
+        // --- What-If Simulator (last rated contest) ---
         if (sortedRatings.length > 0) {
           const lastContest = sortedRatings[sortedRatings.length - 1];
-          const contestSubs = submissions.filter((s: any) => s.contestId === lastContest.contestId);
+          const cSubs = contestantSubs.filter((s: any) => s.contestId === lastContest.contestId);
 
-          // Calculate actual penalty
-          const acSubs = contestSubs.filter((s: any) => s.verdict === "OK");
-          const actualPenalty = acSubs.reduce((sum: number, s: any) => sum + Math.floor(s.relativeTimeSeconds / 60), 0);
+          // Count unique problems attempted and solved
+          const attempted = new Set(cSubs.map((s: any) => s.problem.index));
+          const solved = new Set(
+            cSubs.filter((s: any) => s.verdict === "OK").map((s: any) => s.problem.index)
+          );
 
-          // Simulate: remove WA penalties on A & B
-          const waPenaltyAB = contestSubs
-            .filter((s: any) => (s.problem.index === "A" || s.problem.index === "B") && s.verdict === "WRONG_ANSWER")
-            .length * 10; // 10 min penalty per WA in ICPC-style
+          // Count WA and TLE
+          const waCount = cSubs.filter((s: any) => s.verdict === "WRONG_ANSWER").length;
+          const tleCount = cSubs.filter((s: any) => s.verdict === "TIME_LIMIT_EXCEEDED").length;
 
-          const simulatedPenalty = Math.max(0, actualPenalty - waPenaltyAB);
+          // Time wasted on WA before AC on easy problems (A, B, C)
+          let savedMinutes = 0;
+          for (const idx of ["A", "B", "C"]) {
+            const pSubs = cSubs.filter((s: any) => s.problem.index === idx);
+            const firstAC = pSubs.find((s: any) => s.verdict === "OK");
+            if (firstAC) {
+              const waBefore = pSubs.filter(
+                (s: any) => s.verdict === "WRONG_ANSWER" && s.relativeTimeSeconds < firstAC.relativeTimeSeconds
+              );
+              // Each WA costs ~2-3 min of debugging + resubmission
+              savedMinutes += waBefore.length * 3;
+            }
+          }
 
           const actualDelta = lastContest.newRating - lastContest.oldRating;
-          // Rough estimation: each position improvement ≈ +0.4 rating
-          const estimatedRankImprovement = Math.floor(waPenaltyAB / 5);
-          const simulatedDelta = Math.round(actualDelta + estimatedRankImprovement * 0.4);
+          // Conservative estimate: saving N minutes ≈ rank improvement of N/2 positions
+          // Each position ≈ 0.3-0.5 rating points
+          const rankImprove = Math.floor(savedMinutes / 2);
+          const estimatedBetterDelta = Math.round(actualDelta + rankImprove * 0.35);
 
           setWhatIf({
             contestName: lastContest.contestName,
             contestId: lastContest.contestId,
-            before: {
-              rank: lastContest.rank,
-              ratingDelta: actualDelta,
-              penalty: actualPenalty,
-            },
-            after: {
-              rank: Math.max(1, lastContest.rank - estimatedRankImprovement),
-              ratingDelta: simulatedDelta,
-              penalty: simulatedPenalty,
-            },
+            actualRank: lastContest.rank,
+            actualDelta,
+            solvedCount: solved.size,
+            totalProblems: attempted.size,
+            waCount,
+            tleCount,
+            savedMinutes,
+            estimatedBetterDelta,
+            estimatedBetterRank: Math.max(1, lastContest.rank - rankImprove),
           });
         }
 
         // --- Upsolve Priority ---
+        // Problems from last 8 rated contests that user didn't solve
         const last8Rated = sortedRatings.slice(-8);
         const last8Ids = new Set(last8Rated.map((r: any) => r.contestId));
         const contestNameMap = new Map(last8Rated.map((r: any) => [r.contestId, r.contestName]));
 
+        // Track all solved problems (any participantType — includes practice)
         const solvedSet = new Set<string>();
-        const attemptedMap = new Map<string, any>();
+        // Track all problems from rated contests
+        const contestProblemMap = new Map<string, any>();
 
         for (const s of submissions) {
           const pid = `${s.problem.contestId}-${s.problem.index}`;
           if (s.verdict === "OK") solvedSet.add(pid);
-          if (last8Ids.has(s.contestId) && !attemptedMap.has(pid)) {
-            attemptedMap.set(pid, s.problem);
+          if (last8Ids.has(s.contestId) && !contestProblemMap.has(pid)) {
+            contestProblemMap.set(pid, s.problem);
           }
         }
 
         const unsolved: UpsolveProblem[] = [];
-        for (const [pid, problem] of attemptedMap) {
+        for (const [pid, problem] of contestProblemMap) {
           if (solvedSet.has(pid)) continue;
-          const distance = Math.abs((problem.rating || 0) - userRating);
+          if (!problem.rating) continue; // skip unrated
+          const distance = Math.abs(problem.rating - userRating);
           let priority: "red" | "amber" | "green" = "green";
           if (distance <= 150) priority = "red";
           else if (distance <= 300) priority = "amber";
@@ -116,7 +148,7 @@ export function useContestAnalysis(handle: string, userRating: number, refreshKe
             index: problem.index,
             name: problem.name,
             contestName: contestNameMap.get(problem.contestId) || `Contest ${problem.contestId}`,
-            rating: problem.rating || 0,
+            rating: problem.rating,
             tags: problem.tags || [],
             priority,
             distance,
@@ -124,7 +156,7 @@ export function useContestAnalysis(handle: string, userRating: number, refreshKe
         }
 
         unsolved.sort((a, b) => a.distance - b.distance);
-        setUpsolvePriority(unsolved.slice(0, 6));
+        setUpsolvePriority(unsolved.slice(0, 8));
       } catch (err: any) {
         setError(err.message || "Failed to load contest analysis");
       } finally {
