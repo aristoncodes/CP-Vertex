@@ -13,6 +13,7 @@ const navItems = [
   { label: "Upsolve", href: "/upsolve", icon: "history" },
   { label: "Arena", href: "/arena", icon: "swords" },
   { label: "Contests", href: "/contests", icon: "emoji_events" },
+  { label: "Analysis", href: "/analysis", icon: "analytics" },
   { label: "Leaderboard", href: "/leaderboard", icon: "leaderboard" },
   { label: "Intel", href: "/learn", icon: "menu_book" },
   { label: "Friends", href: "/friends", icon: "group" },
