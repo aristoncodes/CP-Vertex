@@ -8,7 +8,7 @@ const features = [
   {
     icon: "fitness_center",
     title: "4 Training Modes",
-    desc: "Blitz for speed, Arena for weakness targeting, Boss Fight for XP, and Warmup to get in the zone.",
+    desc: "Blitz for speed, Drill for weakness targeting, Boss Fight for XP, and Warmup to get in the zone.",
     color: "#0366d6",
   },
   {
@@ -148,7 +148,7 @@ export default function LandingPage() {
           </button>
           <button onClick={() => router.push("/learn")} className="n-btn-secondary" style={{ padding: "14px 32px", fontSize: 15 }}>
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>menu_book</span>
-            Intel Database
+            Library
           </button>
         </div>
 

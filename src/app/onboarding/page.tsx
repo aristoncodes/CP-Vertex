@@ -16,7 +16,7 @@ const ratingRanges = [
 
 const modes = [
   { id: "blitz", name: "Blitz Mode", desc: "3–5 fast problems to warm up", icon: "bolt", color: "var(--warning)" },
-  { id: "arena", name: "Arena Mode", desc: "Target your weak topics", icon: "swords", color: "var(--success)" },
+  { id: "drill", name: "Drill", desc: "Target your weak topics", icon: "target", color: "var(--success)" },
   { id: "boss", name: "Boss Fight", desc: "One hard problem for maximum XP", icon: "local_fire_department", color: "var(--danger)" },
 ];
 
@@ -69,7 +69,7 @@ export default function OnboardingPage() {
     if (selectedMode === "boss") {
       router.push("/arena/boss");
     } else if (selectedMode) {
-      router.push(`/practice/session?mode=${selectedMode}`);
+      router.push(`/train/session?mode=${selectedMode}`);
     } else {
       router.push("/dashboard");
     }

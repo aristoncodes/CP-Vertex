@@ -9,10 +9,10 @@ interface Insight {
 }
 
 const typeConfig: Record<string, { label: string; icon: string; color: string; actionLabel?: string; actionRoute?: string }> = {
-  declining_score: { label: "Alert", icon: "trending_down", color: "var(--danger)", actionLabel: "Start Arena Mode", actionRoute: "/practice/session?mode=arena" },
+  declining_score: { label: "Alert", icon: "trending_down", color: "var(--danger)", actionLabel: "Start Drill", actionRoute: "/train/session?mode=drill" },
   improvement: { label: "Progress", icon: "trending_up", color: "var(--success)" },
-  blind_spot: { label: "Blind Spot", icon: "visibility_off", color: "var(--warning)", actionLabel: "Target Weakness", actionRoute: "/practice/session?mode=arena" },
-  gemini_tactical: { label: "Tactical", icon: "smart_toy", color: "var(--primary)", actionLabel: "Act on This", actionRoute: "/practice" },
+  blind_spot: { label: "Blind Spot", icon: "visibility_off", color: "var(--warning)", actionLabel: "Target Weakness", actionRoute: "/train/session?mode=drill" },
+  gemini_tactical: { label: "Tactical", icon: "smart_toy", color: "var(--primary)", actionLabel: "Act on This", actionRoute: "/train" },
 };
 
 export function CoachInsightCard({ insight }: { insight: Insight }) {
@@ -23,9 +23,9 @@ export function CoachInsightCard({ insight }: { insight: Insight }) {
   const getRecommendedRoute = () => {
     const msg = insight.message.toLowerCase();
     if (msg.includes("boss fight")) return "/arena/boss";
-    if (msg.includes("blitz")) return "/practice/session?mode=blitz";
-    if (msg.includes("arena")) return "/practice/session?mode=arena";
-    return config.actionRoute || "/practice";
+    if (msg.includes("blitz")) return "/train/session?mode=blitz";
+    if (msg.includes("drill") || msg.includes("arena")) return "/train/session?mode=drill";
+    return config.actionRoute || "/train";
   };
 
   return (

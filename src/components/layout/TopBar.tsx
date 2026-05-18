@@ -8,14 +8,10 @@ import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: "space_dashboard" },
-  { label: "Problems", href: "/problems", icon: "code" },
-  { label: "Practice", href: "/practice", icon: "fitness_center" },
-  { label: "Upsolve", href: "/upsolve", icon: "history" },
-  { label: "Arena", href: "/arena", icon: "swords" },
+  { label: "Train", href: "/train", icon: "fitness_center" },
+  { label: "Compete", href: "/compete", icon: "swords" },
+  { label: "Library", href: "/learn", icon: "menu_book" },
   { label: "Contests", href: "/contests", icon: "emoji_events" },
-  { label: "Analysis", href: "/analysis", icon: "analytics" },
-  { label: "Leaderboard", href: "/leaderboard", icon: "leaderboard" },
-  { label: "Intel", href: "/learn", icon: "menu_book" },
   { label: "Friends", href: "/friends", icon: "group" },
 ];
 

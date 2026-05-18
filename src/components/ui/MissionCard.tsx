@@ -31,16 +31,16 @@ export function MissionCard({ mission, onComplete }: { mission: Mission; onCompl
       if (mission.label.toLowerCase().includes("boss")) {
         router.push('/arena/boss');
       } else if (mission.label.toLowerCase().includes("duel")) {
-        router.push('/arena');
+        router.push('/compete');
       } else if (mission.label.toLowerCase().includes("post-mortem")) {
-        router.push('/problems');
+        router.push('/train?tab=problems');
       } else {
         const match = mission.label.match(/Solve \d+ (.+) problems/i);
         if (match) {
           const tag = match[1].toLowerCase().trim();
-          router.push(`/problems?tag=${encodeURIComponent(tag)}`);
+          router.push(`/train?tab=problems&tag=${encodeURIComponent(tag)}`);
         } else {
-          router.push('/problems');
+          router.push('/train?tab=problems');
         }
       }
     }

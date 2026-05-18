@@ -231,7 +231,7 @@ export default function FriendsPage() {
                     Profile
                   </button>
                   <button
-                    onClick={() => router.push(`/arena/matchmaking?challenge=${f.id}`)}
+                    onClick={() => router.push(`/compete/matchmaking?challenge=${f.id}`)}
                     style={{ padding: "6px 14px", background: "var(--primary)", color: "white", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}
                   >
                     ⚔️ Duel

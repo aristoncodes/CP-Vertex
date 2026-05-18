@@ -135,7 +135,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                 gap: 8,
               }}>
                 <span className="material-symbols-outlined" style={{ color: "var(--primary)", fontSize: 24 }}>menu_book</span>
-                <span style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-0.03em" }}>Intel Database</span>
+                <span style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-0.03em" }}>Library</span>
               </Link>
             </div>
             <Link href="/learn" style={{
@@ -180,7 +180,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
               color: "var(--text-muted)",
               marginBottom: 32,
             }}>
-              <Link href="/learn" style={{ color: "var(--primary)", textDecoration: "none" }}>Intel Database</Link>
+              <Link href="/learn" style={{ color: "var(--primary)", textDecoration: "none" }}>Library</Link>
               <span className="material-symbols-outlined" style={{ fontSize: 14, opacity: 0.4 }}>chevron_right</span>
               <span>{article.category}</span>
               <span className="material-symbols-outlined" style={{ fontSize: 14, opacity: 0.4 }}>chevron_right</span>

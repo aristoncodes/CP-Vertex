@@ -1,108 +1,124 @@
-# CP Vertex — Project Architecture
+# CP Vertex Architecture
+
+## Overview
+
+CP Vertex is a competitive programming training platform built with Next.js 15, Prisma ORM, and Codeforces API integration. It provides structured training, PvP duels, AI coaching, and a comprehensive algorithm library.
+
+## Tech Stack
+
+- **Frontend**: Next.js 15 (App Router), React, TypeScript
+- **Styling**: Vanilla CSS with CSS custom properties (dark/light themes)
+- **Database**: PostgreSQL via Prisma ORM
+- **Auth**: NextAuth.js (GitHub + Credentials)
+- **AI**: Google Gemini API (coaching insights, post-mortem analysis)
+- **External API**: Codeforces API (ratings, submissions, problems)
+
+## Navigation Model (5 Top-Level Items)
+
+| Route        | Purpose                                         |
+| ------------ | ----------------------------------------------- |
+| `/dashboard` | Central hub — stats, streaks, missions, XP      |
+| `/train`     | All solo practice — modes, problem browser, upsolve |
+| `/compete`   | PvP duels, matchmaking, leaderboard             |
+| `/learn`     | Algorithmic Library (CP-Algorithms reference)   |
+| `/profile`   | User profile, settings, badges                  |
+
+### Additional Routes
+
+| Route        | Purpose                    |
+| ------------ | -------------------------- |
+| `/contests`  | Virtual contest simulation |
+| `/friends`   | Social / friend list       |
+| `/upsolve`   | Upsolve tracker (deep link)|
+| `/onboarding`| First-time setup wizard    |
+
+### Deprecated Routes (redirects in place)
+
+| Old Route      | Redirects To              |
+| -------------- | ------------------------- |
+| `/practice`    | `/train`                  |
+| `/problems`    | `/train?tab=problems`     |
+| `/arena`       | `/compete`                |
+| `/leaderboard` | `/compete?tab=leaderboard`|
 
 ## Directory Structure
 
 ```
-cp-vertex/
-├── prisma/
-│   └── schema.prisma           # Database schema (PostgreSQL)
-│
-├── src/
-│   ├── app/                    # Next.js App Router
-│   │   │
-│   │   ├── api/                # ═══ BACKEND (API Routes) ═══
-│   │   │   ├── analytics/      #   Performance analytics
-│   │   │   ├── auth/           #   NextAuth authentication
-│   │   │   ├── badges/         #   Badge system
-│   │   │   ├── coach/          #   AI coaching insights
-│   │   │   ├── cron/           #   Scheduled jobs (CF sync, weekly digest)
-│   │   │   ├── duels/          #   1v1 matchmaking & combat
-│   │   │   ├── journal/        #   User journal entries
-│   │   │   ├── leaderboard/    #   Global rankings
-│   │   │   ├── missions/       #   Daily missions & boss fights
-│   │   │   ├── postmortems/    #   Submission reviews
-│   │   │   ├── problems/       #   Problem database (import, pick, filter)
-│   │   │   ├── roadmap/        #   Learning roadmap
-│   │   │   ├── user/           #   User CRUD, CF sync, search, reset
-│   │   │   ├── weekly-review/  #   Weekly performance review
-│   │   │   └── xp/             #   XP history
-│   │   │
-│   │   ├── arena/              # ═══ FRONTEND (Pages) ═══
-│   │   │   ├── boss/           #   Boss fight challenge page
-│   │   │   ├── contest/        #   Contest simulation page
-│   │   │   ├── duel/[id]/      #   Live duel combat screen
-│   │   │   ├── matchmaking/    #   1v1 opponent search & history
-│   │   │   └── page.tsx        #   Arena hub
-│   │   │
-│   │   ├── dashboard/          #   Main dashboard
-│   │   ├── leaderboard/        #   Rankings page
-│   │   ├── learn/              #   Learning resources
-│   │   ├── practice/           #   Training modes (Blitz/Arena/Recovery)
-│   │   │   └── session/        #   Active training session
-│   │   ├── problems/           #   Arsenal — full problem database
-│   │   ├── profile/[handle]/   #   Public user profile
-│   │   ├── settings/           #   User settings & preferences
-│   │   ├── layout.tsx          #   Root layout
-│   │   └── page.tsx            #   Landing page
-│   │
-│   ├── services/               # ═══ BUSINESS LOGIC ═══
-│   │   ├── duel.service.ts     #   Duel creation, acceptance, verification
-│   │   ├── problem.service.ts  #   Problem import, pick-for-me, status
-│   │   └── user.service.ts     #   User sync, search, account reset
-│   │
-│   ├── lib/                    # ═══ SHARED UTILITIES ═══
-│   │   ├── cf-api.ts           #   Codeforces API client (cached via Redis)
-│   │   ├── coach.ts            #   AI coach logic
-│   │   ├── difficulty.ts       #   Difficulty calculation
-│   │   ├── prisma.ts           #   Prisma client singleton
-│   │   ├── ratelimit.ts        #   API rate limiting
-│   │   ├── realtime.ts         #   Real-time event helpers
-│   │   ├── redis.ts            #   Redis client singleton
-│   │   ├── strength.ts         #   User strength/rating calculation
-│   │   └── xp.ts               #   XP calculation formulas
-│   │
-│   ├── components/             # ═══ FRONTEND COMPONENTS ═══
-│   │   ├── landing/            #   Landing page (ParticleStorm)
-│   │   ├── layout/             #   Shared layout (TopBar, Sidebar, DashboardLayout)
-│   │   └── ui/                 #   Reusable UI (Heatmap, XPBar, MissionCard, etc.)
-│   │
-│   ├── hooks/                  # ═══ REACT HOOKS ═══
-│   │   ├── useCursorTilt.ts    #   3D tilt effect
-│   │   ├── useRealtime.ts      #   Real-time updates
-│   │   ├── useScrollProgress.ts#   Scroll progress tracking
-│   │   └── useTypewriter.ts    #   Typewriter text animation
-│   │
-│   ├── workers/                # ═══ BACKGROUND JOBS ═══
-│   │   ├── cf-sync.ts          #   Codeforces submission sync worker
-│   │   ├── coach-insights.ts   #   AI coach insight generation
-│   │   ├── strength-scores.ts  #   Topic strength recalculation
-│   │   └── weekly-digest.ts    #   Weekly email/digest generation
-│   │
-│   ├── providers/              #   React context providers
-│   ├── store/                  #   Global state (Zustand)
-│   ├── types/                  #   TypeScript type definitions
-│   ├── data/                   #   Static data & mock data
-│   ├── scripts/                #   One-off scripts (seed, migrate)
-│   ├── generated/              #   Auto-generated (Prisma client)
-│   ├── auth.ts                 #   NextAuth configuration
-│   └── middleware.ts           #   Edge middleware (auth checks)
-│
-├── public/                     # Static assets
-└── package.json
+src/
+├── app/
+│   ├── (app)/              # Route group (unused wrapper)
+│   ├── api/                # API routes
+│   │   ├── cron/           # Scheduled tasks (sync, daily missions)
+│   │   ├── duels/          # Duel CRUD + matchmaking
+│   │   ├── intel/          # Algorithm article endpoints
+│   │   ├── leaderboard/    # Leaderboard data
+│   │   ├── missions/       # Daily mission system
+│   │   ├── problems/       # Problem CRUD, pick, verify, arena, boss, blitz
+│   │   └── user/           # User profile, CF handle, sync, search
+│   ├── arena/              # [REDIRECT → /compete] Boss fight still lives here
+│   ├── compete/            # PvP hub: duels, matchmaking, leaderboard
+│   ├── contests/           # Virtual contest simulation
+│   ├── dashboard/          # Main dashboard
+│   ├── friends/            # Social features
+│   ├── learn/              # Algorithmic Library
+│   │   └── [...slug]/      # Individual article pages
+│   ├── login/              # Authentication
+│   ├── onboarding/         # First-time user setup
+│   ├── practice/           # [REDIRECT → /train]
+│   ├── problems/           # [REDIRECT → /train?tab=problems]
+│   ├── leaderboard/        # [REDIRECT → /compete]
+│   ├── profile/            # User profile
+│   ├── settings/           # User settings
+│   ├── train/              # Unified training hub
+│   │   └── session/        # Active training session (blitz, drill, warmup, boss)
+│   └── upsolve/            # Upsolve tracker
+├── components/
+│   ├── layout/
+│   │   ├── DashboardLayout.tsx
+│   │   ├── Sidebar.tsx
+│   │   └── TopBar.tsx
+│   └── ui/                 # Reusable UI components
+│       ├── AISummaryCard.tsx
+│       ├── CoachInsightCard.tsx
+│       ├── CommandPalette.tsx
+│       ├── HintButton.tsx
+│       ├── LinkCFPrompt.tsx
+│       ├── MissionCard.tsx
+│       ├── MissionMap.tsx
+│       ├── PostMortemModal.tsx
+│       ├── ThemeToggle.tsx
+│       └── ToastProvider.tsx
+├── generated/prisma/       # Prisma generated client
+├── lib/                    # Shared utilities
+│   ├── auth.ts
+│   ├── prisma.ts
+│   ├── upsolve.ts
+│   └── xp.ts
+├── scripts/                # Data seeding scripts
+├── services/               # Business logic services
+│   ├── problem.service.ts
+│   └── user.service.ts
+├── store/                  # Zustand state management
+│   └── useStore.ts
+└── workers/                # Background sync workers
+    └── cf-sync.ts
 ```
 
-## Data Flow
+## Training Modes
 
-```
-Frontend Page  →  fetch("/api/...")  →  API Route  →  Service Layer  →  Prisma/DB
-     ↑                                     ↓
-     └─────────────── JSON Response ───────┘
-```
+| Mode    | Query Param        | Description                        | API Endpoint          |
+| ------- | ------------------ | ---------------------------------- | --------------------- |
+| Blitz   | `?mode=blitz`      | 3-5 quick comfort-zone problems    | `/api/problems/blitz` |
+| Drill   | `?mode=drill`      | 5-8 weakness-targeting problems    | `/api/problems/arena` |
+| Warmup  | `?mode=warmup`     | 2-3 rating-level problems          | `/api/problems/recovery` |
+| Boss    | `?mode=boss`       | 1 problem 300-500 above rating     | `/api/problems/boss`  |
 
-## Key Conventions
+> **Note**: "Drill" was previously called "Arena Mode" in the solo practice context. Renamed to avoid collision with the PvP Arena (now "Compete"). The API endpoint `/api/problems/arena` is unchanged for backward compatibility.
 
-1. **API routes** (`src/app/api/`) handle HTTP concerns only: auth, validation, response formatting
-2. **Services** (`src/services/`) contain all business logic and database operations
-3. **Lib** (`src/lib/`) contains stateless utilities shared by both frontend and backend
-4. **Components** (`src/components/`) are purely presentational React components
-5. **Workers** (`src/workers/`) run as background jobs triggered by cron endpoints
+## Key Design Decisions
+
+1. **Unified Train Hub**: Problems + Practice + Upsolve merged into `/train` with tabs to reduce sidebar clutter
+2. **Compete Hub**: PvP Arena + Leaderboard merged into `/compete` — everything competitive in one place
+3. **Library naming**: "Intel Database" renamed to "Library" for clarity and consistency
+4. **Drill naming**: Solo "Arena Mode" renamed to "Drill" to prevent confusion with PvP Arena
+5. **Backward compatibility**: Old routes (`/practice`, `/problems`, `/arena`, `/leaderboard`) redirect to their new locations

@@ -137,7 +137,7 @@ export default function LearnPage() {
               textDecoration: "none", color: "var(--text-primary)",
             }}>
               <span className="material-symbols-outlined" style={{ color: "var(--primary)", fontSize: 26 }}>menu_book</span>
-              <span style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.03em" }}>Intel Database</span>
+              <span style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.03em" }}>Library</span>
             </Link>
 
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
@@ -172,7 +172,7 @@ export default function LearnPage() {
           {/* Hero */}
           <div style={{ marginBottom: 48 }}>
             <h1 style={{ fontSize: 42, fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 1.1, color: "var(--text-primary)", margin: 0 }}>
-              Algorithmic Intel Database
+              Algorithmic Library
             </h1>
             <p style={{ fontSize: 17, lineHeight: 1.6, color: "var(--text-secondary)", marginTop: 14, maxWidth: 600 }}>
               Comprehensive references for competitive programming — algorithms, data structures, and mathematical theory.
@@ -404,7 +404,7 @@ export default function LearnPage() {
             display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16,
           }}>
             <div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", marginBottom: 4 }}>Intel Database</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", marginBottom: 4 }}>Library</div>
               <div style={{ fontSize: 12, color: "var(--text-muted)" }}>© 2026 CP Vertex · The Curated Scholar</div>
             </div>
             <Link href="/" style={{ fontSize: 13, fontWeight: 600, color: "var(--primary)", textDecoration: "none" }}>

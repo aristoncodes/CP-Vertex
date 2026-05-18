@@ -21,21 +21,17 @@ export function CommandPalette() {
 
   const items: CmdItem[] = [
     { label: "Dashboard", icon: "space_dashboard", href: "/dashboard", shortcut: "G D", section: "Navigate" },
-    { label: "Problems", icon: "code", href: "/problems", shortcut: "G P", section: "Navigate" },
-    { label: "Practice", icon: "fitness_center", href: "/practice", shortcut: "G T", section: "Navigate" },
-    { label: "Arena", icon: "swords", href: "/arena", shortcut: "G A", section: "Navigate" },
+    { label: "Train", icon: "fitness_center", href: "/train", shortcut: "G T", section: "Navigate" },
+    { label: "Compete", icon: "swords", href: "/compete", shortcut: "G A", section: "Navigate" },
     { label: "Contests", icon: "emoji_events", href: "/contests", section: "Navigate" },
-    { label: "Leaderboard", icon: "leaderboard", href: "/leaderboard", section: "Navigate" },
     { label: "Friends", icon: "group", href: "/friends", section: "Navigate" },
-    { label: "Upsolve Queue", icon: "history", href: "/upsolve", section: "Navigate" },
-    { label: "Intel Database", icon: "menu_book", href: "/learn", section: "Navigate" },
-    { label: "Settings", icon: "settings", href: "/settings", section: "Navigate" },
+    { label: "Library", icon: "menu_book", href: "/learn", section: "Navigate" },
     { label: "My Profile", icon: "person", href: "/profile/me", section: "Navigate" },
     { label: "Start Boss Fight", icon: "local_fire_department", href: "/arena/boss", section: "Actions" },
-    { label: "Start Blitz Mode", icon: "bolt", href: "/practice/session?mode=blitz", section: "Actions" },
-    { label: "Start Arena Mode", icon: "swords", href: "/practice/session?mode=arena", section: "Actions" },
-    { label: "Start Warmup Mode", icon: "spa", href: "/practice/session?mode=warmup", section: "Actions" },
-    { label: "Find Opponent", icon: "person_search", href: "/arena/matchmaking", section: "Actions" },
+    { label: "Start Blitz Mode", icon: "bolt", href: "/train/session?mode=blitz", section: "Actions" },
+    { label: "Start Drill", icon: "target", href: "/train/session?mode=drill", section: "Actions" },
+    { label: "Start Warmup", icon: "spa", href: "/train/session?mode=warmup", section: "Actions" },
+    { label: "Find Opponent", icon: "person_search", href: "/compete/matchmaking", section: "Actions" },
   ];
 
   const filtered = query.trim()

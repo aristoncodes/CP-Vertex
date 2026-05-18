@@ -3,10 +3,10 @@
 import { useRouter } from "next/navigation";
 
 const quickActions = [
-  { label: "Random Problem", icon: "casino", route: "/problems", color: "var(--primary)" },
+  { label: "Random Problem", icon: "casino", route: "/train", color: "var(--primary)" },
   { label: "Boss Fight", icon: "local_fire_department", route: "/arena/boss", color: "var(--danger)" },
-  { label: "Blitz Mode", icon: "bolt", route: "/practice/session?mode=blitz", color: "var(--warning)" },
-  { label: "Intel Database", icon: "menu_book", route: "/learn", color: "var(--success)" },
+  { label: "Blitz Mode", icon: "bolt", route: "/train/session?mode=blitz", color: "var(--warning)" },
+  { label: "Library", icon: "menu_book", route: "/learn", color: "var(--success)" },
 ];
 
 export function MissionMap() {

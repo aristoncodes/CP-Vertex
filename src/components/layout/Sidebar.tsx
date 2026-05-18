@@ -6,28 +6,26 @@ import { useSession } from "next-auth/react";
 
 const navSections = [
   {
-    label: "NAVIGATE",
+    label: "MAIN",
     items: [
       { label: "Dashboard", href: "/dashboard", icon: "space_dashboard" },
-      { label: "Problems", href: "/problems", icon: "code" },
-      { label: "Practice", href: "/practice", icon: "fitness_center" },
-      { label: "Upsolve Queue", href: "/upsolve", icon: "history" },
-      { label: "Leaderboard", href: "/leaderboard", icon: "leaderboard" },
-      { label: "My Profile", href: "/profile/me", icon: "person", dynamic: true },
-      { label: "Intel Database", href: "/learn", icon: "menu_book" },
+      { label: "Train", href: "/train", icon: "fitness_center" },
+      { label: "Compete", href: "/compete", icon: "swords" },
+      { label: "Library", href: "/learn", icon: "menu_book" },
     ],
   },
   {
-    label: "COMPETE",
+    label: "MORE",
     items: [
-      { label: "Arena", href: "/arena", icon: "swords" },
       { label: "Contests", href: "/contests", icon: "emoji_events" },
       { label: "Friends", href: "/friends", icon: "group" },
+      { label: "Upsolve", href: "/upsolve", icon: "history" },
     ],
   },
   {
     label: "ACCOUNT",
     items: [
+      { label: "Profile", href: "/profile/me", icon: "person", dynamic: true },
       { label: "Settings", href: "/settings", icon: "settings" },
     ],
   },

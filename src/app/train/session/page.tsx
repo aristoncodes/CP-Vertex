@@ -350,8 +350,8 @@ function SessionContent() {
             All {problems.length} problems verified on Codeforces. Great work!
           </p>
           <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
-            <button className="n-btn-secondary" onClick={() => router.push("/practice")} style={{ padding: "10px 24px" }}>
-              Back to Practice
+            <button className="n-btn-secondary" onClick={() => router.push("/train")} style={{ padding: "10px 24px" }}>
+              Back to Train
             </button>
             <button className="n-btn-primary" onClick={() => router.push("/dashboard")} style={{ padding: "10px 24px" }}>
               View Dashboard

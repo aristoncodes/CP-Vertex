@@ -29,17 +29,17 @@ const quickPlayModes = [
   {
     key: "warmup", label: "Warmup", icon: "speed",
     desc: "Easy 15-min session", color: "#059669", bg: "#059669",
-    href: "/practice/session?mode=warmup",
+    href: "/train/session?mode=warmup",
   },
   {
     key: "blitz", label: "Blitz", icon: "bolt",
     desc: "Fast 30-min sprint", color: "#0891b2", bg: "#0891b2",
-    href: "/practice/session?mode=blitz",
+    href: "/train/session?mode=blitz",
   },
   {
-    key: "arena", label: "Arena", icon: "fitness_center",
+    key: "drill", label: "Drill", icon: "target",
     desc: "Train weak topics", color: "#0366d6", bg: "#0366d6",
-    href: "/practice/session?mode=arena",
+    href: "/train/session?mode=drill",
   },
   {
     key: "boss", label: "Boss Fight", icon: "swords",
