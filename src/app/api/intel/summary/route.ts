@@ -1,8 +1,14 @@
 import { getEditorialSummary } from "@/lib/intelligence"
+import { auth } from "@/auth"
 
 // POST /api/intel/summary — Get AI summary for an article
 export async function POST(request: Request) {
   try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     const { slug, title, content } = await request.json()
 
     if (!slug || !title || !content) {

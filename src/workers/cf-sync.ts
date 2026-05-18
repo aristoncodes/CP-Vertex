@@ -104,6 +104,32 @@ const worker = new Worker<CFSyncJobData>(
           },
           include: { tags: true },
         })
+
+        // Also process tags for the newly created problem
+        const tags = sub.problem.tags || []
+        for (const tagName of tags) {
+          let tag = await prisma.tag.findUnique({ where: { name: tagName } })
+          if (!tag) {
+            try {
+              tag = await prisma.tag.create({ data: { name: tagName, category: "general" } })
+            } catch {
+              tag = await prisma.tag.findUnique({ where: { name: tagName } })
+            }
+          }
+          if (tag) {
+            await prisma.problemTag.upsert({
+              where: { problemId_tagId: { problemId: problem.id, tagId: tag.id } },
+              create: { problemId: problem.id, tagId: tag.id },
+              update: {},
+            })
+          }
+        }
+        
+        // Re-fetch problem with tags included
+        problem = await prisma.problem.findUnique({
+          where: { cfId },
+          include: { tags: true },
+        }) || problem
       }
 
       // 2. Upsert submission record

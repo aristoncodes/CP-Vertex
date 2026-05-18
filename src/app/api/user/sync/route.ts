@@ -41,6 +41,7 @@ export async function POST() {
 
 async function importSubmissions(userId: string, handle: string) {
   const submissions = await fetchAllSubmissions(handle)
+  const tagsToRecompute = new Set<string>()
 
   for (const sub of submissions) {
     if (!sub.problem.rating) continue
@@ -60,6 +61,27 @@ async function importSubmissions(userId: string, handle: string) {
       })
     }
 
+    // Process tags
+    const tags = sub.problem.tags || []
+    for (const tagName of tags) {
+      let tag = await prisma.tag.findUnique({ where: { name: tagName } })
+      if (!tag) {
+        try {
+          tag = await prisma.tag.create({ data: { name: tagName, category: "general" } })
+        } catch {
+          tag = await prisma.tag.findUnique({ where: { name: tagName } })
+        }
+      }
+      if (tag) {
+        tagsToRecompute.add(tag.id)
+        await prisma.problemTag.upsert({
+          where: { problemId_tagId: { problemId: problem.id, tagId: tag.id } },
+          create: { problemId: problem.id, tagId: tag.id },
+          update: {},
+        })
+      }
+    }
+
     // Upsert submission
     await prisma.submission.upsert({
       where: { cfSubmissionId: String(sub.id) },
@@ -75,6 +97,12 @@ async function importSubmissions(userId: string, handle: string) {
       },
       update: {},
     })
+  }
+
+  // Recompute topic scores for modified tags
+  const { recomputeTopicScore } = await import("@/lib/strength")
+  for (const tagId of Array.from(tagsToRecompute)) {
+    await recomputeTopicScore(userId, tagId)
   }
 
   // Mark sync complete

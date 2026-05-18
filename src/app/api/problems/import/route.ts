@@ -2,11 +2,22 @@ import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { getCFProblems } from "@/lib/cf-api"
 
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "").split(",").map(e => e.trim().toLowerCase()).filter(Boolean);
+
+function isAdmin(email?: string | null): boolean {
+  if (!email) return false;
+  return ADMIN_EMAILS.includes(email.toLowerCase());
+}
+
 export async function POST() {
   try {
     const session = await auth()
     if (!session?.user?.id) {
       return Response.json({ error: "Unauthorized" }, { status: 401 })
+    }
+    
+    if (!isAdmin(session.user.email)) {
+      return Response.json({ error: "Forbidden: Admins only" }, { status: 403 })
     }
 
     const { problems, problemStatistics } = await getCFProblems()

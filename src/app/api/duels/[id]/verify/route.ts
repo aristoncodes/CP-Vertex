@@ -32,6 +32,10 @@ export async function POST(
       return Response.json({ error: "Duel not found" }, { status: 404 })
     }
 
+    if (duel.player1Id !== session.user.id && duel.player2Id !== session.user.id) {
+      return Response.json({ error: "Forbidden: Not a participant" }, { status: 403 })
+    }
+
     if (duel.status !== "active") {
       return Response.json({ error: "Duel is not active" }, { status: 400 })
     }

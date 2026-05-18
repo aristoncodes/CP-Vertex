@@ -25,7 +25,9 @@ export async function GET() {
     // Group by date
     const heatmap: Record<string, { count: number; xpCount: number }> = {}
     for (const sub of submissions) {
-      const dateKey = sub.submittedAt.toISOString().split("T")[0]
+      // Adjust to IST (UTC+5:30) to align with streak calculation
+      const istTime = new Date(sub.submittedAt.getTime() + 330 * 60000)
+      const dateKey = istTime.toISOString().split("T")[0]
       if (!heatmap[dateKey]) heatmap[dateKey] = { count: 0, xpCount: 0 }
       heatmap[dateKey].count += 1
       if (sub.xpAwarded > 0) heatmap[dateKey].xpCount += 1
