@@ -143,10 +143,7 @@ export function TopBar() {
     <header
       className="n-glass"
       style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
+        position: "relative",
         zIndex: 100,
       }}
     >

@@ -37,7 +37,7 @@ export function DashboardLayout({
         style={{
           maxWidth: 1200,
           margin: "0 auto",
-          paddingTop: 108, // header height (logo row ~56px + nav row ~44px)
+          paddingTop: 0, // TopBar is now relative, no clearance needed
           display: "flex",
           gap: 32,
           position: "relative",
