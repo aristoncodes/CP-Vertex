@@ -149,7 +149,7 @@ export function ContestStrategy({ whatIf, upsolvePriority, loading }: Props) {
               No unsolved problems from recent contests. Great job!
             </div>
           ) : (
-            upsolvePriority.map((p, i) => <UpsolveRow key={`${p.contestId}-${p.index}`} problem={p} />)
+            upsolvePriority.map((p) => <UpsolveRow key={`${p.contestId}-${p.index}`} problem={p} />)
           )}
         </div>
       </div>

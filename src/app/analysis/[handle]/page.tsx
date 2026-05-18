@@ -1,7 +1,7 @@
 "use client";
 
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useUserStats } from "@/hooks/useUserStats";
@@ -31,11 +31,10 @@ const TAB_SECTIONS: Record<Tab, string[]> = {
 export default function AnalysisPage() {
   const params = useParams();
   const handle = params.handle as string;
-  const router = useRouter();
   const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState<Tab>("Overview");
   const [refreshKey, setRefreshKey] = useState(0);
-  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [tickCount, setTickCount] = useState(0);
 
   // Determine if viewing own profile
   const userCfHandle = session?.user?.cfHandle;
@@ -47,24 +46,20 @@ export default function AnalysisPage() {
   const rivalry = useRivalry(handle, refreshKey);
   const systemHealth = useSystemHealth();
 
-  // Track last-updated time
-  useEffect(() => {
-    if (!userStats.loading && handle) {
-      const ts = getLastFetchTime(handle);
-      if (ts) {
-        setLastUpdated(formatTimeAgo(ts));
-      }
-    }
-  }, [userStats.loading, handle]);
+  // Derive last-updated label from cache timestamp (no setState in effect)
+  const lastUpdated = (() => {
+    // tickCount is just to force re-derive every 30s
+    void tickCount;
+    if (userStats.loading || !handle) return null;
+    const ts = getLastFetchTime(handle);
+    return ts ? formatTimeAgo(ts) : null;
+  })();
 
-  // Auto-refresh: update the "time ago" label every 30 seconds
+  // Tick every 30s to refresh the "time ago" label
   useEffect(() => {
-    const interval = setInterval(() => {
-      const ts = getLastFetchTime(handle);
-      if (ts) setLastUpdated(formatTimeAgo(ts));
-    }, 30000);
+    const interval = setInterval(() => setTickCount(c => c + 1), 30000);
     return () => clearInterval(interval);
-  }, [handle]);
+  }, []);
 
   const handleRefresh = useCallback(() => {
     clearCFCache();

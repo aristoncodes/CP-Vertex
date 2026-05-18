@@ -3034,6 +3034,7 @@ export const DuelScalarFieldEnum = {
   status: 'status',
   winnerId: 'winnerId',
   questionCount: 'questionCount',
+  timeLimit: 'timeLimit',
   startedAt: 'startedAt',
   endsAt: 'endsAt',
   p1WaCount: 'p1WaCount',

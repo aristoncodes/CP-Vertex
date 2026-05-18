@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { cfApiFetch } from "./useCFCache";
 
 interface SystemStatus {

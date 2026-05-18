@@ -60,6 +60,9 @@ export async function POST(
     let p1Progress = duel.p1Progress;
     let p2Progress = duel.p2Progress;
     let advanced = false;
+    
+    let p1WinTime = Infinity;
+    let p2WinTime = Infinity;
 
     // Fetch submissions for Player 1 since duel start
     if (duel.player1.cfHandle && p1Progress < duel.questionCount) {
@@ -73,6 +76,7 @@ export async function POST(
             if (sub.verdict === "OK") {
               p1Progress++;
               advanced = true;
+              p1WinTime = Math.min(p1WinTime, sub.creationTimeSeconds);
               break; // they solved it! move to next round immediately. (Only 1 round per poll realistically)
             } else if (sub.verdict !== "OK") {
               p1Wa++;
@@ -94,6 +98,7 @@ export async function POST(
             if (sub.verdict === "OK") {
               p2Progress++;
               advanced = true;
+              p2WinTime = Math.min(p2WinTime, sub.creationTimeSeconds);
               break;
             } else if (sub.verdict !== "OK") {
               p2Wa++;
@@ -109,7 +114,13 @@ export async function POST(
     if (p1Progress >= duel.questionCount || p2Progress >= duel.questionCount) {
       newStatus = "completed";
       if (p1Progress >= duel.questionCount && p2Progress >= duel.questionCount) {
-        winnerId = null; // Draw (if both advanced simultaneously)
+        if (p1WinTime < p2WinTime) {
+          winnerId = duel.player1Id;
+        } else if (p2WinTime < p1WinTime) {
+          winnerId = duel.player2Id;
+        } else {
+          winnerId = null; // Exact same second draw
+        }
       } else if (p1Progress >= duel.questionCount) {
         winnerId = duel.player1Id;
       } else {
