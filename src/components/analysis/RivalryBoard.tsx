@@ -15,10 +15,10 @@ interface RatingEntry {
 }
 
 function RivalryRow({ rival, rank, onRemove }: { rival: RivalEntry; rank: number; onRemove: () => void }) {
-  const wl = rival.wins > rival.losses ? "win" : rival.wins < rival.losses ? "lose" : "tied";
+  const wl = rival.wins > rival.losses ? "win" : rival.wins < rival.losses ? "lose" : "draw";
   const wlColor = wl === "win" ? "#3B6D11" : wl === "lose" ? "#A32D2D" : "#BA7517";
   const wlBg = wl === "win" ? "#EAF3DE" : wl === "lose" ? "#FCEBEB" : "#FAEEDA";
-  const wlText = wl === "win" ? `you lead ${rival.wins}/${rival.total}` : wl === "lose" ? `you trail ${rival.losses}/${rival.total}` : `tied ${rival.total}`;
+  const wlText = `${rival.wins}W – ${rival.losses}L`;
 
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: "0.5px solid var(--border)" }}>
