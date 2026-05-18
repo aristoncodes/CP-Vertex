@@ -69,6 +69,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             cfHandle: true,
             cfRating: true,
             streakCurrent: true,
+            image: true,
           },
         })
         if (dbUser) {
@@ -77,6 +78,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           token.cfHandle = dbUser.cfHandle
           token.cfRating = dbUser.cfRating ?? 0
           token.streak = dbUser.streakCurrent
+          token.image = dbUser.image
         }
       }
       return token
@@ -88,6 +90,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       session.user.cfHandle = token.cfHandle as string | null
       session.user.cfRating = token.cfRating as number
       session.user.streak = token.streak as number
+      if (token.image) {
+        session.user.image = token.image as string
+      }
       return session
     },
   },

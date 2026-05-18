@@ -154,8 +154,8 @@ export interface CFUser {
   rating?: number
   maxRating?: number
   rank?: string
-  avatar?: string
-  titlePhoto?: string
+  avatar?: string    // small avatar (80x80)
+  titlePhoto?: string // large avatar (full-size)
 }
 
 export interface CFSubmission {

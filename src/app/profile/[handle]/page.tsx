@@ -103,8 +103,13 @@ export default function ProfilePage() {
               fontSize: 32, fontWeight: 800, color: "white", flexShrink: 0,
               border: "4px solid var(--surface-card)",
               boxShadow: `0 4px 16px ${rank.color}25`,
+              overflow: "hidden",
             }}>
-              {profile.name?.charAt(0).toUpperCase() || profile.cfHandle?.charAt(0).toUpperCase() || "?"}
+              {profile.image ? (
+                <img src={profile.image} alt={profile.name || profile.cfHandle} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              ) : (
+                profile.name?.charAt(0).toUpperCase() || profile.cfHandle?.charAt(0).toUpperCase() || "?"
+              )}
             </div>
 
             <div style={{ flex: 1, paddingBottom: 4 }}>

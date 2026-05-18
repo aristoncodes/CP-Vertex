@@ -36,6 +36,16 @@ interface ContestAnalysisResult {
   error: string | null;
 }
 
+/**
+ * Computes what-if analysis by fetching real contest standings + rating changes.
+ *
+ * Approach:
+ * 1. Get the user's last rated contest
+ * 2. Count WAs on A/B/C before AC, calculate real time wasted
+ * 3. Fetch contest.standings → find user's actual penalty, then simulate
+ *    what their rank would be with reduced penalty
+ * 4. Fetch contest.ratingChanges → map rank → delta, interpolate new delta
+ */
 export function useContestAnalysis(handle: string, userRating: number, refreshKey: number = 0): ContestAnalysisResult {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -68,41 +78,171 @@ export function useContestAnalysis(handle: string, userRating: number, refreshKe
         // --- What-If Simulator (last rated contest) ---
         if (sortedRatings.length > 0) {
           const lastContest = sortedRatings[sortedRatings.length - 1];
-          const cSubs = contestantSubs.filter((s: any) => s.contestId === lastContest.contestId);
+          const contestId = lastContest.contestId;
+          const cSubs = contestantSubs.filter((s: any) => s.contestId === contestId);
 
           // Count unique problems attempted and solved
-          const attempted = new Set(cSubs.map((s: any) => s.problem.index));
           const solved = new Set(
             cSubs.filter((s: any) => s.verdict === "OK").map((s: any) => s.problem.index)
           );
-
-          // Count WA and TLE
+          const attempted = new Set(cSubs.map((s: any) => s.problem.index));
           const waCount = cSubs.filter((s: any) => s.verdict === "WRONG_ANSWER").length;
           const tleCount = cSubs.filter((s: any) => s.verdict === "TIME_LIMIT_EXCEEDED").length;
 
-          // Time wasted on WA before AC on easy problems (A, B, C)
-          let savedMinutes = 0;
+          // Calculate real time wasted on WA before AC on easy problems (A, B, C)
+          // We use actual submission timestamps, not guesses
+          let savedSeconds = 0;
+          let easyWACount = 0;
           for (const idx of ["A", "B", "C"]) {
-            const pSubs = cSubs.filter((s: any) => s.problem.index === idx);
+            const pSubs = cSubs
+              .filter((s: any) => s.problem.index === idx)
+              .sort((a: any, b: any) => a.relativeTimeSeconds - b.relativeTimeSeconds);
+
             const firstAC = pSubs.find((s: any) => s.verdict === "OK");
             if (firstAC) {
-              const waBefore = pSubs.filter(
+              const wasBefore = pSubs.filter(
                 (s: any) => s.verdict === "WRONG_ANSWER" && s.relativeTimeSeconds < firstAC.relativeTimeSeconds
               );
-              // Each WA costs ~2-3 min of debugging + resubmission
-              savedMinutes += waBefore.length * 3;
+              easyWACount += wasBefore.length;
+              if (wasBefore.length > 0) {
+                // Time between first WA and AC = time wasted debugging
+                const firstWATime = wasBefore[0].relativeTimeSeconds;
+                const acTime = firstAC.relativeTimeSeconds;
+                savedSeconds += (acTime - firstWATime);
+              }
             }
           }
 
+          const savedMinutes = Math.round(savedSeconds / 60);
           const actualDelta = lastContest.newRating - lastContest.oldRating;
-          // Conservative estimate: saving N minutes ≈ rank improvement of N/2 positions
-          // Each position ≈ 0.3-0.5 rating points
-          const rankImprove = Math.floor(savedMinutes / 2);
-          const estimatedBetterDelta = Math.round(actualDelta + rankImprove * 0.35);
+
+          // Now fetch REAL standings + rating changes to find the improved rank
+          let estimatedBetterRank = lastContest.rank;
+          let estimatedBetterDelta = actualDelta;
+
+          if (easyWACount > 0) {
+            try {
+              // Fetch standings and rating changes in parallel
+              const [standingsRes, ratingChanges] = await Promise.all([
+                cfApiFetch<any>("contest.standings", {
+                  contestId: String(contestId),
+                  showUnofficial: "false",
+                }),
+                cfApiFetch<any[]>("contest.ratingChanges", {
+                  contestId: String(contestId),
+                }),
+              ]);
+
+              const rows = standingsRes.rows || [];
+              const contestType: string = standingsRes.contest?.type || "CF"; // "CF" or "ICPC"
+
+              // Find user's row in standings
+              const userRow = rows.find((r: any) =>
+                r.party?.members?.some((m: any) =>
+                  m.handle.toLowerCase() === handle.toLowerCase()
+                )
+              );
+
+              if (userRow) {
+                if (contestType === "ICPC") {
+                  // ═══ ICPC-style (Div 3, Div 4, Educational) ═══
+                  // Penalty = sum(solve_time_minutes) + 10 * total_WA_before_AC
+                  // Rank by: most problems solved → lowest penalty
+                  //
+                  // If we remove WAs on A/B/C:
+                  //   - Save 10 min per WA (penalty reduction)
+                  //   - Save debugging time (earlier AC = lower solve time)
+                  const WA_PENALTY_MINUTES = 10;
+                  const penaltyReduction = easyWACount * WA_PENALTY_MINUTES + Math.round(savedSeconds / 60);
+                  const simulatedPenalty = Math.max(0, userRow.penalty - penaltyReduction);
+                  const userSolvedCount = solved.size;
+
+                  let betterCount = 0;
+                  for (const row of rows) {
+                    if (row === userRow) continue;
+                    const rowSolved = row.problemResults?.filter(
+                      (pr: any) => pr.points > 0
+                    ).length || 0;
+
+                    if (rowSolved > userSolvedCount) {
+                      betterCount++; // More problems solved → ranked higher
+                    } else if (rowSolved === userSolvedCount && row.penalty < simulatedPenalty) {
+                      betterCount++; // Same problems, lower penalty → ranked higher
+                    }
+                  }
+                  estimatedBetterRank = betterCount + 1;
+
+                } else {
+                  // ═══ CF/Score-style (Div 1, Div 2, Div 1+2, Global) ═══
+                  // Score = sum(problem_points) where each problem's max decreases over time
+                  // Each WA before AC costs -50 points
+                  // Rank by: highest score → earliest last AC time (tiebreaker)
+                  //
+                  // If we remove WAs on A/B/C:
+                  //   - Gain 50 points per WA removed
+                  //   - Earlier AC → problem's time-decay gives MORE points
+                  const WA_POINT_PENALTY = 50;
+                  const scoreBonus = easyWACount * WA_POINT_PENALTY;
+
+                  // Also estimate time-decay bonus: earlier submission = more points
+                  // CF formula: max(3p/10, p - p/250 * t - 50*WA) where t = minutes
+                  // Simplified: each saved minute ≈ p/250 points (for a ~1000-point problem ≈ 4 pts/min)
+                  let timeDecayBonus = 0;
+                  for (const idx of ["A", "B", "C"]) {
+                    const pSubs = cSubs
+                      .filter((s: any) => s.problem.index === idx)
+                      .sort((a: any, b: any) => a.relativeTimeSeconds - b.relativeTimeSeconds);
+                    const firstAC = pSubs.find((s: any) => s.verdict === "OK");
+                    if (firstAC) {
+                      const wasBefore = pSubs.filter(
+                        (s: any) => s.verdict === "WRONG_ANSWER" && s.relativeTimeSeconds < firstAC.relativeTimeSeconds
+                      );
+                      if (wasBefore.length > 0) {
+                        const timeSavedMin = (firstAC.relativeTimeSeconds - wasBefore[0].relativeTimeSeconds) / 60;
+                        // Approximate max points for the problem from its index
+                        const maxPoints = firstAC.problem?.points || (idx === "A" ? 500 : idx === "B" ? 1000 : 1500);
+                        timeDecayBonus += Math.round((maxPoints / 250) * timeSavedMin);
+                      }
+                    }
+                  }
+
+                  const simulatedScore = userRow.penalty + scoreBonus + timeDecayBonus;
+                  // In CF-style, penalty field = total score (higher is better)
+
+                  let betterCount = 0;
+                  for (const row of rows) {
+                    if (row === userRow) continue;
+                    if (row.penalty > simulatedScore) {
+                      betterCount++; // Higher score → ranked higher
+                    } else if (row.penalty === simulatedScore) {
+                      // Tiebreaker: earlier last successful submission
+                      // We don't simulate this precisely, so count as tied (they stay ahead)
+                      betterCount++;
+                    }
+                  }
+                  estimatedBetterRank = betterCount + 1;
+                }
+
+                // Interpolate rating delta from real rating changes at the new rank
+                if (ratingChanges && ratingChanges.length > 0) {
+                  const rankDeltaMap = ratingChanges
+                    .map((rc: any) => ({ rank: rc.rank, delta: rc.newRating - rc.oldRating }))
+                    .sort((a: any, b: any) => a.rank - b.rank);
+
+                  estimatedBetterDelta = interpolateDelta(rankDeltaMap, estimatedBetterRank, lastContest.oldRating, ratingChanges);
+                }
+              }
+            } catch {
+              // If standings fetch fails, fall back to heuristic
+              const rankImprove = Math.max(1, Math.floor(savedMinutes * 1.5));
+              estimatedBetterRank = Math.max(1, lastContest.rank - rankImprove);
+              estimatedBetterDelta = actualDelta + Math.round(rankImprove * 0.4);
+            }
+          }
 
           setWhatIf({
             contestName: lastContest.contestName,
-            contestId: lastContest.contestId,
+            contestId,
             actualRank: lastContest.rank,
             actualDelta,
             solvedCount: solved.size,
@@ -111,7 +251,7 @@ export function useContestAnalysis(handle: string, userRating: number, refreshKe
             tleCount,
             savedMinutes,
             estimatedBetterDelta,
-            estimatedBetterRank: Math.max(1, lastContest.rank - rankImprove),
+            estimatedBetterRank,
           });
         }
 
@@ -168,4 +308,62 @@ export function useContestAnalysis(handle: string, userRating: number, refreshKe
   }, [handle, userRating, refreshKey]);
 
   return { whatIf, upsolvePriority, loading, error };
+}
+
+/**
+ * Interpolate rating delta for a given rank using real contest rating changes.
+ * 
+ * Strategy: find nearby participants with similar oldRating at ranks close to
+ * the target rank, and use their delta as the estimate.
+ */
+function interpolateDelta(
+  rankDeltaMap: { rank: number; delta: number }[],
+  targetRank: number,
+  userOldRating: number,
+  ratingChanges: any[]
+): number {
+  // First, try to find participants near the target rank with similar rating
+  // This accounts for the fact that delta depends on both rank AND starting rating
+  const nearbyByRank = ratingChanges
+    .filter((rc: any) => Math.abs(rc.rank - targetRank) <= 30)
+    .sort((a: any, b: any) =>
+      Math.abs(a.oldRating - userOldRating) - Math.abs(b.oldRating - userOldRating)
+    );
+
+  // If we find participants near that rank with similar rating, use their delta
+  if (nearbyByRank.length > 0) {
+    // Weight by similarity in both rank and rating
+    const top = nearbyByRank.slice(0, 5);
+    let weightedSum = 0;
+    let weightSum = 0;
+    for (const rc of top) {
+      const rankDist = Math.abs(rc.rank - targetRank) + 1;
+      const ratingDist = Math.abs(rc.oldRating - userOldRating) + 1;
+      const weight = 1 / (rankDist * 0.5 + ratingDist * 0.01);
+      weightedSum += (rc.newRating - rc.oldRating) * weight;
+      weightSum += weight;
+    }
+    return Math.round(weightedSum / weightSum);
+  }
+
+  // Fallback: simple linear interpolation from rank-delta curve
+  if (rankDeltaMap.length === 0) return 0;
+
+  // Find surrounding ranks
+  let lower = rankDeltaMap[0];
+  let upper = rankDeltaMap[rankDeltaMap.length - 1];
+
+  for (let i = 0; i < rankDeltaMap.length - 1; i++) {
+    if (rankDeltaMap[i].rank <= targetRank && rankDeltaMap[i + 1].rank >= targetRank) {
+      lower = rankDeltaMap[i];
+      upper = rankDeltaMap[i + 1];
+      break;
+    }
+  }
+
+  if (lower.rank === upper.rank) return lower.delta;
+
+  // Linear interpolation
+  const t = (targetRank - lower.rank) / (upper.rank - lower.rank);
+  return Math.round(lower.delta + t * (upper.delta - lower.delta));
 }

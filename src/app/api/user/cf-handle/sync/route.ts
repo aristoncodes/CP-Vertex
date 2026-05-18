@@ -146,12 +146,25 @@ export async function POST(request: NextRequest) {
       await recomputeTopicScore(user.id, tagId);
     }
 
-    // Sync CF Rating
+    // Sync CF Rating + Avatar
     let cfRating = user.cfRating;
+    let cfAvatar: string | null = null;
     try {
       const userInfo = await getCFUser(user.cfHandle);
-      if (userInfo && userInfo.length > 0 && userInfo[0].rating) {
-        cfRating = userInfo[0].rating;
+      if (userInfo && userInfo.length > 0) {
+        if (userInfo[0].rating) {
+          cfRating = userInfo[0].rating;
+        }
+        // Save CF profile picture (titlePhoto is the full-size avatar)
+        if (userInfo[0].titlePhoto) {
+          cfAvatar = userInfo[0].titlePhoto.startsWith("//")
+            ? `https:${userInfo[0].titlePhoto}`
+            : userInfo[0].titlePhoto;
+        } else if (userInfo[0].avatar) {
+          cfAvatar = userInfo[0].avatar.startsWith("//")
+            ? `https:${userInfo[0].avatar}`
+            : userInfo[0].avatar;
+        }
       }
     } catch (e) {
       console.warn("Could not fetch CF user info for rating", e);
@@ -196,7 +209,8 @@ export async function POST(request: NextRequest) {
         cfRating: cfRating,
         streakCurrent: currentStreak,
         streakLongest: Math.max(user.streakLongest, currentStreak),
-        ...(lastActiveDay ? { streakLastDay: lastActiveDay } : {})
+        ...(lastActiveDay ? { streakLastDay: lastActiveDay } : {}),
+        ...(cfAvatar ? { image: cfAvatar } : {})
       }
     });
 

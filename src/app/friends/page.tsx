@@ -112,10 +112,21 @@ export default function FriendsPage() {
     background: "linear-gradient(135deg, var(--primary), #60a5fa)",
     display: "flex", alignItems: "center", justifyContent: "center",
     fontSize: 18, fontWeight: 800, color: "white", flexShrink: 0,
+    overflow: "hidden",
   });
 
   const getInitial = (name: string | null, cfHandle: string | null) =>
     (cfHandle || name || "?").charAt(0).toUpperCase();
+
+  const renderAvatar = (name: string | null, cfHandle: string | null, image: string | null) => (
+    <div style={avatarStyle(name, cfHandle)}>
+      {image ? (
+        <img src={image} alt={name || cfHandle || "?"} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      ) : (
+        getInitial(name, cfHandle)
+      )}
+    </div>
+  );
 
   const ratingColor = (r: number | null) => {
     if (!r) return "var(--text-muted)";
@@ -210,7 +221,7 @@ export default function FriendsPage() {
               </div>
             ) : friends.map(f => (
               <div key={f.id} className="n-card" style={{ padding: "14px 18px", display: "flex", alignItems: "center", gap: 14 }}>
-                <div style={avatarStyle(f.name, f.cfHandle)}>{getInitial(f.name, f.cfHandle)}</div>
+                {renderAvatar(f.name, f.cfHandle, f.image)}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontWeight: 700, fontSize: 14 }}>{f.cfHandle || f.name}</div>
                   <div style={{ display: "flex", gap: 10, fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>
@@ -256,7 +267,7 @@ export default function FriendsPage() {
               </div>
             ) : requests.map(r => (
               <div key={r.id} className="n-card" style={{ padding: "14px 18px", display: "flex", alignItems: "center", gap: 14 }}>
-                <div style={avatarStyle(r.sender.name, r.sender.cfHandle)}>{getInitial(r.sender.name, r.sender.cfHandle)}</div>
+                {renderAvatar(r.sender.name, r.sender.cfHandle, r.sender.image)}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontWeight: 700, fontSize: 14 }}>{r.sender.cfHandle || r.sender.name}</div>
                   <div style={{ display: "flex", gap: 10, fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>
@@ -319,7 +330,7 @@ export default function FriendsPage() {
                   <div style={{ color: "var(--text-muted)", textAlign: "center", padding: 32, fontSize: 13 }}>No users found for "{searchQuery}"</div>
                 ) : searchResults.map(u => (
                   <div key={u.id} className="n-card" style={{ padding: "12px 18px", display: "flex", alignItems: "center", gap: 14 }}>
-                    <div style={avatarStyle(u.name, u.cfHandle)}>{getInitial(u.name, u.cfHandle)}</div>
+                    {renderAvatar(u.name, u.cfHandle, (u as any).image)}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontWeight: 700, fontSize: 14 }}>{u.cfHandle || u.name}</div>
                       <div style={{ display: "flex", gap: 10, fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>

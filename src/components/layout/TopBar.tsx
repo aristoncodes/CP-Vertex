@@ -438,11 +438,16 @@ export function TopBar() {
                   alignItems: "center",
                   justifyContent: "center",
                   color: "var(--primary)",
+                  overflow: "hidden",
                 }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: 16, fontVariationSettings: "'FILL' 1" }}>
-                  person
-                </span>
+                {session?.user?.image ? (
+                  <img src={session.user.image} alt="User Avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                ) : (
+                  <span className="material-symbols-outlined" style={{ fontSize: 16, fontVariationSettings: "'FILL' 1" }}>
+                    person
+                  </span>
+                )}
               </div>
             </button>
 
