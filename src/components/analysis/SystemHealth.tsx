@@ -1,5 +1,7 @@
 "use client";
 
+import { InfoTooltip } from "@/components/ui/InfoTooltip";
+
 function Skeleton({ width, height }: { width: string | number; height: string | number }) {
   return <div className="n-skeleton" style={{ width, height, minHeight: height }} />;
 }
@@ -41,9 +43,10 @@ export function SystemHealth({ status, loading }: Props) {
 
   return (
     <div>
-      <h2 style={{ fontSize: 16, fontWeight: 500, color: "var(--text-primary)", marginBottom: 16 }}>
+      <h2 style={{ fontSize: 16, fontWeight: 500, color: "var(--text-primary)", marginBottom: 16, display: "flex", alignItems: "center" }}>
         <span className="material-symbols-outlined" style={{ fontSize: 18, verticalAlign: "middle", marginRight: 8, color: "#5B4FD4", fontVariationSettings: "'FILL' 1" }}>monitor_heart</span>
         System Health
+        <InfoTooltip info="Real-time Codeforces API and Judge status. High judge queue might cause delays in syncing submissions." align="left" />
       </h2>
       <div className="n-card" style={{ padding: "20px 24px", maxWidth: 400 }}>
         <StatusRow dot={queueDot} label="Judge Queue" value={`${status.judgeQueue}ms`} />

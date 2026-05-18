@@ -1,5 +1,7 @@
 "use client";
 
+import { InfoTooltip } from "@/components/ui/InfoTooltip";
+
 import { useExtendedAnalytics } from "@/hooks/useExtendedAnalytics";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
@@ -44,7 +46,10 @@ export function ExtendedInsights({ handle, refreshKey }: { handle: string; refre
       
       {/* 1. Rating Trajectory */}
       <div className="n-card" style={{ padding: "20px 24px" }}>
-        <h3 style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)", marginBottom: 16 }}>Rating Trajectory & Trend</h3>
+        <h3 style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)", marginBottom: 16, display: "flex", alignItems: "center" }}>
+          Rating Trajectory & Trend
+          <InfoTooltip info="Your actual rating history compared to a statistically smoothed trend line." align="left" />
+        </h3>
         <div style={{ width: "100%", height: 300 }}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
@@ -65,7 +70,10 @@ export function ExtendedInsights({ handle, refreshKey }: { handle: string; refre
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
         {/* 2. Consistency & Streak */}
         <div className="n-card" style={{ padding: "20px 24px" }}>
-          <h3 style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)", marginBottom: 16 }}>Consistency Score</h3>
+          <h3 style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)", marginBottom: 16, display: "flex", alignItems: "center" }}>
+            Consistency Score
+            <InfoTooltip info="Percentage of your contests that resulted in a positive rating change, along with your streak of consecutive positive rating changes." align="left" />
+          </h3>
           <div style={{ display: "flex", gap: 24 }}>
             <div>
               <div style={{ fontSize: 32, fontWeight: 600, color: consistencyScore > 50 ? "#3B6D11" : "#A32D2D" }}>{consistencyScore}%</div>
@@ -82,7 +90,10 @@ export function ExtendedInsights({ handle, refreshKey }: { handle: string; refre
 
         {/* 4. Language Stats */}
         <div className="n-card" style={{ padding: "20px 24px" }}>
-          <h3 style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)", marginBottom: 16 }}>Language Preference</h3>
+          <h3 style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)", marginBottom: 16, display: "flex", alignItems: "center" }}>
+            Language Preference
+            <InfoTooltip info="Distribution of programming languages used in your successful (AC) submissions." align="right" />
+          </h3>
           {languageStats.map(lang => (
             <div key={lang.language} style={{ marginBottom: 12 }}>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
@@ -100,7 +111,10 @@ export function ExtendedInsights({ handle, refreshKey }: { handle: string; refre
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
         {/* 9. Solve Time Dist */}
         <div className="n-card" style={{ padding: "20px 24px" }}>
-          <h3 style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)", marginBottom: 16 }}>Solve Time Distribution</h3>
+          <h3 style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)", marginBottom: 16, display: "flex", alignItems: "center" }}>
+            Solve Time Distribution
+            <InfoTooltip info="Histogram showing how many minutes it typically takes you to solve a problem during a contest." align="left" />
+          </h3>
           <div style={{ width: "100%", height: 200 }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={solveTimeDist} margin={{ top: 0, right: 0, bottom: 0, left: -20 }}>
@@ -116,7 +130,10 @@ export function ExtendedInsights({ handle, refreshKey }: { handle: string; refre
 
         {/* 5. Time of Day Performance */}
         <div className="n-card" style={{ padding: "20px 24px" }}>
-          <h3 style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)", marginBottom: 16 }}>Time of Day Performance</h3>
+          <h3 style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)", marginBottom: 16, display: "flex", alignItems: "center" }}>
+            Time of Day Performance
+            <InfoTooltip info="Your average rating change grouped by the hour of the day the contest started. Helps identify your peak performance hours." align="right" />
+          </h3>
           <div style={{ width: "100%", height: 200 }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={timeOfDayStats} margin={{ top: 0, right: 0, bottom: 0, left: -20 }}>
@@ -138,7 +155,10 @@ export function ExtendedInsights({ handle, refreshKey }: { handle: string; refre
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
         {/* 6. Division Breakdown */}
         <div className="n-card" style={{ padding: "20px 24px" }}>
-          <h3 style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)", marginBottom: 16 }}>Division Breakdown</h3>
+          <h3 style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)", marginBottom: 16, display: "flex", alignItems: "center" }}>
+            Division Breakdown
+            <InfoTooltip info="Your performance metrics grouped by Codeforces contest division." align="left" />
+          </h3>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {divisionStats.map(d => (
               <div key={d.div} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 8, borderBottom: "1px solid var(--border)" }}>
@@ -158,7 +178,10 @@ export function ExtendedInsights({ handle, refreshKey }: { handle: string; refre
 
         {/* 7. Problem Difficulty Ceiling */}
         <div className="n-card" style={{ padding: "20px 24px" }}>
-          <h3 style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)", marginBottom: 16 }}>Difficulty Ceiling (Max Rating Solved)</h3>
+          <h3 style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)", marginBottom: 16, display: "flex", alignItems: "center" }}>
+            Difficulty Ceiling
+            <InfoTooltip info="The highest problem rating you have ever successfully solved during a contest, categorized by tag." align="right" />
+          </h3>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
             {difficultyCeiling.map(c => (
               <div key={c.tag} style={{ padding: "6px 12px", borderRadius: 20, background: "var(--surface-low)", border: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 6 }}>

@@ -1,5 +1,7 @@
 "use client";
 
+import { InfoTooltip } from "@/components/ui/InfoTooltip";
+
 function Skeleton({ width, height }: { width: string | number; height: string | number }) {
   return <div className="n-skeleton" style={{ width, height, minHeight: height }} />;
 }
@@ -22,8 +24,9 @@ function WhatIfPanel({ data }: { data: WhatIfData }) {
 
   return (
     <div className="n-card" style={{ padding: "20px 24px" }}>
-      <div style={{ fontSize: 11, fontWeight: 500, color: "var(--text-muted)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+      <div style={{ fontSize: 11, fontWeight: 500, color: "var(--text-muted)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em", display: "flex", alignItems: "center" }}>
         What-If Simulator
+        <InfoTooltip info="Estimates your rank and rating change if you had solved the same problems without any Wrong Answer penalties." align="left" />
       </div>
       <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 16 }}>
         {data.contestName.length > 40 ? data.contestName.slice(0, 38) + "…" : data.contestName}
@@ -162,8 +165,9 @@ export function ContestStrategy({ whatIf, upsolvePriority, loading }: Props) {
           </div>
         )}
         <div className="n-card" style={{ padding: "20px 24px" }}>
-          <div style={{ fontSize: 11, fontWeight: 500, color: "var(--text-muted)", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+          <div style={{ fontSize: 11, fontWeight: 500, color: "var(--text-muted)", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.06em", display: "flex", alignItems: "center" }}>
             Upsolve Priority
+            <InfoTooltip info="Problems you failed to solve in recent contests, ordered by proximity to your current rating. Red dots indicate problems you should be able to solve right now." align="right" />
           </div>
           {upsolvePriority.length === 0 ? (
             <div style={{ fontSize: 13, color: "var(--text-muted)", textAlign: "center", padding: "32px 0" }}>

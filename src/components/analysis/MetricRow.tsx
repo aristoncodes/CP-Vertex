@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { InfoTooltip } from "@/components/ui/InfoTooltip";
 
 function Skeleton({ width, height }: { width: string | number; height: string | number }) {
   return <div className="n-skeleton" style={{ width, height, minHeight: height }} />;
@@ -14,8 +14,6 @@ interface MetricCardProps {
 }
 
 function MetricCard({ label, value, delta, icon, color, loading, invertDelta, info }: MetricCardProps) {
-  const [showTooltip, setShowTooltip] = useState(false);
-
   if (loading) return (
     <div style={{ background: "var(--surface-low)", borderRadius: 8, padding: "16px 20px" }}>
       <Skeleton width="60%" height={12} />
@@ -39,44 +37,7 @@ function MetricCard({ label, value, delta, icon, color, loading, invertDelta, in
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
         <span className="material-symbols-outlined" style={{ fontSize: 16, color, fontVariationSettings: "'FILL' 1" }}>{icon}</span>
         <span style={{ fontSize: 12, fontWeight: 500, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</span>
-        {info && (
-          <div 
-            style={{ position: "relative", marginLeft: "auto", display: "flex" }}
-            onMouseEnter={() => setShowTooltip(true)}
-            onMouseLeave={() => setShowTooltip(false)}
-          >
-            <span
-              className="material-symbols-outlined"
-              style={{ fontSize: 14, color: "var(--text-faint)", cursor: "help" }}
-            >
-              info
-            </span>
-            {showTooltip && (
-              <div style={{
-                position: "absolute",
-                bottom: "calc(100% + 8px)",
-                right: 0, // Align right so it doesn't spill off-screen on the rightmost card
-                background: "var(--surface-high)",
-                color: "var(--text-primary)",
-                padding: "10px 14px",
-                borderRadius: "8px",
-                fontSize: "12px",
-                lineHeight: "1.5",
-                whiteSpace: "normal",
-                width: "220px",
-                boxShadow: "0 12px 24px rgba(0,0,0,0.3)",
-                border: "1px solid var(--border)",
-                pointerEvents: "none",
-                zIndex: 100,
-                fontWeight: 400,
-                textTransform: "none",
-                letterSpacing: "normal"
-              }}>
-                {info}
-              </div>
-            )}
-          </div>
-        )}
+        {info && <InfoTooltip info={info} align="right" />}
       </div>
       <div style={{ fontSize: 22, fontWeight: 500, color: "var(--text-primary)", letterSpacing: "-0.01em" }}>{value}</div>
       <div style={{ fontSize: 12, fontWeight: 400, color: deltaColor, marginTop: 6, display: "flex", alignItems: "center", gap: 3 }}>

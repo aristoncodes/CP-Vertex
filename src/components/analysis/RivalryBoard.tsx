@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { InfoTooltip } from "@/components/ui/InfoTooltip";
 
 function Skeleton({ width, height }: { width: string | number; height: string | number }) {
   return <div className="n-skeleton" style={{ width, height, minHeight: height }} />;
@@ -124,8 +125,9 @@ export function RivalryBoard({ handle, rivals, ratingHistory, loading, rivalHand
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
         {/* Left — Friends Leaderboard */}
         <div className="n-card" style={{ padding: "20px 24px" }}>
-          <div style={{ fontSize: 11, fontWeight: 500, color: "var(--text-muted)", marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+          <div style={{ fontSize: 11, fontWeight: 500, color: "var(--text-muted)", marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.06em", display: "flex", alignItems: "center" }}>
             Rivals (last 90 days)
+            <InfoTooltip info="Compare your rating and recent head-to-head performance against specific handles." align="left" />
           </div>
 
           {/* Add rival input */}
@@ -185,8 +187,9 @@ export function RivalryBoard({ handle, rivals, ratingHistory, loading, rivalHand
 
         {/* Right — Recent Rated Contests */}
         <div className="n-card" style={{ padding: "20px 24px" }}>
-          <div style={{ fontSize: 11, fontWeight: 500, color: "var(--text-muted)", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+          <div style={{ fontSize: 11, fontWeight: 500, color: "var(--text-muted)", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.06em", display: "flex", alignItems: "center" }}>
             Recent Rated Contests
+            <InfoTooltip info="Your most recent rated contest performances, showing rank and rating change." align="right" />
           </div>
           {ratingHistory.length === 0 ? (
             <div style={{ fontSize: 13, color: "var(--text-muted)", textAlign: "center", padding: "20px 0" }}>No rated contests found.</div>

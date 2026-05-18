@@ -1,5 +1,7 @@
 "use client";
 
+import { InfoTooltip } from "@/components/ui/InfoTooltip";
+
 /* ── Shared Analysis Box Components ── */
 
 export function InsightBox({ children }: { children: React.ReactNode }) {
@@ -151,8 +153,9 @@ export function SkillGapDiagnostics({ tagStats, paceHeatmap, loading }: Props) {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
         {/* Left — Tag Success Rate */}
         <div className="n-card" style={{ padding: "20px 24px" }}>
-          <div style={{ fontSize: 11, fontWeight: 500, color: "var(--text-muted)", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+          <div style={{ fontSize: 11, fontWeight: 500, color: "var(--text-muted)", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.06em", display: "flex", alignItems: "center" }}>
             Tag Success Rate
+            <InfoTooltip info="Your problem-solving success rate grouped by algorithm/data structure tags. 'Strong' indicates high reliability, while 'Weak' tags are prime candidates for drilling." align="left" />
           </div>
           {tagStats.length === 0 ? (
             <div style={{ fontSize: 13, color: "var(--text-muted)", textAlign: "center", padding: "24px 0" }}>
@@ -168,8 +171,9 @@ export function SkillGapDiagnostics({ tagStats, paceHeatmap, loading }: Props) {
 
         {/* Right — Pace & Accuracy Heatmap */}
         <div className="n-card" style={{ padding: "20px 24px" }}>
-          <div style={{ fontSize: 11, fontWeight: 500, color: "var(--text-muted)", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+          <div style={{ fontSize: 11, fontWeight: 500, color: "var(--text-muted)", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.06em", display: "flex", alignItems: "center" }}>
             Pace & Accuracy
+            <InfoTooltip info="Average minutes to solve problems (A-F) in recent rated contests, and count of Wrong Answers (WA) / Time Limit Exceeded (TLE) verdicts. Red indicates slow pace or high penalty." align="left" />
           </div>
           {paceHeatmap.length === 0 ? (
             <div style={{ fontSize: 13, color: "var(--text-muted)", textAlign: "center", padding: "24px 0" }}>

@@ -1,5 +1,7 @@
 "use client";
 
+import { InfoTooltip } from "@/components/ui/InfoTooltip";
+
 function Skeleton({ width, height }: { width: string | number; height: string | number }) {
   return <div className="n-skeleton" style={{ width, height, minHeight: height }} />;
 }
@@ -81,9 +83,10 @@ export function TrainingRoadmap({ problems, loading }: Props) {
 
   return (
     <div>
-      <h2 style={{ fontSize: 16, fontWeight: 500, color: "var(--text-primary)", marginBottom: 16 }}>
+      <h2 style={{ fontSize: 16, fontWeight: 500, color: "var(--text-primary)", marginBottom: 16, display: "flex", alignItems: "center" }}>
         <span className="material-symbols-outlined" style={{ fontSize: 18, verticalAlign: "middle", marginRight: 8, color: "#5B4FD4", fontVariationSettings: "'FILL' 1" }}>route</span>
         Training Roadmap
+        <InfoTooltip info="Personalized problem recommendations targeting your weakest algorithm/data structure tags." align="left" />
       </h2>
       {problems.length === 0 ? (
         <div className="n-card" style={{ padding: "32px", textAlign: "center" }}>
