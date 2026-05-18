@@ -451,6 +451,18 @@ a { text-decoration: none; color: inherit; }
   .layout-aside {
     display: none !important;
   }
+  
+  /* Hide left sidebar panel */
+  .layout-sidebar-left {
+    display: none !important;
+  }
+}
+
+/* Hide mobile TopBar row 2 on desktop */
+@media (min-width: 1025px) {
+  .topbar-row2-mobile {
+    display: none !important;
+  }
 }
 
 /* ─── Mobile (≤ 768px) ─── */

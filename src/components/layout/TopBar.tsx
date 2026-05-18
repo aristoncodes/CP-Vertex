@@ -161,7 +161,7 @@ export function TopBar() {
       <div
         className="topbar-row1"
         style={{
-          maxWidth: 1200,
+          maxWidth: 1400,
           margin: "0 auto",
           padding: "12px 32px",
           display: "flex",
@@ -559,8 +559,9 @@ export function TopBar() {
         </div>
       </div>
 
-      {/* Row 2: Nav tabs */}
+      {/* Row 2: Nav tabs (Mobile Only) */}
       <nav
+        className="topbar-row2-mobile"
         style={{
           borderTop: "1px solid var(--border)",
           background: "var(--surface-card)",
@@ -569,7 +570,7 @@ export function TopBar() {
         <div
           className="topbar-nav-scroll"
           style={{
-            maxWidth: 1200,
+            maxWidth: 1400,
             margin: "0 auto",
             padding: "0 24px",
             display: "flex",
