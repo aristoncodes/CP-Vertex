@@ -25,7 +25,17 @@ export async function POST(request: Request) {
     });
 
     if (activeSession) {
-      return Response.json({ error: "You already have an active virtual contest. Finish it first!" }, { status: 400 });
+      const now = new Date();
+      const endTime = new Date(activeSession.startTime.getTime() + activeSession.duration * 1000);
+      if (now >= endTime) {
+        // Auto-expire the old session
+        await prisma.virtualContest.update({
+          where: { id: activeSession.id },
+          data: { status: "completed" },
+        });
+      } else {
+        return Response.json({ error: "You already have an active virtual contest. Finish it first!" }, { status: 400 });
+      }
     }
 
     // Fetch contest duration from CF
@@ -75,26 +85,32 @@ export async function GET() {
       return Response.json({ active: false });
     }
 
-    // Fetch problems for this contest
-    const standingRes = await fetch(`https://codeforces.com/api/contest.standings?contestId=${activeSession.contestId}&from=1&count=1`);
-    const standingData = await standingRes.json();
-
-    if (standingData.status !== "OK") {
-      throw new Error("Failed to fetch contest standings");
+    let standingData: any = null;
+    try {
+      const standingRes = await fetch(`https://codeforces.com/api/contest.standings?contestId=${activeSession.contestId}&from=1&count=1`);
+      standingData = await standingRes.json();
+    } catch (e) {
+      console.error("Failed to fetch standings from CF:", e);
     }
 
-    const problems = standingData.result.problems.map((p: any) => ({
-      index: p.index,
-      name: p.name,
-      rating: p.rating || "N/A",
-      tags: p.tags,
-      cfLink: `https://codeforces.com/contest/${activeSession.contestId}/problem/${p.index}`,
-    }));
+    let problems = [];
+    let contest = { name: `Virtual Contest ${activeSession.contestId}` };
+
+    if (standingData?.status === "OK") {
+      problems = standingData.result.problems.map((p: any) => ({
+        index: p.index,
+        name: p.name,
+        rating: p.rating || "N/A",
+        tags: p.tags,
+        cfLink: `https://codeforces.com/contest/${activeSession.contestId}/problem/${p.index}`,
+      }));
+      contest = standingData.result.contest;
+    }
 
     return Response.json({
       active: true,
       session: activeSession,
-      contest: standingData.result.contest,
+      contest,
       problems,
     });
   } catch (error) {

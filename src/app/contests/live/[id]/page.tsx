@@ -25,7 +25,13 @@ export default function LiveContestPage() {
   }, [router]);
 
   useEffect(() => {
-    if (timeLeft <= 0 || completedState) return;
+    if (completedState) return;
+    if (timeLeft <= 0) {
+      if (!syncing) {
+        syncProgress();
+      }
+      return;
+    }
     const timer = setInterval(() => { setTimeLeft(p => { if (p <= 1) { clearInterval(timer); syncProgress(); return 0; } return p - 1; }); }, 1000);
     return () => clearInterval(timer);
   }, [timeLeft, completedState]);
