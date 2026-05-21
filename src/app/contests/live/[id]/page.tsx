@@ -94,9 +94,27 @@ export default function LiveContestPage() {
 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 0", borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)" }}>
         <p style={{ fontSize: 13, color: "var(--text-muted)" }}>Submit on Codeforces, then sync to verify</p>
-        <button className="n-btn-secondary" style={{ padding: "8px 24px", fontSize: 13 }} onClick={syncProgress} disabled={syncing}>
-          {syncing ? "Syncing..." : "Sync Submissions"}
-        </button>
+        <div style={{ display: "flex", gap: 12 }}>
+          <button 
+            className="n-btn-secondary" 
+            style={{ padding: "8px 24px", fontSize: 13, color: "var(--danger)", borderColor: "var(--danger-light)", background: "transparent" }} 
+            onClick={async () => {
+              if (confirm("Are you sure you want to cancel this virtual contest?")) {
+                try {
+                  await fetch("/api/contests/virtual", { method: "DELETE" });
+                  router.push("/contests");
+                } catch (e) {
+                  console.error(e);
+                }
+              }
+            }}
+          >
+            Cancel
+          </button>
+          <button className="n-btn-secondary" style={{ padding: "8px 24px", fontSize: 13 }} onClick={syncProgress} disabled={syncing}>
+            {syncing ? "Syncing..." : "Sync Submissions"}
+          </button>
+        </div>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>

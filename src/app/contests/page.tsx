@@ -80,6 +80,10 @@ export default function ContestsPage() {
       const res = await fetch("/api/contests/virtual", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contestId }) });
       const data = await res.json();
       if (!res.ok) { alert("Error: " + (data.error || "Failed")); setStarting(null); return; }
+      
+      // Open Codeforces virtual participation page in a new tab
+      window.open(`https://codeforces.com/contestRegistration/${contestId}/virtual/true`, "_blank");
+      
       router.push(`/contests/live/${data.session.id}`);
     } catch { alert("Server offline."); setStarting(null); }
   };

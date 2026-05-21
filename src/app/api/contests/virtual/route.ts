@@ -118,3 +118,25 @@ export async function GET() {
     return Response.json({ error: "Internal server error" }, { status: 500 });
   }
 }
+
+export async function DELETE() {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const rateLimited = await checkRateLimit(rateLimits.api, session.user.id);
+    if (rateLimited) return rateLimited;
+
+    // Delete active session
+    await prisma.virtualContest.deleteMany({
+      where: { userId: session.user.id, status: "active" },
+    });
+
+    return Response.json({ success: true });
+  } catch (error) {
+    console.error("DELETE /api/contests/virtual error:", error);
+    return Response.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
