@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CP Vertex — Gym Problem Finder</title>
+  <meta name="description" content="Find Codeforces problems that none of your team members have solved. Filter by rating, tags, and handles to build the perfect gym set." />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+
+  <div class="app-container" id="app">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="app-logo">
+        <div class="app-logo-icon">⚡</div>
+        <span class="app-logo-text">CP Vertex</span>
+      </div>
+      <p class="app-subtitle">Find fresh Codeforces problems that none of your team has solved. Build the perfect gym in seconds.</p>
+    </header>
+
+    <!-- Step 1: Input Filters -->
+    <section class="card" id="filters-card">
+      <!-- Rating Range -->
+      <div class="section-header">
+        <div class="section-icon blue">📊</div>
+        <h2 class="section-title">Target Rating Range</h2>
+      </div>
+      <div class="form-group">
+        <div id="rating-slider" class="range-slider-container"></div>
+      </div>
+
+      <!-- Tags -->
+      <div class="section-header" style="margin-top: 1.5rem;">
+        <div class="section-icon purple">🏷️</div>
+        <h2 class="section-title">Topics & Tags</h2>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Select tags <span class="form-sublabel">(search and select)</span></label>
+        <div id="tag-selector"></div>
+      </div>
+
+      <!-- Handles -->
+      <div class="section-header" style="margin-top: 1.5rem;">
+        <div class="section-icon cyan">👥</div>
+        <h2 class="section-title">Codeforces Handles</h2>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="handles-input">Paste handles <span class="form-sublabel">(comma, space, or newline separated)</span></label>
+        <textarea
+          id="handles-input"
+          class="textarea"
+          placeholder="tourist, jiangly&#10;Benq&#10;ecnerwala"
+          spellcheck="false"
+        ></textarea>
+      </div>
+
+      <!-- Max Problems -->
+      <div class="section-header" style="margin-top: 1.5rem;">
+        <div class="section-icon blue">🔢</div>
+        <h2 class="section-title">Max Problems to Return</h2>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="max-problems-input">Limit results <span class="form-sublabel">(leave empty for no limit)</span></label>
+        <input
+          type="number"
+          id="max-problems-input"
+          class="number-input"
+          placeholder="e.g. 50"
+          min="1"
+          max="10000"
+          value="50"
+        />
+      </div>
+
+      <!-- Error Banner -->
+      <div id="error-banner" class="error-banner">
+        <span class="error-icon">⚠️</span>
+        <span class="error-text" id="error-text"></span>
+        <button class="error-dismiss" id="error-dismiss" aria-label="Dismiss error">✕</button>
+      </div>
+
+      <!-- Search Button -->
+      <div style="margin-top: 1.5rem;">
+        <button id="search-btn" class="btn btn-primary btn-full">
+          <span>🔍</span>
+          <span>Validate Handles & Search</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Step 2: Loading -->
+    <section class="card loading-container" id="loading-section">
+      <div class="loading-spinner-wrapper">
+        <div class="loading-orbit">
+          <div class="loading-orbit-ring"></div>
+          <div class="loading-orbit-ring"></div>
+          <div class="loading-orbit-ring"></div>
+        </div>
+      </div>
+      <div class="loading-stage-text" id="loading-stage">Initializing...</div>
+      <div class="loading-sub-text" id="loading-sub">Please wait while we process your request</div>
+      <div class="loading-progress-bar">
+        <div class="loading-progress-fill" id="loading-progress"></div>
+      </div>
+    </section>
+
+    <!-- Step 3: Results -->
+    <section class="card results-section" id="results-section">
+      <div class="results-header">
+        <div>
+          <div class="section-header" style="margin-bottom: 0.25rem;">
+            <div class="section-icon blue">📋</div>
+            <h2 class="section-title">Unsolved Problems</h2>
+          </div>
+          <div class="results-count" id="results-count"></div>
+        </div>
+        <div class="results-toolbar">
+          <input
+            type="text"
+            id="results-search"
+            class="results-search"
+            placeholder="Filter results..."
+          />
+        </div>
+      </div>
+
+      <div id="results-table-container"></div>
+      <div id="pagination-container" class="pagination"></div>
+    </section>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
