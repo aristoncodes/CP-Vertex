@@ -99,9 +99,19 @@ export default function ContestsPage() {
 
   return (
     <DashboardLayout>
-      <div>
-        <h1 style={{ fontSize: 24, fontWeight: 800, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>Contests</h1>
-        <p style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 4, fontWeight: 500 }}>Live calendar & virtual contest simulation</p>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "16px" }}>
+        <div>
+          <h1 style={{ fontSize: 24, fontWeight: 800, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>Contests</h1>
+          <p style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 4, fontWeight: 500 }}>Live calendar & virtual contest simulation</p>
+        </div>
+        <button 
+          className="n-btn-secondary" 
+          onClick={() => router.push("/contests/gym-finder")} 
+          style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 16px" }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: 18, color: "#3b82f6" }}>bolt</span>
+          Gym Problem Finder
+        </button>
       </div>
 
       {/* AI Contest Prep */}
