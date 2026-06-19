@@ -211,6 +211,30 @@ export function TopBar() {
 
         {/* Right: Notifications + User info */}
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {/* Report Bug */}
+          <Link
+            href="/report-bug"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "6px 12px",
+              borderRadius: 8,
+              background: "var(--danger-light)",
+              color: "var(--danger)",
+              textDecoration: "none",
+              fontSize: 13,
+              fontWeight: 600,
+              transition: "opacity 0.15s",
+            }}
+            onMouseOver={(e) => e.currentTarget.style.opacity = "0.8"}
+            onMouseOut={(e) => e.currentTarget.style.opacity = "1"}
+            title="Report a bug"
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>bug_report</span>
+            <span className="hidden sm:inline">Report Bug</span>
+          </Link>
+
           {/* Notification Bell */}
           <div ref={notifRef} style={{ position: "relative" }}>
             <button
