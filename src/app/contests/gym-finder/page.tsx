@@ -2,7 +2,6 @@
 
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useState, useRef, useEffect } from "react";
-import { Copy, ExternalLink, Search, Settings2, Users, Tag as TagIcon, X, Check, Loader2 } from "lucide-react";
 
 const CF_TAGS = [
   "2-sat", "binary search", "bitmasks", "brute force", "chinese theorem",
@@ -14,6 +13,35 @@ const CF_TAGS = [
   "strings", "ternary search", "trees", "two pointers"
 ];
 
+interface Problem {
+  contestId: number;
+  index: string;
+  code: string;
+  name: string;
+  rating: number;
+  tags: string[];
+}
+
+function getRatingColor(rating: number) {
+  if (rating < 1200) return "var(--text-muted)";
+  if (rating < 1400) return "var(--success)";
+  if (rating < 1600) return "var(--info)";
+  if (rating < 1900) return "var(--primary)";
+  if (rating < 2100) return "#a78bfa";
+  if (rating < 2400) return "var(--warning)";
+  return "var(--danger)";
+}
+
+function getRatingBg(rating: number) {
+  if (rating < 1200) return "var(--surface-high)";
+  if (rating < 1400) return "var(--success-light)";
+  if (rating < 1600) return "var(--info-light)";
+  if (rating < 1900) return "var(--primary-light)";
+  if (rating < 2100) return "rgba(167, 139, 250, 0.10)";
+  if (rating < 2400) return "var(--warning-light)";
+  return "var(--danger-light)";
+}
+
 export default function GymFinderPage() {
   const [handles, setHandles] = useState("");
   const [minRating, setMinRating] = useState(800);
@@ -21,25 +49,40 @@ export default function GymFinderPage() {
   const [maxProblems, setMaxProblems] = useState(50);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
-  
+  const [showTagDropdown, setShowTagDropdown] = useState(false);
+  const tagRef = useRef<HTMLDivElement>(null);
+
   const [loadingState, setLoadingState] = useState<"idle" | "validating" | "fetching" | "filtering" | "done">("idle");
   const [fetchProgress, setFetchProgress] = useState({ current: 0, total: 0 });
   const [error, setError] = useState("");
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<Problem[]>([]);
   const [searchFilter, setSearchFilter] = useState("");
-  
+  const [copiedCode, setCopiedCode] = useState("");
+
   const [page, setPage] = useState(1);
   const itemsPerPage = 25;
   const eventSourceRef = useRef<EventSource | null>(null);
 
-  // Derived state
-  const filteredTags = CF_TAGS.filter(t => t.includes(tagInput.toLowerCase()) && !selectedTags.includes(t)).slice(0, 5);
-  const filteredResults = results.filter(p => 
-    p.name.toLowerCase().includes(searchFilter.toLowerCase()) || 
+  const filteredTags = CF_TAGS.filter(t => t.includes(tagInput.toLowerCase()) && !selectedTags.includes(t));
+  const filteredResults = results.filter(p =>
+    p.name.toLowerCase().includes(searchFilter.toLowerCase()) ||
     p.code.toLowerCase().includes(searchFilter.toLowerCase())
   );
   const totalPages = Math.max(1, Math.ceil(filteredResults.length / itemsPerPage));
   const currentResults = filteredResults.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+
+  // Close tag dropdown on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (tagRef.current && !tagRef.current.contains(e.target as Node)) setShowTagDropdown(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  useEffect(() => {
+    return () => { if (eventSourceRef.current) eventSourceRef.current.close(); };
+  }, []);
 
   const startSearch = () => {
     setError("");
@@ -52,10 +95,7 @@ export default function GymFinderPage() {
       return;
     }
 
-    if (eventSourceRef.current) {
-      eventSourceRef.current.close();
-    }
-
+    if (eventSourceRef.current) eventSourceRef.current.close();
     setLoadingState("validating");
 
     const params = new URLSearchParams({
@@ -64,9 +104,7 @@ export default function GymFinderPage() {
       maxRating: maxRating.toString(),
       maxProblems: maxProblems.toString(),
     });
-    if (selectedTags.length > 0) {
-      params.set("tags", selectedTags.join(","));
-    }
+    if (selectedTags.length > 0) params.set("tags", selectedTags.join(","));
 
     const eventSource = new EventSource(`/api/contests/gym-finder?${params.toString()}`);
     eventSourceRef.current = eventSource;
@@ -74,16 +112,12 @@ export default function GymFinderPage() {
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
       switch (data.stage) {
-        case "validating":
-          setLoadingState("validating");
-          break;
+        case "validating": setLoadingState("validating"); break;
         case "fetching":
           setLoadingState("fetching");
           setFetchProgress({ current: data.current, total: data.total });
           break;
-        case "filtering":
-          setLoadingState("filtering");
-          break;
+        case "filtering": setLoadingState("filtering"); break;
         case "done":
           setLoadingState("done");
           setResults(data.data);
@@ -105,260 +139,298 @@ export default function GymFinderPage() {
     };
   };
 
-  useEffect(() => {
-    return () => {
-      if (eventSourceRef.current) eventSourceRef.current.close();
-    };
-  }, []);
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
+  const copyCode = (code: string) => {
+    navigator.clipboard.writeText(code);
+    setCopiedCode(code);
+    setTimeout(() => setCopiedCode(""), 2000);
   };
+
+  const isLoading = loadingState !== "idle";
+  const progressPct = loadingState === "validating" ? 15
+    : loadingState === "fetching" ? 20 + (fetchProgress.total > 0 ? (fetchProgress.current / fetchProgress.total) * 60 : 0)
+    : loadingState === "filtering" ? 90
+    : loadingState === "done" ? 100 : 0;
 
   return (
     <DashboardLayout>
-      <div className="max-w-4xl mx-auto space-y-6">
+      {/* Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
-          <h1 className="text-2xl font-bold text-slate-100 flex items-center gap-2">
+          <h1 style={{ fontSize: 24, fontWeight: 800, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
             ⚡ Gym Problem Finder
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
-            Find fresh Codeforces problems that none of your team has solved. Build the perfect gym in seconds.
+          <p style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 4, fontWeight: 500 }}>
+            Find fresh Codeforces problems that none of your team has solved
           </p>
         </div>
+      </div>
 
-        {/* Filters Card */}
-        <div className="n-card p-6 space-y-6">
-          {/* Rating Range */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-slate-200 mb-3">
-              <Settings2 className="w-4 h-4 text-blue-400" />
-              Target Rating Range
-            </label>
-            <div className="flex items-center gap-4">
-              <input type="range" min="800" max="3500" step="100" value={minRating} onChange={e => setMinRating(Number(e.target.value))} className="w-full accent-blue-500" />
-              <span className="text-sm font-mono text-slate-400 w-12 text-center">to</span>
-              <input type="range" min="800" max="3500" step="100" value={maxRating} onChange={e => setMaxRating(Number(e.target.value))} className="w-full accent-blue-500" />
+      {/* Filters Card */}
+      <div className="n-card" style={{ padding: 24 }}>
+        {/* Rating Range */}
+        <div style={{ marginBottom: 28 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 18, color: "var(--primary)", fontVariationSettings: "'FILL' 1" }}>tune</span>
+            <span style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)" }}>Target Rating Range</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 14px", background: "var(--primary-light)", borderRadius: "var(--radius-full)", fontWeight: 700, fontSize: 14, color: "var(--primary)", fontVariantNumeric: "tabular-nums" }}>
+              {minRating}
             </div>
-            <div className="flex justify-between mt-2 text-xs font-mono text-blue-400">
-              <span>{minRating}</span>
-              <span>{maxRating}</span>
+            <input type="range" min={800} max={3500} step={100} value={minRating} onChange={e => setMinRating(Math.min(Number(e.target.value), maxRating))}
+              style={{ flex: 1, accentColor: "var(--primary)" }} />
+            <span style={{ color: "var(--text-faint)", fontSize: 13, fontWeight: 500 }}>to</span>
+            <input type="range" min={800} max={3500} step={100} value={maxRating} onChange={e => setMaxRating(Math.max(Number(e.target.value), minRating))}
+              style={{ flex: 1, accentColor: "var(--primary)" }} />
+            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 14px", background: "var(--primary-light)", borderRadius: "var(--radius-full)", fontWeight: 700, fontSize: 14, color: "var(--primary)", fontVariantNumeric: "tabular-nums" }}>
+              {maxRating}
             </div>
           </div>
+        </div>
 
-          {/* Tags */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-slate-200 mb-2">
-              <TagIcon className="w-4 h-4 text-purple-400" />
-              Topics & Tags
-            </label>
-            <div className="bg-slate-900/50 border border-slate-700/50 rounded-lg p-2 flex flex-wrap gap-2 items-center">
+        {/* Tags */}
+        <div style={{ marginBottom: 28 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 18, color: "#a78bfa", fontVariationSettings: "'FILL' 1" }}>label</span>
+            <span style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)" }}>Topics & Tags</span>
+            <span style={{ fontSize: 12, color: "var(--text-faint)", marginLeft: 4 }}>(OR logic)</span>
+          </div>
+          <div ref={tagRef} style={{ position: "relative" }}>
+            <div
+              onClick={() => { setShowTagDropdown(true); }}
+              style={{
+                display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center",
+                padding: "8px 12px", minHeight: 46,
+                background: "var(--surface-low)", border: "1px solid var(--border)",
+                borderRadius: "var(--radius-sm)", cursor: "text",
+                transition: "border-color 0.2s",
+              }}
+            >
               {selectedTags.map(tag => (
-                <span key={tag} className="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded-full flex items-center gap-1 border border-purple-500/30">
+                <span key={tag} style={{
+                  display: "inline-flex", alignItems: "center", gap: 6,
+                  padding: "3px 10px 3px 12px", background: "var(--primary-light)",
+                  border: "1px solid var(--border-hover)", borderRadius: "var(--radius-full)",
+                  fontSize: 13, fontWeight: 600, color: "var(--primary)",
+                }}>
                   {tag}
-                  <X className="w-3 h-3 cursor-pointer hover:text-purple-100" onClick={() => setSelectedTags(selectedTags.filter(t => t !== tag))} />
+                  <button onClick={(e) => { e.stopPropagation(); setSelectedTags(selectedTags.filter(t => t !== tag)); }}
+                    style={{ background: "none", border: "none", color: "var(--danger)", cursor: "pointer", fontSize: 14, fontWeight: 700, lineHeight: 1, padding: 0 }}>
+                    ×
+                  </button>
                 </span>
               ))}
-              <input 
-                type="text" 
-                value={tagInput}
-                onChange={e => setTagInput(e.target.value)}
-                placeholder="Search tags..." 
-                className="bg-transparent border-none text-sm text-slate-200 focus:outline-none flex-1 min-w-[120px]"
+              <input
+                type="text" value={tagInput}
+                onChange={e => { setTagInput(e.target.value); setShowTagDropdown(true); }}
+                onFocus={() => setShowTagDropdown(true)}
+                placeholder={selectedTags.length === 0 ? "Search and select tags..." : ""}
+                style={{ flex: 1, minWidth: 120, background: "none", border: "none", outline: "none", color: "var(--text-primary)", fontSize: 14 }}
               />
             </div>
-            {tagInput && filteredTags.length > 0 && (
-              <div className="absolute z-10 mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl overflow-hidden max-w-xs">
-                {filteredTags.map(tag => (
-                  <div 
-                    key={tag} 
-                    className="px-3 py-2 text-sm text-slate-300 hover:bg-slate-700 cursor-pointer"
-                    onClick={() => { setSelectedTags([...selectedTags, tag]); setTagInput(""); }}
-                  >
+            {showTagDropdown && filteredTags.length > 0 && (
+              <div style={{
+                position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0, zIndex: 50,
+                background: "var(--surface-card)", border: "1px solid var(--border)",
+                borderRadius: "var(--radius-sm)", boxShadow: "var(--shadow-lg)",
+                maxHeight: 220, overflowY: "auto",
+              }}>
+                {filteredTags.slice(0, 8).map(tag => (
+                  <div key={tag} onClick={() => { setSelectedTags([...selectedTags, tag]); setTagInput(""); }}
+                    style={{ padding: "10px 14px", fontSize: 14, color: "var(--text-secondary)", cursor: "pointer", transition: "background 0.1s" }}
+                    onMouseOver={e => e.currentTarget.style.background = "var(--primary-light)"}
+                    onMouseOut={e => e.currentTarget.style.background = "transparent"}>
                     {tag}
                   </div>
                 ))}
               </div>
             )}
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Handles */}
-            <div>
-              <label className="flex items-center gap-2 text-sm font-semibold text-slate-200 mb-2">
-                <Users className="w-4 h-4 text-cyan-400" />
-                Codeforces Handles
-              </label>
-              <textarea 
-                value={handles}
-                onChange={e => setHandles(e.target.value)}
-                placeholder="tourist, jiangly&#10;Benq" 
-                className="w-full h-24 bg-slate-900/50 border border-slate-700/50 rounded-lg p-3 text-sm font-mono text-slate-200 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all resize-none"
-              />
-            </div>
-
-            {/* Max Problems */}
-            <div>
-              <label className="flex items-center gap-2 text-sm font-semibold text-slate-200 mb-2">
-                <Settings2 className="w-4 h-4 text-blue-400" />
-                Max Problems to Return
-              </label>
-              <input 
-                type="number" 
-                value={maxProblems}
-                onChange={e => setMaxProblems(Number(e.target.value))}
-                min={0}
-                className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg p-3 text-sm font-mono text-slate-200 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
-              />
-              <p className="text-xs text-slate-500 mt-2">Set to 0 for unlimited.</p>
-            </div>
-          </div>
-
-          {error && (
-            <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-start gap-2 text-sm text-red-400">
-              <X className="w-4 h-4 mt-0.5 shrink-0" />
-              <p>{error}</p>
-            </div>
-          )}
-
-          <button 
-            onClick={startSearch}
-            disabled={loadingState !== "idle"}
-            className="w-full py-3 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg flex items-center justify-center gap-2 transition-colors"
-          >
-            {loadingState === "idle" ? (
-              <>
-                <Search className="w-4 h-4" /> Validate Handles & Search
-              </>
-            ) : (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" /> Processing...
-              </>
-            )}
-          </button>
         </div>
 
-        {/* Loading State */}
-        {loadingState !== "idle" && (
-          <div className="n-card p-8 text-center space-y-4">
-            <Loader2 className="w-8 h-8 text-blue-500 animate-spin mx-auto" />
-            <div>
-              <div className="text-sm font-semibold text-slate-200">
-                {loadingState === "validating" && "Validating handles..."}
-                {loadingState === "fetching" && `Fetching submissions (${fetchProgress.current}/${fetchProgress.total})...`}
-                {loadingState === "filtering" && "Intersecting data & filtering..."}
-                {loadingState === "done" && "Done!"}
-              </div>
-              <div className="text-xs text-slate-400 mt-1">Please wait while we process your request</div>
+        {/* Handles + Max Problems row */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, marginBottom: 28 }}>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 18, color: "var(--info)", fontVariationSettings: "'FILL' 1" }}>group</span>
+              <span style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)" }}>Codeforces Handles</span>
             </div>
+            <textarea
+              value={handles} onChange={e => setHandles(e.target.value)}
+              placeholder={"tourist, jiangly\nBenq\necnerwala"}
+              className="n-input"
+              style={{ resize: "vertical", minHeight: 100, fontFamily: "'JetBrains Mono', monospace", fontSize: 13, lineHeight: 1.7 }}
+            />
+          </div>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 18, color: "var(--primary)", fontVariationSettings: "'FILL' 1" }}>filter_list</span>
+              <span style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)" }}>Max Problems</span>
+            </div>
+            <input
+              type="number" value={maxProblems} onChange={e => setMaxProblems(Number(e.target.value))} min={0}
+              className="n-input"
+              style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 15, fontWeight: 700 }}
+            />
+            <p style={{ fontSize: 12, color: "var(--text-faint)", marginTop: 8 }}>Set to 0 for unlimited results.</p>
+          </div>
+        </div>
+
+        {/* Error */}
+        {error && (
+          <div style={{
+            display: "flex", alignItems: "flex-start", gap: 10,
+            padding: "12px 16px", marginBottom: 20,
+            background: "var(--danger-light)", border: "1px solid rgba(220,38,38,0.2)",
+            borderRadius: "var(--radius-sm)",
+          }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 18, color: "var(--danger)", marginTop: 1 }}>error</span>
+            <span style={{ fontSize: 14, color: "var(--danger)", lineHeight: 1.5 }}>{error}</span>
+            <button onClick={() => setError("")} style={{ marginLeft: "auto", background: "none", border: "none", color: "var(--danger)", cursor: "pointer", fontSize: 18 }}>×</button>
           </div>
         )}
 
-        {/* Results */}
-        {results.length > 0 && loadingState === "idle" && (
-          <div className="n-card p-0 overflow-hidden" id="results">
-            <div className="p-4 border-b border-slate-800 flex items-center justify-between gap-4">
-              <div>
-                <h3 className="font-semibold text-slate-200">Unsolved Problems</h3>
-                <p className="text-xs text-slate-400 mt-1">Found <span className="text-blue-400 font-medium">{filteredResults.length}</span> problems</p>
-              </div>
-              <div className="relative">
-                <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
-                <input 
-                  type="text"
-                  value={searchFilter}
-                  onChange={e => {setSearchFilter(e.target.value); setPage(1);}}
-                  placeholder="Filter results..."
-                  className="pl-9 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-full text-sm text-slate-200 focus:outline-none focus:border-slate-700 w-64"
-                />
-              </div>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="bg-slate-900/50 text-slate-400">
-                  <tr>
-                    <th className="px-4 py-3 font-medium">Code</th>
-                    <th className="px-4 py-3 font-medium">Problem Name</th>
-                    <th className="px-4 py-3 font-medium text-center">Rating</th>
-                    <th className="px-4 py-3 font-medium">Tags</th>
-                    <th className="px-4 py-3 font-medium text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800">
-                  {currentResults.map(p => (
-                    <tr key={p.code} className="hover:bg-slate-800/30 transition-colors">
-                      <td className="px-4 py-3 font-mono text-slate-300">{p.code}</td>
-                      <td className="px-4 py-3 text-slate-200">{p.name}</td>
-                      <td className="px-4 py-3 text-center">
-                        <span className={`inline-block px-2 py-1 rounded text-xs font-bold ${
-                          p.rating < 1200 ? "text-slate-400 bg-slate-400/10" :
-                          p.rating < 1400 ? "text-green-400 bg-green-400/10" :
-                          p.rating < 1600 ? "text-cyan-400 bg-cyan-400/10" :
-                          p.rating < 1900 ? "text-blue-400 bg-blue-400/10" :
-                          p.rating < 2100 ? "text-purple-400 bg-purple-400/10" :
-                          p.rating < 2400 ? "text-orange-400 bg-orange-400/10" :
-                          "text-red-500 bg-red-500/10"
-                        }`}>
-                          {p.rating}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex flex-wrap gap-1">
-                          {p.tags.slice(0, 3).map((t: string) => (
-                            <span key={t} className="text-[10px] px-1.5 py-0.5 bg-slate-800 text-slate-400 rounded border border-slate-700">
-                              {t}
-                            </span>
-                          ))}
-                          {p.tags.length > 3 && <span className="text-[10px] text-slate-500">+{p.tags.length - 3}</span>}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <button onClick={() => copyToClipboard(p.code)} className="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-800 rounded transition-colors" title="Copy code">
-                            <Copy className="w-4 h-4" />
-                          </button>
-                          <a href={`https://codeforces.com/contest/${p.contestId}/problem/${p.index}`} target="_blank" rel="noreferrer" className="p-1.5 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 rounded transition-colors" title="Open on Codeforces">
-                            <ExternalLink className="w-4 h-4" />
-                          </a>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {currentResults.length === 0 && (
-                    <tr>
-                      <td colSpan={5} className="px-4 py-8 text-center text-slate-500">
-                        No problems match your filters.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="p-4 border-t border-slate-800 flex items-center justify-between">
-                <button 
-                  onClick={() => setPage(p => Math.max(1, p - 1))} 
-                  disabled={page === 1}
-                  className="px-3 py-1.5 text-sm font-medium text-slate-300 bg-slate-800 rounded hover:bg-slate-700 disabled:opacity-50 transition-colors"
-                >
-                  Previous
-                </button>
-                <span className="text-sm text-slate-400">Page {page} of {totalPages}</span>
-                <button 
-                  onClick={() => setPage(p => Math.min(totalPages, p + 1))} 
-                  disabled={page === totalPages}
-                  className="px-3 py-1.5 text-sm font-medium text-slate-300 bg-slate-800 rounded hover:bg-slate-700 disabled:opacity-50 transition-colors"
-                >
-                  Next
-                </button>
-              </div>
-            )}
-          </div>
-        )}
+        {/* Search Button */}
+        <button onClick={startSearch} disabled={isLoading} className="n-btn-primary" style={{ width: "100%", padding: "14px 24px", fontSize: 15, opacity: isLoading ? 0.6 : 1 }}>
+          <span className="material-symbols-outlined" style={{ fontSize: 18 }}>{isLoading ? "hourglass_empty" : "search"}</span>
+          {isLoading ? "Processing..." : "Validate Handles & Search"}
+        </button>
       </div>
+
+      {/* Loading */}
+      {isLoading && (
+        <div className="n-card" style={{ padding: "40px 24px", textAlign: "center" }}>
+          <div style={{ width: 56, height: 56, margin: "0 auto 20px", borderRadius: "50%", border: "3px solid var(--border)", borderTopColor: "var(--primary)", animation: "spin 1s linear infinite" }} />
+          <div style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", marginBottom: 6 }}>
+            {loadingState === "validating" && "Validating handles..."}
+            {loadingState === "fetching" && `Fetching submissions (${fetchProgress.current}/${fetchProgress.total})...`}
+            {loadingState === "filtering" && "Intersecting data & filtering..."}
+            {loadingState === "done" && "✓ Done!"}
+          </div>
+          <p style={{ fontSize: 13, color: "var(--text-muted)" }}>Please wait while we process your request</p>
+          <div style={{ maxWidth: 400, margin: "16px auto 0" }}>
+            <div className="n-progress-track">
+              <div className="n-progress-fill" style={{ width: `${progressPct}%` }} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Results */}
+      {results.length > 0 && !isLoading && (
+        <div className="n-card" style={{ padding: 0, overflow: "hidden" }}>
+          {/* Results header */}
+          <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 18, color: "var(--primary)", fontVariationSettings: "'FILL' 1" }}>assignment</span>
+              <span style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)" }}>Unsolved Problems</span>
+              <span className="n-badge" style={{ marginLeft: 4, background: "var(--primary-light)", color: "var(--primary)", fontSize: 12 }}>
+                {filteredResults.length} found
+              </span>
+            </div>
+            <div style={{ position: "relative" }}>
+              <span className="material-symbols-outlined" style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", fontSize: 16, color: "var(--text-faint)" }}>search</span>
+              <input
+                type="text" value={searchFilter} onChange={e => { setSearchFilter(e.target.value); setPage(1); }}
+                placeholder="Filter results..."
+                className="n-input"
+                style={{ paddingLeft: 34, width: 240, fontSize: 13 }}
+              />
+            </div>
+          </div>
+
+          {/* Table */}
+          <table className="n-table">
+            <thead>
+              <tr>
+                <th style={{ width: 80 }}>Code</th>
+                <th style={{ textAlign: "left" }}>Problem Name</th>
+                <th style={{ width: 80, textAlign: "center" }}>Rating</th>
+                <th style={{ textAlign: "left" }}>Tags</th>
+                <th style={{ width: 90, textAlign: "center" }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentResults.map(p => (
+                <tr key={p.code}>
+                  <td style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 600 }}>{p.code}</td>
+                  <td style={{ fontWeight: 600, color: "var(--text-primary)" }}>
+                    <a href={`https://codeforces.com/contest/${p.contestId}/problem/${p.index}`} target="_blank" rel="noreferrer"
+                      style={{ color: "var(--text-primary)", transition: "color 0.15s" }}
+                      onMouseOver={e => e.currentTarget.style.color = "var(--primary)"}
+                      onMouseOut={e => e.currentTarget.style.color = "var(--text-primary)"}>
+                      {p.name}
+                    </a>
+                  </td>
+                  <td style={{ textAlign: "center" }}>
+                    <span style={{ display: "inline-block", padding: "2px 10px", borderRadius: "var(--radius-full)", fontSize: 12, fontWeight: 700, color: getRatingColor(p.rating), background: getRatingBg(p.rating) }}>
+                      {p.rating}
+                    </span>
+                  </td>
+                  <td>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                      {p.tags.slice(0, 3).map(t => (
+                        <span key={t} className="n-tag" style={{ padding: "2px 8px", fontSize: 11 }}>{t}</span>
+                      ))}
+                      {p.tags.length > 3 && <span style={{ fontSize: 11, color: "var(--text-faint)", padding: "2px 4px" }}>+{p.tags.length - 3}</span>}
+                    </div>
+                  </td>
+                  <td style={{ textAlign: "center" }}>
+                    <div style={{ display: "flex", justifyContent: "center", gap: 4 }}>
+                      <button onClick={() => copyCode(p.code)} title="Copy code"
+                        style={{
+                          width: 32, height: 32, borderRadius: "var(--radius-sm)",
+                          background: copiedCode === p.code ? "var(--success-light)" : "transparent",
+                          border: "1px solid var(--border)",
+                          color: copiedCode === p.code ? "var(--success)" : "var(--text-muted)",
+                          cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                          transition: "all 0.15s",
+                        }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
+                          {copiedCode === p.code ? "check" : "content_copy"}
+                        </span>
+                      </button>
+                      <a href={`https://codeforces.com/contest/${p.contestId}/problem/${p.index}`} target="_blank" rel="noreferrer" title="Open on CF"
+                        style={{
+                          width: 32, height: 32, borderRadius: "var(--radius-sm)",
+                          background: "transparent", border: "1px solid var(--border)",
+                          color: "var(--primary)", display: "flex", alignItems: "center", justifyContent: "center",
+                          transition: "all 0.15s",
+                        }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: 16 }}>open_in_new</span>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {currentResults.length === 0 && (
+                <tr>
+                  <td colSpan={5} style={{ textAlign: "center", padding: 32, color: "var(--text-muted)" }}>
+                    No problems match your filter.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div style={{ padding: "12px 20px", borderTop: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="n-btn-secondary"
+                style={{ padding: "6px 16px", fontSize: 13, opacity: page === 1 ? 0.4 : 1 }}>
+                ← Previous
+              </button>
+              <span style={{ fontSize: 13, color: "var(--text-muted)", fontWeight: 500 }}>
+                Page <strong style={{ color: "var(--text-primary)" }}>{page}</strong> of {totalPages}
+              </span>
+              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="n-btn-secondary"
+                style={{ padding: "6px 16px", fontSize: 13, opacity: page === totalPages ? 0.4 : 1 }}>
+                Next →
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </DashboardLayout>
   );
 }
