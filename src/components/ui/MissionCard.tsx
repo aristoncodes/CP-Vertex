@@ -1,0 +1,113 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useStore } from "@/store/useStore";
+import { useState } from "react";
+
+interface Mission {
+  id: string;
+  label: string;
+  type: string;
+  xp: number;
+  done: boolean;
+}
+
+export function MissionCard({ mission, onComplete }: { mission: Mission; onComplete: () => void }) {
+  const router = useRouter();
+  const { activeMissionId, setActiveMission } = useStore();
+  const [completing, setCompleting] = useState(false);
+
+  const handleAction = async () => {
+    if (activeMissionId === mission.id) {
+      // Verify / Complete the mission
+      setCompleting(true);
+      try {
+        await onComplete();
+      } finally {
+        setCompleting(false);
+      }
+    } else {
+      setActiveMission(mission.id);
+      if (mission.label.toLowerCase().includes("boss")) {
+        router.push('/arena/boss');
+      } else if (mission.label.toLowerCase().includes("duel")) {
+        router.push('/compete');
+      } else if (mission.label.toLowerCase().includes("post-mortem")) {
+        router.push('/train?tab=problems');
+      } else {
+        const match = mission.label.match(/Solve \d+ (.+) problems/i);
+        if (match) {
+          const tag = match[1].toLowerCase().trim();
+          router.push(`/train?tab=problems&tag=${encodeURIComponent(tag)}`);
+        } else {
+          router.push('/train?tab=problems');
+        }
+      }
+    }
+  };
+
+  return (
+    <div style={{
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: "14px 18px",
+      background: mission.done ? "var(--success-light)" : "var(--surface-card)",
+      border: `1px solid ${mission.done ? "rgba(5,150,105,0.2)" : "var(--border)"}`,
+      borderRadius: 12,
+      transition: "all 0.2s",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <span className="material-symbols-outlined" style={{
+          fontSize: 20,
+          color: mission.done ? "var(--success)" : "var(--text-muted)",
+          fontVariationSettings: mission.done ? "'FILL' 1" : "'FILL' 0",
+        }}>
+          {mission.done ? "check_circle" : "radio_button_unchecked"}
+        </span>
+        <div>
+          <div style={{
+            fontSize: 14,
+            fontWeight: 600,
+            color: mission.done ? "var(--success)" : "var(--text-primary)",
+            textDecoration: mission.done ? "line-through" : "none",
+          }}>
+            {mission.label}
+          </div>
+          <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>{mission.type}</div>
+        </div>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <span style={{ 
+          fontSize: 12, 
+          fontWeight: 700, 
+          color: mission.done ? "var(--success)" : "var(--warning)",
+          opacity: mission.done ? 0.8 : 1,
+          textDecoration: mission.done ? "line-through" : "none"
+        }}>
+          +{mission.xp} XP
+        </span>
+        {mission.done ? (
+          <span className="n-badge" style={{ 
+            background: "var(--success-light)", 
+            color: "var(--success)", 
+            padding: "4px 12px", 
+            fontSize: 12,
+            fontWeight: 700 
+          }}>
+            Done ✓
+          </span>
+        ) : (
+          <button 
+            className="n-btn-primary" 
+            style={{ padding: "4px 12px", fontSize: 12 }} 
+            onClick={handleAction}
+            disabled={completing}
+          >
+            {completing ? "..." : activeMissionId === mission.id ? "Verify" : "Start"}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/cf-sync",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/sync-problems",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}
