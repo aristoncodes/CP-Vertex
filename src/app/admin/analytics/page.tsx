@@ -45,13 +45,47 @@ interface Stats {
   dailySubmissions: { date: string; count: number }[];
 }
 
+interface BugStats {
+  overview: {
+    totalBugs: number;
+    openBugs: number;
+    inProgressBugs: number;
+    resolvedBugs: number;
+    bugsThisWeek: number;
+    criticalBugs: number;
+    highBugs: number;
+  };
+  recentBugs: {
+    id: string;
+    userId: string;
+    title: string;
+    description: string;
+    steps: string | null;
+    priority: string;
+    status: string;
+    adminNotes: string | null;
+    createdAt: string;
+    updatedAt: string;
+    user: {
+      id: string;
+      name: string | null;
+      email: string;
+      cfHandle: string | null;
+      image: string | null;
+    };
+  }[];
+  bugsByPriority: { priority: string; count: number }[];
+}
+
 export default function AdminAnalyticsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [stats, setStats] = useState<Stats | null>(null);
+  const [bugStats, setBugStats] = useState<BugStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+  const [updatingBugId, setUpdatingBugId] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -60,6 +94,7 @@ export default function AdminAnalyticsPage() {
     }
     if (status === "authenticated") {
       fetchStats();
+      fetchBugStats();
     }
   }, [status]);
 
@@ -81,6 +116,36 @@ export default function AdminAnalyticsPage() {
       setError("Failed to load analytics data.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchBugStats = async () => {
+    try {
+      const res = await fetch("/api/admin/bug-reports");
+      if (res.ok) {
+        const data = await res.json();
+        setBugStats(data);
+      }
+    } catch {
+      console.error("Failed to fetch bug reports");
+    }
+  };
+
+  const updateBugStatus = async (bugId: string, newStatus: string) => {
+    setUpdatingBugId(bugId);
+    try {
+      const res = await fetch("/api/admin/bug-reports", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: bugId, status: newStatus }),
+      });
+      if (res.ok) {
+        await fetchBugStats();
+      }
+    } catch {
+      console.error("Failed to update bug status");
+    } finally {
+      setUpdatingBugId(null);
     }
   };
 
@@ -173,7 +238,7 @@ export default function AdminAnalyticsPage() {
               {o.onlineNow} online
             </span>
           </div>
-          <button className="n-btn-secondary" style={{ fontSize: 12, padding: "8px 16px" }} onClick={fetchStats}>
+          <button className="n-btn-secondary" style={{ fontSize: 12, padding: "8px 16px" }} onClick={() => { fetchStats(); fetchBugStats(); }}>
             <span className="material-symbols-outlined" style={{ fontSize: 16 }}>refresh</span>
             Refresh
           </button>
@@ -415,6 +480,184 @@ export default function AdminAnalyticsPage() {
           </div>
         </div>
       </div>
+
+      {/* ─── Bug Reports Section ─────────────────────────── */}
+      {bugStats && (
+        <>
+          {/* Bug KPI Cards */}
+          <div>
+            <div className="n-section-label" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 18, color: "var(--danger)", fontVariationSettings: "'FILL' 1" }}>bug_report</span>
+              Bug Reports
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+              {[
+                { label: "Open Bugs", value: bugStats.overview.openBugs, color: "var(--warning)", icon: "pending" },
+                { label: "Critical / High", value: `${bugStats.overview.criticalBugs} / ${bugStats.overview.highBugs}`, color: "var(--danger)", icon: "priority_high" },
+                { label: "In Progress", value: bugStats.overview.inProgressBugs, color: "var(--info)", icon: "autorenew" },
+                { label: "Resolved", value: bugStats.overview.resolvedBugs, color: "var(--success)", icon: "check_circle" },
+              ].map((stat) => (
+                <div key={stat.label} className="n-card" style={{ padding: "16px 18px", position: "relative", overflow: "hidden" }}>
+                  <span className="material-symbols-outlined" style={{
+                    position: "absolute", right: -8, bottom: -8, fontSize: 72,
+                    color: stat.color, opacity: 0.04, fontVariationSettings: "'FILL' 1",
+                  }}>{stat.icon}</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 18, color: stat.color, fontVariationSettings: "'FILL' 1" }}>{stat.icon}</span>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>{stat.label}</span>
+                  </div>
+                  <div style={{ fontSize: 28, fontWeight: 800, color: stat.color, letterSpacing: "-0.02em" }}>{stat.value}</div>
+                  <div style={{ fontSize: 11, fontWeight: 600, marginTop: 6, color: "var(--text-muted)" }}>
+                    {bugStats.overview.totalBugs} total · +{bugStats.overview.bugsThisWeek} this week
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Priority Distribution + Recent Bugs */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 3fr", gap: 16 }}>
+            {/* Priority Distribution */}
+            <div className="n-card" style={{ padding: "20px 24px" }}>
+              <div className="n-section-label">By Priority</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 12 }}>
+                {(["Critical", "High", "Medium", "Low"] as const).map((p) => {
+                  const found = bugStats.bugsByPriority.find(b => b.priority === p);
+                  const count = found?.count || 0;
+                  const total = bugStats.overview.totalBugs || 1;
+                  const pct = (count / total) * 100;
+                  const colors: Record<string, string> = {
+                    Critical: "#dc2626",
+                    High: "#f59e0b",
+                    Medium: "#3b82f6",
+                    Low: "#6b7280",
+                  };
+                  return (
+                    <div key={p}>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: colors[p] }}>{p}</span>
+                        <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{count}</span>
+                      </div>
+                      <div style={{ width: "100%", height: 6, background: "var(--surface-high)", borderRadius: 3, overflow: "hidden" }}>
+                        <div style={{ height: "100%", width: `${pct}%`, background: colors[p], borderRadius: 3, transition: "width 0.6s ease" }} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Recent Bug Reports Table */}
+            <div className="n-card" style={{ padding: "20px 24px" }}>
+              <div className="n-section-label">Recent Bug Reports</div>
+              <div style={{ marginTop: 12, overflowX: "auto" }}>
+                <table className="n-table" style={{ minWidth: 600 }}>
+                  <thead>
+                    <tr>
+                      <th>Reporter</th>
+                      <th>Bug</th>
+                      <th>Priority</th>
+                      <th>Status</th>
+                      <th>Date</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {bugStats.recentBugs.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} style={{ textAlign: "center", padding: 24, color: "var(--text-muted)", fontSize: 13 }}>
+                          <span className="material-symbols-outlined" style={{ fontSize: 36, display: "block", marginBottom: 8, opacity: 0.3 }}>celebration</span>
+                          No bug reports yet — that's a good sign!
+                        </td>
+                      </tr>
+                    ) : (
+                      bugStats.recentBugs.map((bug) => {
+                        const priorityColors: Record<string, string> = {
+                          Critical: "#dc2626", High: "#f59e0b", Medium: "#3b82f6", Low: "#6b7280",
+                        };
+                        const statusLabels: Record<string, { label: string; color: string; bg: string }> = {
+                          open: { label: "Open", color: "var(--warning)", bg: "rgba(245, 158, 11, 0.1)" },
+                          in_progress: { label: "In Progress", color: "var(--info)", bg: "rgba(59, 130, 246, 0.1)" },
+                          resolved: { label: "Resolved", color: "var(--success)", bg: "rgba(5, 150, 105, 0.1)" },
+                          closed: { label: "Closed", color: "var(--text-muted)", bg: "var(--surface-high)" },
+                        };
+                        const s = statusLabels[bug.status] || statusLabels.open;
+                        return (
+                          <tr key={bug.id}>
+                            <td>
+                              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                {bug.user.image ? (
+                                  <img src={bug.user.image} alt="" style={{ width: 22, height: 22, borderRadius: "50%", objectFit: "cover" }} />
+                                ) : (
+                                  <div style={{ width: 22, height: 22, borderRadius: "50%", background: "var(--primary-light)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                    <span style={{ fontSize: 10, fontWeight: 700, color: "var(--primary)" }}>
+                                      {(bug.user.name || bug.user.email)?.[0]?.toUpperCase() || "?"}
+                                    </span>
+                                  </div>
+                                )}
+                                <span style={{ fontSize: 12, fontWeight: 600 }}>{bug.user.name || bug.user.cfHandle || bug.user.email.split("@")[0]}</span>
+                              </div>
+                            </td>
+                            <td>
+                              <div style={{ maxWidth: 220 }}>
+                                <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                  {bug.title}
+                                </div>
+                                <div style={{ fontSize: 11, color: "var(--text-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginTop: 2 }}>
+                                  {bug.description.slice(0, 60)}{bug.description.length > 60 ? "..." : ""}
+                                </div>
+                              </div>
+                            </td>
+                            <td>
+                              <span style={{
+                                fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 12,
+                                color: priorityColors[bug.priority] || "var(--text-muted)",
+                                background: `${priorityColors[bug.priority] || "var(--text-muted)"}15`,
+                                border: `1px solid ${priorityColors[bug.priority] || "var(--text-muted)"}30`,
+                              }}>
+                                {bug.priority}
+                              </span>
+                            </td>
+                            <td>
+                              <span style={{
+                                fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 12,
+                                color: s.color, background: s.bg,
+                              }}>
+                                {s.label}
+                              </span>
+                            </td>
+                            <td style={{ fontSize: 12, color: "var(--text-muted)", whiteSpace: "nowrap" }}>
+                              {new Date(bug.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                            </td>
+                            <td>
+                              <select
+                                value={bug.status}
+                                disabled={updatingBugId === bug.id}
+                                onChange={(e) => updateBugStatus(bug.id, e.target.value)}
+                                style={{
+                                  fontSize: 11, padding: "4px 8px", borderRadius: 6,
+                                  background: "var(--surface)", border: "1px solid var(--border)",
+                                  color: "var(--text-primary)", cursor: "pointer",
+                                  opacity: updatingBugId === bug.id ? 0.5 : 1,
+                                }}
+                              >
+                                <option value="open">Open</option>
+                                <option value="in_progress">In Progress</option>
+                                <option value="resolved">Resolved</option>
+                                <option value="closed">Closed</option>
+                              </select>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Vercel Analytics reminder */}
       <div className="n-card" style={{

@@ -414,7 +414,8 @@ export const ModelName = {
   Friendship: 'Friendship',
   ContestParticipation: 'ContestParticipation',
   UpsolveItem: 'UpsolveItem',
-  UserContestSettings: 'UserContestSettings'
+  UserContestSettings: 'UserContestSettings',
+  BugReport: 'BugReport'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -430,7 +431,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "account" | "session" | "verificationToken" | "problem" | "tag" | "problemTag" | "submission" | "topicScore" | "postMortem" | "coachInsight" | "roadmap" | "roadmapWeek" | "problemHint" | "mission" | "userMission" | "badge" | "userBadge" | "journalEntry" | "duel" | "team" | "teamMember" | "weeklyReview" | "virtualContest" | "algorithmArticle" | "algorithmProblem" | "notification" | "friendship" | "contestParticipation" | "upsolveItem" | "userContestSettings"
+    modelProps: "user" | "account" | "session" | "verificationToken" | "problem" | "tag" | "problemTag" | "submission" | "topicScore" | "postMortem" | "coachInsight" | "roadmap" | "roadmapWeek" | "problemHint" | "mission" | "userMission" | "badge" | "userBadge" | "journalEntry" | "duel" | "team" | "teamMember" | "weeklyReview" | "virtualContest" | "algorithmArticle" | "algorithmProblem" | "notification" | "friendship" | "contestParticipation" | "upsolveItem" | "userContestSettings" | "bugReport"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2728,6 +2729,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    BugReport: {
+      payload: Prisma.$BugReportPayload<ExtArgs>
+      fields: Prisma.BugReportFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BugReportFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BugReportPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BugReportFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BugReportPayload>
+        }
+        findFirst: {
+          args: Prisma.BugReportFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BugReportPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BugReportFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BugReportPayload>
+        }
+        findMany: {
+          args: Prisma.BugReportFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BugReportPayload>[]
+        }
+        create: {
+          args: Prisma.BugReportCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BugReportPayload>
+        }
+        createMany: {
+          args: Prisma.BugReportCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BugReportCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BugReportPayload>[]
+        }
+        delete: {
+          args: Prisma.BugReportDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BugReportPayload>
+        }
+        update: {
+          args: Prisma.BugReportUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BugReportPayload>
+        }
+        deleteMany: {
+          args: Prisma.BugReportDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BugReportUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BugReportUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BugReportPayload>[]
+        }
+        upsert: {
+          args: Prisma.BugReportUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BugReportPayload>
+        }
+        aggregate: {
+          args: Prisma.BugReportAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBugReport>
+        }
+        groupBy: {
+          args: Prisma.BugReportGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BugReportGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BugReportCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BugReportCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -3207,6 +3282,22 @@ export const UserContestSettingsScalarFieldEnum = {
 export type UserContestSettingsScalarFieldEnum = (typeof UserContestSettingsScalarFieldEnum)[keyof typeof UserContestSettingsScalarFieldEnum]
 
 
+export const BugReportScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  title: 'title',
+  description: 'description',
+  steps: 'steps',
+  priority: 'priority',
+  status: 'status',
+  adminNotes: 'adminNotes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BugReportScalarFieldEnum = (typeof BugReportScalarFieldEnum)[keyof typeof BugReportScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -3478,6 +3569,7 @@ export type GlobalOmitConfig = {
   contestParticipation?: Prisma.ContestParticipationOmit
   upsolveItem?: Prisma.UpsolveItemOmit
   userContestSettings?: Prisma.UserContestSettingsOmit
+  bugReport?: Prisma.BugReportOmit
 }
 
 /* Types for Logging */

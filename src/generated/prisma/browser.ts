@@ -172,3 +172,8 @@ export type UpsolveItem = Prisma.UpsolveItemModel
  * 
  */
 export type UserContestSettings = Prisma.UserContestSettingsModel
+/**
+ * Model BugReport
+ * 
+ */
+export type BugReport = Prisma.BugReportModel

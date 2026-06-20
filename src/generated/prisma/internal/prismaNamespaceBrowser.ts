@@ -81,7 +81,8 @@ export const ModelName = {
   Friendship: 'Friendship',
   ContestParticipation: 'ContestParticipation',
   UpsolveItem: 'UpsolveItem',
-  UserContestSettings: 'UserContestSettings'
+  UserContestSettings: 'UserContestSettings',
+  BugReport: 'BugReport'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -538,6 +539,22 @@ export const UserContestSettingsScalarFieldEnum = {
 } as const
 
 export type UserContestSettingsScalarFieldEnum = (typeof UserContestSettingsScalarFieldEnum)[keyof typeof UserContestSettingsScalarFieldEnum]
+
+
+export const BugReportScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  title: 'title',
+  description: 'description',
+  steps: 'steps',
+  priority: 'priority',
+  status: 'status',
+  adminNotes: 'adminNotes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BugReportScalarFieldEnum = (typeof BugReportScalarFieldEnum)[keyof typeof BugReportScalarFieldEnum]
 
 
 export const SortOrder = {

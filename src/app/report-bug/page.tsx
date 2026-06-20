@@ -20,19 +20,41 @@ export default function ReportBugPage() {
       return;
     }
 
+    if (title.trim().length < 3) {
+      setStatus("error");
+      setErrorMessage("Title must be at least 3 characters.");
+      return;
+    }
+
+    if (description.trim().length < 10) {
+      setStatus("error");
+      setErrorMessage("Description must be at least 10 characters.");
+      return;
+    }
+
     setStatus("submitting");
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const res = await fetch("/api/report-bug", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: title.trim(), description: description.trim(), steps: steps.trim(), priority }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to submit bug report.");
+      }
+
       setStatus("success");
       setTitle("");
       setDescription("");
       setSteps("");
       setPriority("Medium");
       setTimeout(() => setStatus("idle"), 5000);
-    } catch {
+    } catch (err: unknown) {
       setStatus("error");
-      setErrorMessage("Failed to submit bug report. Please try again later.");
+      setErrorMessage(err instanceof Error ? err.message : "Failed to submit bug report. Please try again later.");
     }
   };
 
