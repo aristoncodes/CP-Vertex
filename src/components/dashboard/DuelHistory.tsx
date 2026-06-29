@@ -26,9 +26,9 @@ function getResult(duel: DuelRecord, userId: string): DuelResult {
 }
 
 const resultConfig: Record<DuelResult, { label: string; color: string; bg: string; icon: string }> = {
-  win:  { label: "W", color: "#10b981", bg: "#10b98118", icon: "emoji_events" },
-  loss: { label: "L", color: "#ef4444", bg: "#ef444418", icon: "close" },
-  draw: { label: "D", color: "#6b7280", bg: "#6b728018", icon: "remove" },
+  win:  { label: "W", color: "var(--success)", bg: "color-mix(in srgb, var(--success) 12%, transparent)", icon: "emoji_events" },
+  loss: { label: "L", color: "var(--danger)", bg: "color-mix(in srgb, var(--danger) 12%, transparent)", icon: "close" },
+  draw: { label: "D", color: "var(--text-muted)", bg: "color-mix(in srgb, var(--text-muted) 12%, transparent)", icon: "remove" },
 };
 
 export function DuelHistory() {
@@ -62,7 +62,7 @@ export function DuelHistory() {
         <div className="n-section-label" style={{ margin: 0 }}>
           <span
             className="material-symbols-outlined"
-            style={{ fontSize: 16, verticalAlign: "middle", marginRight: 6, color: "#ef4444", fontVariationSettings: "'FILL' 1" }}
+            style={{ fontSize: 16, verticalAlign: "middle", marginRight: 6, color: "var(--danger)", fontVariationSettings: "'FILL' 1" }}
           >
             swords
           </span>
@@ -128,7 +128,7 @@ export function DuelHistory() {
             >
               <div style={{ display: "flex", gap: 16 }}>
                 <div style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: 20, fontWeight: 700, color: "#10b981", letterSpacing: "-0.02em" }}>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: "var(--success)", letterSpacing: "-0.02em" }}>
                     {stats.wins}
                   </div>
                   <div style={{ fontSize: 10, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
@@ -136,7 +136,7 @@ export function DuelHistory() {
                   </div>
                 </div>
                 <div style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: 20, fontWeight: 700, color: "#ef4444", letterSpacing: "-0.02em" }}>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: "var(--danger)", letterSpacing: "-0.02em" }}>
                     {stats.losses}
                   </div>
                   <div style={{ fontSize: 10, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
@@ -144,7 +144,7 @@ export function DuelHistory() {
                   </div>
                 </div>
                 <div style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: 20, fontWeight: 700, color: "#6b7280", letterSpacing: "-0.02em" }}>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: "var(--text-muted)", letterSpacing: "-0.02em" }}>
                     {stats.draws}
                   </div>
                   <div style={{ fontSize: 10, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
@@ -162,7 +162,7 @@ export function DuelHistory() {
                     cy="24"
                     r="20"
                     fill="none"
-                    stroke={winRate >= 50 ? "#10b981" : "#ef4444"}
+                    stroke={winRate >= 50 ? "var(--success)" : "var(--danger)"}
                     strokeWidth="4"
                     strokeLinecap="round"
                     strokeDasharray={`${(winRate / 100) * 125.6} 125.6`}
@@ -178,7 +178,7 @@ export function DuelHistory() {
                     justifyContent: "center",
                     fontSize: 12,
                     fontWeight: 700,
-                    color: winRate >= 50 ? "#10b981" : "#ef4444",
+                    color: winRate >= 50 ? "var(--success)" : "var(--danger)",
                   }}
                 >
                   {winRate}%

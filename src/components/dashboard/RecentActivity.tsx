@@ -15,12 +15,12 @@ const typeConfig: Record<
   ActivityItem["type"],
   { icon: string; color: string; bg: string; fill: boolean }
 > = {
-  solve: { icon: "check_circle", color: "#10b981", bg: "#10b98114", fill: true },
-  duel_win: { icon: "emoji_events", color: "#f59e0b", bg: "#f59e0b14", fill: true },
-  duel_loss: { icon: "close", color: "#ef4444", bg: "#ef444414", fill: false },
-  duel_draw: { icon: "balance", color: "#6b7280", bg: "#6b728014", fill: false },
-  mission: { icon: "flag", color: "#3b82f6", bg: "#3b82f614", fill: true },
-  badge: { icon: "workspace_premium", color: "#a855f7", bg: "#a855f714", fill: true },
+  solve: { icon: "check_circle", color: "var(--success)", bg: "color-mix(in srgb, var(--success) 10%, transparent)", fill: true },
+  duel_win: { icon: "emoji_events", color: "var(--warning)", bg: "color-mix(in srgb, var(--warning) 10%, transparent)", fill: true },
+  duel_loss: { icon: "close", color: "var(--danger)", bg: "color-mix(in srgb, var(--danger) 10%, transparent)", fill: false },
+  duel_draw: { icon: "balance", color: "var(--text-muted)", bg: "color-mix(in srgb, var(--text-muted) 10%, transparent)", fill: false },
+  mission: { icon: "flag", color: "var(--primary)", bg: "color-mix(in srgb, var(--primary) 10%, transparent)", fill: true },
+  badge: { icon: "workspace_premium", color: "var(--cat-geo)", bg: "color-mix(in srgb, var(--cat-geo) 10%, transparent)", fill: true },
 };
 
 function timeAgo(ts: string): string {
@@ -218,8 +218,8 @@ export function RecentActivity() {
                           style={{
                             fontSize: 10,
                             fontWeight: 700,
-                            color: "#f59e0b",
-                            background: "#f59e0b14",
+                            color: "var(--warning)",
+                            background: "var(--warning)14",
                             padding: "1px 5px",
                             borderRadius: 4,
                           }}
