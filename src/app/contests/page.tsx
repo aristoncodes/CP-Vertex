@@ -3,7 +3,6 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ContestPrepCard } from "@/components/ui/ContestPrepCard";
 
 interface Contest {
   id: number;
@@ -113,9 +112,6 @@ export default function ContestsPage() {
           Gym Problem Finder
         </button>
       </div>
-
-      {/* AI Contest Prep */}
-      <ContestPrepCard />
 
       {activeSession && (
         <div className="n-card" style={{ padding: "18px 24px", borderColor: "var(--primary)", background: "var(--primary-light)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>

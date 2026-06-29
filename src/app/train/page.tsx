@@ -335,13 +335,8 @@ type Tab = "modes" | "problems" | "upsolve";
 function TrainContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { insights, fetchInsights } = useStore();
   const initialTab = (searchParams.get("tab") as Tab) || "modes";
   const [activeTab, setActiveTab] = useState<Tab>(initialTab);
-
-  useEffect(() => { fetchInsights(); }, [fetchInsights]);
-
-  const tacticalInsight = insights.find(i => i.type === "gemini_tactical") || insights[0];
 
   const tabs: { key: Tab; label: string; icon: string }[] = [
     { key: "modes", label: "Training Modes", icon: "fitness_center" },
@@ -457,25 +452,6 @@ function TrainContent() {
             </div>
           </div>
 
-          {/* Tactical Recommendation */}
-          <div className="n-card" style={{ padding: "20px 24px" }}>
-            <div className="n-section-label">Tactical Recommendation</div>
-            <p style={{ fontSize: 14, lineHeight: 1.7, color: "var(--text-secondary)" }}>
-              {tacticalInsight ? (
-                <span>
-                  {tacticalInsight.message.split(/(Drill|Boss Fight|Blitz Mode)/gi).map((part: string, i: number) =>
-                    /(Drill|Boss Fight|Blitz Mode)/i.test(part) ? (
-                      <span key={i} style={{ color: "var(--primary)", fontWeight: "bold" }}>{part}</span>
-                    ) : (
-                      <span key={i}>{part}</span>
-                    )
-                  )}
-                </span>
-              ) : (
-                <>Based on your recent performance, <span style={{ color: "var(--primary)", fontWeight: 600 }}>Drill</span> is recommended. Target weak tags to strengthen overall logic.</>
-              )}
-            </p>
-          </div>
         </>
       )}
 

@@ -59,7 +59,6 @@ function DashboardMain({ profile }: { profile: any }) {
     : hour >= 17 && hour < 21 ? "Good evening"
     : "Late night";
 
-  const wt = profile?.weeklyTarget;
 
   const completeMission = useCallback(async (id: string) => {
     try {
@@ -107,33 +106,12 @@ function DashboardMain({ profile }: { profile: any }) {
       >
         <div style={{ minWidth: 0, flex: 1 }}>
           <div className="n-section-label" style={{ marginBottom: 8 }}>Continue training</div>
-          {wt ? (
-            <>
-              <div style={{ fontSize: "var(--text-xl)", fontWeight: 700, color: "var(--text-primary)", textTransform: "capitalize", letterSpacing: "-0.01em" }}>
-                Focus: {wt.tag}
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 10, maxWidth: 320 }}>
-                <div className="n-progress-track" style={{ height: 6, flex: 1 }}>
-                  <div className="n-progress-fill" style={{ width: `${Math.min(100, (wt.progress / wt.targetCount) * 100)}%` }} />
-                </div>
-                <span style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)", fontWeight: 600, whiteSpace: "nowrap" }}>
-                  {wt.progress}/{wt.targetCount}
-                </span>
-              </div>
-              <div style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)", marginTop: 8 }}>
-                {wt.minRating}–{wt.maxRating} rated problems
-              </div>
-            </>
-          ) : (
-            <>
-              <div style={{ fontSize: "var(--text-xl)", fontWeight: 700, color: "var(--text-primary)", letterSpacing: "-0.01em" }}>
-                Drill your weakest topics
-              </div>
-              <div style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)", marginTop: 8 }}>
-                A focused set targeting where you lose the most points.
-              </div>
-            </>
-          )}
+          <div style={{ fontSize: "var(--text-xl)", fontWeight: 700, color: "var(--text-primary)", letterSpacing: "-0.01em" }}>
+            Drill your weakest topics
+          </div>
+          <div style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)", marginTop: 8 }}>
+            A focused set of problems targeting the tags where you lose the most points.
+          </div>
         </div>
         <div style={{ display: "flex", gap: 10, flexShrink: 0 }}>
           <button className="n-btn n-btn--secondary" onClick={() => router.push("/train")}>All modes</button>
