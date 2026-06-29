@@ -16,9 +16,12 @@ function thirtyDaysAgo(): Date {
 }
 
 export async function getUserAvgRating(userId: string): Promise<number> {
+  // Average over DISTINCT solved problems, not raw AC submissions, so
+  // re-submitting the same problem doesn't skew the user's average rating.
   const result = await prisma.submission.findMany({
     where: { userId, verdict: "OK" },
-    include: { problem: { select: { rating: true } } },
+    select: { problemId: true, problem: { select: { rating: true } } },
+    distinct: ["problemId"],
   })
 
   if (result.length === 0) return 800 // default for new users
@@ -54,12 +57,26 @@ export async function computeTopicScore(
     },
     include: { problem: true },
     orderBy: { submittedAt: "desc" },
-    take: 500,
+    take: 2000,
   })
 
-  const acSubs = subs.filter((s) => s.verdict === "OK")
-  const totalAttempts = subs.length
-  const acCount = acSubs.length
+  // Collapse submissions to DISTINCT problems. Counting raw submissions
+  // double-counts re-submits and many WAs, which skews every component
+  // (and the solved/attempted shown on the profile). "Attempted" = a
+  // distinct problem with any submission; "solved" = it has an AC.
+  const byProblem = new Map<string, { rating: number; solved: boolean; firstSolvedAt: Date | null }>()
+  for (const s of subs) {
+    const entry = byProblem.get(s.problemId) ?? { rating: s.problem.rating ?? 0, solved: false, firstSolvedAt: null }
+    if (s.verdict === "OK") {
+      entry.solved = true
+      if (!entry.firstSolvedAt || s.submittedAt < entry.firstSolvedAt) entry.firstSolvedAt = s.submittedAt
+    }
+    byProblem.set(s.problemId, entry)
+  }
+
+  const solvedProblems = [...byProblem.values()].filter((p) => p.solved)
+  const totalAttempts = byProblem.size
+  const acCount = solvedProblems.length
 
   if (totalAttempts === 0) {
     return { score: 0, trend: "stable", acCount: 0, totalAttempts: 0, avgAttempts: 0 }
@@ -84,14 +101,14 @@ export async function computeTopicScore(
    *     Saturates at 5 solves in last 30 days. Rewards active practice.
    */
 
-  // Component 1: AC Rate (0–35)
+  // Component 1: AC Rate (0–35) — distinct problems solved / attempted
   const acRate = acCount / totalAttempts
   const acRateScore = acRate * 35
 
-  // Component 2: Difficulty (0–30)
+  // Component 2: Difficulty (0–30) — avg rating of distinct SOLVED problems
   const userAvg = await getUserAvgRating(userId)
-  const topicRatings = acSubs
-    .map((s) => s.problem.rating ?? 0)
+  const topicRatings = solvedProblems
+    .map((p) => p.rating)
     .filter((r) => r > 0)
   const avgTopicRating = topicRatings.length > 0
     ? topicRatings.reduce((a, b) => a + b, 0) / topicRatings.length
@@ -100,12 +117,11 @@ export async function computeTopicScore(
   const difficultyRatio = userAvg > 0 ? Math.min(1.5, avgTopicRating / userAvg) : 0
   const difficultyScore = (difficultyRatio / 1.5) * 30
 
-  // Component 3: Volume (0–20)
-  // Logarithmic saturation: 30 solves = full marks, scales smoothly
+  // Component 3: Volume (0–20) — distinct problems solved
   const volumeScore = Math.min(1, acCount / 30) * 20
 
-  // Component 4: Recency (0–15)
-  const recentACs = acSubs.filter((s) => s.submittedAt > thirtyDaysAgo())
+  // Component 4: Recency (0–15) — distinct problems first solved in last 30 days
+  const recentACs = solvedProblems.filter((p) => p.firstSolvedAt && p.firstSolvedAt > thirtyDaysAgo())
   const recencyScore = Math.min(1, recentACs.length / 5) * 15
 
   const rawScore = acRateScore + difficultyScore + volumeScore + recencyScore
