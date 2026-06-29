@@ -155,7 +155,7 @@ export function SkillGapDiagnostics({ tagStats, paceHeatmap, loading }: Props) {
         <div className="n-card" style={{ padding: "20px 24px" }}>
           <div style={{ fontSize: 11, fontWeight: 500, color: "var(--text-muted)", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.06em", display: "flex", alignItems: "center" }}>
             Tag Success Rate
-            <InfoTooltip info="Your problem-solving success rate grouped by algorithm/data structure tags. 'Strong' indicates high reliability, while 'Weak' tags are prime candidates for drilling." align="left" />
+            <InfoTooltip info="Distinct problems solved ÷ attempted in each tag, counted only within your current rating band (and the one below) — so it measures how reliably you solve AT YOUR LEVEL. This is a pure accuracy metric; the profile's Topic Mastery score also factors in volume, difficulty, and recency." align="left" />
           </div>
           {tagStats.length === 0 ? (
             <div style={{ fontSize: 13, color: "var(--text-muted)", textAlign: "center", padding: "24px 0" }}>

@@ -8,6 +8,7 @@ import { RatingChart } from "@/components/ui/RatingChart";
 import { Heatmap } from "@/components/ui/Heatmap";
 import { StreakDisplay } from "@/components/ui/StreakDisplay";
 import { FriendButton } from "@/components/ui/FriendButton";
+import { InfoTooltip } from "@/components/ui/InfoTooltip";
 import { useSession } from "next-auth/react";
 
 /* ─── Badge definitions ─── */
@@ -365,7 +366,13 @@ export default function ProfilePage() {
         return (
           <div className="n-card" style={{ padding: "20px 24px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-              <div className="n-section-label" style={{ margin: 0 }}>Topic Breakdown</div>
+              <div className="n-section-label" style={{ margin: 0, display: "flex", alignItems: "center" }}>
+                Topic Mastery
+                <InfoTooltip
+                  align="left"
+                  info="A 0–100 mastery score per tag, blending: solve rate (35%), difficulty vs your level (30%), volume of distinct problems (20%), and recent activity (15%). The 'X/Y' and '% AC' below are your distinct problems solved/attempted in that tag. This is different from the at-your-rating-band success rate shown in the Analyzer — this one rewards volume and recency too."
+                />
+              </div>
               <span style={{ fontSize: 12, color: "var(--text-muted)" }}>{topics.length} topics tracked</span>
             </div>
 
