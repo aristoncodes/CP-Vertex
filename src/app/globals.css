@@ -1287,6 +1287,9 @@ a { text-decoration: none; color: inherit; }
     grid-template-columns: 1fr;
     gap: 16px;
   }
+  .dash-stats {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
 
   /* Analyzer tab bar: let it scroll horizontally rather than overflow. */
   .analyzer-tabs {

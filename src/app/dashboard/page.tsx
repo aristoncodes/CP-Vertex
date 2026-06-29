@@ -7,6 +7,7 @@ import { useStore } from "@/store/useStore";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
+import { getLevelFromXP, getXPToNextLevel } from "@/lib/xp-math";
 
 interface ApiMission {
   id: string;
@@ -40,14 +41,17 @@ function DashboardMain({ profile }: { profile: any }) {
       .catch(() => {});
   }, []);
 
+  const xp = profile?.xp || session?.user?.xp || 0;
   const user = {
     name: profile?.name || session?.user?.name || "there",
-    level: profile?.level || session?.user?.level || 1,
-    xp: profile?.xp || session?.user?.xp || 0,
+    level: getLevelFromXP(xp),
+    xp,
     streak: session?.user?.streak || 0,
     rating: profile?.cfRating || 0,
     totalSolved: profile?.totalSolved || 0,
   };
+  const xpProg = getXPToNextLevel(xp);
+  const xpPct = xpProg.needed > 0 ? Math.min(100, (xpProg.current / xpProg.needed) * 100) : 100;
 
   const hour = new Date().getHours();
   const greeting =
@@ -73,63 +77,97 @@ function DashboardMain({ profile }: { profile: any }) {
     }
   }, [gainXP]);
 
-  const stat = (label: string, value: string) => (
-    <span style={{ display: "inline-flex", gap: 6, alignItems: "baseline" }}>
-      <span style={{ color: "var(--text-primary)", fontWeight: 600 }}>{value}</span>
-      <span style={{ color: "var(--text-muted)" }}>{label}</span>
-    </span>
-  );
+  const stats = [
+    { label: "CF Rating", value: user.rating > 0 ? user.rating.toLocaleString() : "—", icon: "trending_up" },
+    { label: "Solved", value: user.totalSolved.toLocaleString(), icon: "check_circle" },
+    { label: "Level", value: String(user.level), icon: "military_tech" },
+    { label: "Streak", value: user.streak > 0 ? `${user.streak}d` : "—", icon: "local_fire_department" },
+  ];
 
   return (
     <>
-      {/* Header: greeting + streak */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
-        <h1 style={{ fontSize: "var(--text-2xl)", fontWeight: 700, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
-          {greeting}, {user.name}
-        </h1>
-        {user.streak > 0 && (
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: "var(--text-md)", color: "var(--text-secondary)", fontWeight: 600 }}>
-            <span style={{ fontSize: 16 }}>🔥</span> {user.streak}-day streak
-          </span>
-        )}
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+        <div>
+          <h1 style={{ fontSize: "var(--text-2xl)", fontWeight: 700, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
+            {greeting}, {user.name}
+          </h1>
+          <p style={{ fontSize: "var(--text-md)", color: "var(--text-muted)", marginTop: 4 }}>
+            Level {user.level} · {xpProg.current.toLocaleString()} / {xpProg.needed > 0 ? xpProg.needed.toLocaleString() : "MAX"} XP to next
+          </p>
+        </div>
+        {/* Level progress ring-ish bar */}
+        <div style={{ minWidth: 180, flex: "0 0 auto" }}>
+          <div className="n-progress-track" style={{ height: 6 }}>
+            <div className="n-progress-fill" style={{ width: `${xpPct}%` }} />
+          </div>
+        </div>
       </div>
 
-      {/* Thin stat line */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 18, fontSize: "var(--text-md)", marginTop: -8 }}>
-        {stat("rating", user.rating > 0 ? String(user.rating) : "—")}
-        {stat("solved", user.totalSolved.toLocaleString())}
-        {stat("level", String(user.level))}
-        {stat("XP", user.xp.toLocaleString())}
-      </div>
-
-      {/* Primary action — driven by the weekly roadmap target */}
-      <div className="n-card" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 20, flexWrap: "wrap" }}>
-        <div style={{ minWidth: 0 }}>
-          <div className="n-section-label" style={{ marginBottom: 6 }}>Continue training</div>
+      {/* Hero — primary action driven by the weekly roadmap target */}
+      <div
+        className="n-card n-card--pad-lg"
+        style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          gap: 24, flexWrap: "wrap",
+          borderLeft: "3px solid var(--primary)",
+          background: "linear-gradient(90deg, var(--primary-lighter), var(--surface-card) 55%)",
+        }}
+      >
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <div className="n-section-label" style={{ marginBottom: 8 }}>Continue training</div>
           {wt ? (
             <>
-              <div style={{ fontSize: "var(--text-lg)", fontWeight: 700, color: "var(--text-primary)", textTransform: "capitalize" }}>
+              <div style={{ fontSize: "var(--text-xl)", fontWeight: 700, color: "var(--text-primary)", textTransform: "capitalize", letterSpacing: "-0.01em" }}>
                 Focus: {wt.tag}
               </div>
-              <div style={{ fontSize: "var(--text-base)", color: "var(--text-muted)", marginTop: 4 }}>
-                {wt.progress}/{wt.targetCount} done · {wt.minRating}–{wt.maxRating} rated
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 10, maxWidth: 320 }}>
+                <div className="n-progress-track" style={{ height: 6, flex: 1 }}>
+                  <div className="n-progress-fill" style={{ width: `${Math.min(100, (wt.progress / wt.targetCount) * 100)}%` }} />
+                </div>
+                <span style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)", fontWeight: 600, whiteSpace: "nowrap" }}>
+                  {wt.progress}/{wt.targetCount}
+                </span>
+              </div>
+              <div style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)", marginTop: 8 }}>
+                {wt.minRating}–{wt.maxRating} rated problems
               </div>
             </>
           ) : (
-            <div style={{ fontSize: "var(--text-lg)", fontWeight: 700, color: "var(--text-primary)" }}>
-              Drill your weakest topics
-            </div>
+            <>
+              <div style={{ fontSize: "var(--text-xl)", fontWeight: 700, color: "var(--text-primary)", letterSpacing: "-0.01em" }}>
+                Drill your weakest topics
+              </div>
+              <div style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)", marginTop: 8 }}>
+                A focused set targeting where you lose the most points.
+              </div>
+            </>
           )}
         </div>
         <div style={{ display: "flex", gap: 10, flexShrink: 0 }}>
-          <button className="n-btn n-btn--secondary" onClick={() => router.push("/train")}>
-            All modes
-          </button>
-          <button className="n-btn n-btn--primary" onClick={() => router.push("/train/session?mode=drill")}>
+          <button className="n-btn n-btn--secondary" onClick={() => router.push("/train")}>All modes</button>
+          <button className="n-btn n-btn--primary n-btn--lg" onClick={() => router.push("/train/session?mode=drill")}>
             Start
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
           </button>
         </div>
+      </div>
+
+      {/* Stat cards */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }} className="dash-stats">
+        {stats.map((s) => (
+          <div key={s.label} className="n-card n-card--pad-sm">
+            <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 10 }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 16, color: "var(--text-muted)" }}>{s.icon}</span>
+              <span style={{ fontSize: "var(--text-xs)", fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                {s.label}
+              </span>
+            </div>
+            <div style={{ fontSize: "var(--text-2xl)", fontWeight: 700, color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
+              {s.value}
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Pending duels (only when present) */}
@@ -150,26 +188,30 @@ function DashboardMain({ profile }: { profile: any }) {
         </button>
       )}
 
-      {/* Today's missions */}
-      {missions.length > 0 && (
+      {/* Two-column: activity + today */}
+      <div className="grid-2-collapse" style={{ alignItems: "start" }}>
+        <div>
+          <div className="n-section-label">Recent activity</div>
+          <RecentActivity />
+        </div>
         <div>
           <div className="n-section-label">Today</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {missions.map((m) => (
-              <MissionCard
-                key={m.id}
-                mission={{ id: m.id, label: m.title, type: m.description.toUpperCase(), xp: m.xpReward, done: m.completed }}
-                onComplete={() => completeMission(m.id)}
-              />
-            ))}
-          </div>
+          {missions.length > 0 ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {missions.map((m) => (
+                <MissionCard
+                  key={m.id}
+                  mission={{ id: m.id, label: m.title, type: m.description.toUpperCase(), xp: m.xpReward, done: m.completed }}
+                  onComplete={() => completeMission(m.id)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="n-card" style={{ textAlign: "center", color: "var(--text-muted)", fontSize: "var(--text-base)" }}>
+              No missions yet — solve a few problems to generate today&apos;s set.
+            </div>
+          )}
         </div>
-      )}
-
-      {/* Recent activity */}
-      <div>
-        <div className="n-section-label">Recent activity</div>
-        <RecentActivity />
       </div>
     </>
   );
