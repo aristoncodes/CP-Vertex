@@ -42,7 +42,7 @@ export default function DuelCombatPage() {
         if (meRes.ok) { const d = await meRes.json(); setUserId(d.id); }
         const res = await fetch(`/api/duels/${id}`);
         if (res.ok) { const d = await res.json(); setDuel(d.duel); }
-        else { alert("Failed to fetch duel"); router.push("/arena"); }
+        else { alert("Failed to fetch duel"); router.push("/compete"); }
       } catch (e) { console.error(e); }
       finally { setLoading(false); }
     })();
@@ -236,7 +236,7 @@ export default function DuelCombatPage() {
     <DashboardLayout>
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
         <button
-          onClick={() => router.push("/arena")}
+          onClick={() => router.push("/compete")}
           style={{
             background: "none", border: "none", cursor: "pointer",
             color: "var(--text-muted)", display: "flex", alignItems: "center",

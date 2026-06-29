@@ -184,7 +184,7 @@ function DashboardMain({ profile }: { profile: any }) {
       {/* ── Pending Duels Alert ── */}
       {pendingDuels > 0 && (
         <button
-          onClick={() => router.push("/arena")}
+          onClick={() => router.push("/compete")}
           className="n-card"
           style={{
             padding: "16px 20px", display: "flex", alignItems: "center", gap: 14,

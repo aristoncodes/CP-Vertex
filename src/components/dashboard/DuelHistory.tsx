@@ -69,7 +69,7 @@ export function DuelHistory() {
           Duel Record
         </div>
         <button
-          onClick={() => router.push("/arena")}
+          onClick={() => router.push("/compete")}
           style={{
             fontSize: 12,
             fontWeight: 600,
@@ -224,7 +224,7 @@ export function DuelHistory() {
                     }}
                     onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.15)")}
                     onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-                    onClick={() => router.push(`/arena/duel/${duel.id}`)}
+                    onClick={() => router.push(`/compete/duel/${duel.id}`)}
                   >
                     {cfg.label}
                   </div>
@@ -256,7 +256,7 @@ export function DuelHistory() {
                   }}
                   onMouseEnter={(e) => (e.currentTarget.style.background = "var(--surface-high, rgba(0,0,0,0.02))")}
                   onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-                  onClick={() => router.push(`/arena/duel/${duel.id}`)}
+                  onClick={() => router.push(`/compete/duel/${duel.id}`)}
                 >
                   {/* Result indicator */}
                   <div
