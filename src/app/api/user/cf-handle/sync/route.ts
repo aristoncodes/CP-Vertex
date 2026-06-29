@@ -189,7 +189,7 @@ export async function POST(request: NextRequest) {
     // Check if streak is active (today or yesterday)
     let lastActiveDay: Date | null = null;
     if (uniqueDates.includes(today) || uniqueDates.includes(yesterday)) {
-      let checkDate = uniqueDates.includes(today) ? new Date() : yesterdayDate;
+      const checkDate = uniqueDates.includes(today) ? new Date() : yesterdayDate;
       lastActiveDay = new Date(checkDate);
       while (true) {
         const dateStr = checkDate.toISOString().split("T")[0];

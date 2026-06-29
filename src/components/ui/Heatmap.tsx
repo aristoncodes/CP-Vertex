@@ -34,7 +34,7 @@ export function Heatmap({ data = [] }: { data?: HeatmapEntry[] }) {
   // Build 53 weeks of columns
   const weeks: CellData[][] = [];
   const monthLabels: { label: string; weekIndex: number }[] = [];
-  let seenMonths = new Set<string>();
+  const seenMonths = new Set<string>();
 
   const cursor = new Date(startDate);
   let weekIdx = 0;

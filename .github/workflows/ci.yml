@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel superseded runs on the same ref to save CI minutes.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Type-check · Lint · Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Generates the Prisma client into src/generated/prisma.
+      # Required before tsc/build since the client is imported in source.
+      # Does not touch a database.
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      # Blocking gate.
+      - name: Type check
+        run: npx tsc --noEmit
+
+      # Blocking gate.
+      - name: Test
+        run: npx vitest run
+
+      # Advisory only: there is a pre-existing backlog of ~190 lint errors
+      # (mostly no-explicit-any / no-unused-vars). Reported on every run so the
+      # debt is visible, but not yet a hard gate. Flip `continue-on-error` to
+      # false once the backlog is cleared.
+      - name: Lint (advisory)
+        run: npm run lint
+        continue-on-error: true

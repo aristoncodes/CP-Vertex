@@ -204,7 +204,7 @@ async function importSubmissions(userId: string, handle: string) {
   const yesterday = yesterdayDate.toISOString().split("T")[0];
 
   if (uniqueDates.includes(today) || uniqueDates.includes(yesterday)) {
-    let checkDate = uniqueDates.includes(today) ? new Date() : yesterdayDate;
+    const checkDate = uniqueDates.includes(today) ? new Date() : yesterdayDate;
     lastActiveDay = new Date(checkDate);
     while (true) {
       const dateStr = checkDate.toISOString().split("T")[0];

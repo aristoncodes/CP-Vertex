@@ -119,7 +119,7 @@ export const useStore = create<AppState>((set) => ({
 
   gainXP: (amount) =>
     set((s) => {
-      let newXP = s.user.xp + amount;
+      const newXP = s.user.xp + amount;
       
       const newLevel = getLevelFromXP(newXP);
       const { needed } = getXPToNextLevel(newXP);

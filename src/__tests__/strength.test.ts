@@ -40,26 +40,32 @@ describe('strength.ts', () => {
   })
 
   test('computeTopicScore calculates score accurately', async () => {
-    // Mock user avg rating
+    // computeTopicScore issues, in order:
+    //   1. submission.findMany  -> the topic's submissions (main query)
+    //   2. submission.findMany  -> getUserAvgRating()
+    //   3. topicScore.findUnique -> previous score (for trend)
     vi.mocked(prisma.submission.findMany)
       .mockResolvedValueOnce([
-        { problem: { rating: 1200 } } as any,
-      ]) // for getUserAvgRating
+        { verdict: 'OK', submittedAt: new Date(), problemId: 'p1', problem: { rating: 1500 } } as any,
+        { verdict: 'OK', submittedAt: new Date(), problemId: 'p2', problem: { rating: 1500 } } as any,
+        { verdict: 'WRONG_ANSWER', submittedAt: new Date(), problemId: 'p3', problem: { rating: 1500 } } as any,
+      ]) // main query: 2 AC + 1 WA -> totalAttempts = 3, acCount = 2
       .mockResolvedValueOnce([
-        { verdict: 'OK', submittedAt: new Date(), problemId: 'p1', problem: { rating: 1500, tags: [] } } as any,
-        { verdict: 'WRONG_ANSWER', submittedAt: new Date(), problemId: 'p1', problem: { rating: 1500, tags: [] } } as any,
-      ]) // for computeTopicScore main query
+        { problem: { rating: 1200 } } as any,
+      ]) // getUserAvgRating -> userAvg = 1200
 
-    vi.mocked(prisma.submission.count).mockResolvedValueOnce(1) // 1 WA
     vi.mocked(prisma.topicScore.findUnique).mockResolvedValueOnce(null) // no prev score
 
     const result = await computeTopicScore('user1', 'tag1')
-    
-    // acCount = 1, totalAttempts = 2 -> base = 50
-    // hard bonus = +5 (1500 > 1200)
-    // recency = +3
-    // WA penalty = 0 (1 WA for 1 AC = avg 1, max(0, 1-1)*5 = 0)
-    // Final = 50 + 5 + 3 = 58
-    expect(result.score).toBe(58)
+
+    // Weighted 4-component formula (see strength.ts):
+    //   C1 AC rate    = (2/3) * 35              = 23.333
+    //   C2 difficulty = min(1.5, 1500/1200)/1.5 * 30 = 25
+    //   C3 volume     = min(1, 2/30) * 20       =  1.333
+    //   C4 recency    = min(1, 2/5) * 15        =  6
+    //   raw = 55.667 -> round = 56
+    expect(result.score).toBe(56)
+    expect(result.acCount).toBe(2)
+    expect(result.totalAttempts).toBe(3)
   })
 })

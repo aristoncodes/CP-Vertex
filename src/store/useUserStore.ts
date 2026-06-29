@@ -37,7 +37,7 @@ export const useUserStore = create<UserStore>((set) => ({
   setUser: (u) => set((s) => ({ user: { ...s.user, ...u } })),
   gainXP: (amount) =>
     set((s) => {
-      let newXP = s.user.xp + amount
+      const newXP = s.user.xp + amount
       const newLevel = getLevelFromXP(newXP)
       const { needed } = getXPToNextLevel(newXP)
       return { user: { ...s.user, xp: newXP, level: newLevel, xpForNextLevel: needed } }

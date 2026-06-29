@@ -152,41 +152,56 @@ npm install
 Copy the example file and fill in your values:
 
 ```bash
-cp .env.example .env.local
+cp .env.example .env
 ```
 
-| Variable | Description |
-|---|---|
-| `NEXTAUTH_URL` | Your app's base URL (e.g. `http://localhost:3000`) |
-| `NEXTAUTH_SECRET` | Generate with `openssl rand -hex 32` |
-| `GOOGLE_CLIENT_ID` | From Google Cloud Console OAuth credentials |
-| `GOOGLE_CLIENT_SECRET` | From Google Cloud Console OAuth credentials |
-| `GITHUB_ID` | From your GitHub OAuth App |
-| `GITHUB_SECRET` | From your GitHub OAuth App |
-| `DATABASE_URL` | PostgreSQL connection string |
-| `DIRECT_URL` | Direct PostgreSQL URL (for Prisma migrations) |
-| `SUPABASE_URL` | Supabase project URL (for realtime) |
-| `SUPABASE_ANON_KEY` | Supabase anon key |
-| `SUPABASE_SERVICE_KEY` | Supabase service role key |
-| `UPSTASH_REDIS_URL` | Upstash Redis REST URL |
-| `UPSTASH_REDIS_TOKEN` | Upstash Redis REST token |
-| `BULLMQ_REDIS_URL` | Redis connection string for BullMQ |
-| `RESEND_API_KEY` | Resend API key for email delivery |
-| `RESEND_FROM` | Sender email address |
-| `CRON_SECRET` | Random secret to protect cron endpoints |
-| `ADMIN_EMAILS` | Comma-separated admin email addresses |
-| `NEXT_PUBLIC_SENTRY_DSN` | Sentry DSN for error tracking |
-| `GEMINI_API_KEY` | Google Gemini API key for AI coach |
+Only `DATABASE_URL` and `AUTH_SECRET` are strictly required to boot — every
+other variable degrades gracefully when unset (the related feature is simply
+disabled). See [`.env.example`](.env.example) for the full annotated list.
+
+| Variable | Required | Description |
+|---|---|---|
+| `DATABASE_URL` | ✅ | PostgreSQL connection string (used by Prisma) |
+| `AUTH_SECRET` | ✅ | NextAuth v5 session secret. Generate with `openssl rand -hex 32` |
+| `AUTH_TRUST_HOST` | | Set `true` when running behind a proxy / on Vercel |
+| `AUTH_GOOGLE_ID` | | Google OAuth client ID (NextAuth auto-detects the `AUTH_GOOGLE_*` names) |
+| `AUTH_GOOGLE_SECRET` | | Google OAuth client secret |
+| `GITHUB_ID` | | GitHub OAuth App ID (falls back to a dummy provider when unset) |
+| `GITHUB_SECRET` | | GitHub OAuth App secret |
+| `UPSTASH_REDIS_URL` | | Upstash Redis REST URL (cache, rate limiting, presence) |
+| `UPSTASH_REDIS_TOKEN` | | Upstash Redis REST token |
+| `BULLMQ_REDIS_URL` | | Redis connection string for BullMQ workers |
+| `SUPABASE_URL` | | Supabase project URL (realtime / duels) |
+| `SUPABASE_SERVICE_KEY` | | Supabase service role key |
+| `NEXT_PUBLIC_SUPABASE_URL` | | Supabase URL exposed to the browser |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | | Supabase anon key exposed to the browser |
+| `GEMINI_API_KEY` | | Google Gemini API key for the AI coach |
+| `RESEND_API_KEY` | | Resend API key for email delivery |
+| `RESEND_FROM` | | Sender email address |
+| `CRON_SECRET` | | Bearer secret protecting `/api/cron/*` endpoints |
+| `ADMIN_EMAILS` | | Comma-separated admin emails granted access to `/admin` |
+| `NEXT_PUBLIC_SENTRY_DSN` | | Sentry DSN for error tracking |
 
 ### 4. Set Up the Database
 
 ```bash
-# Generate and apply migrations
-npx prisma migrate dev
+# Apply the committed migrations to a fresh database
+npx prisma migrate deploy
+
+# Generate the Prisma client (also runs automatically on `npm run build`)
+npx prisma generate
 
 # (Optional) Seed algorithm library
 npm run import:algorithms
 ```
+
+> **Already have a database** that was created with `prisma db push` (no
+> migration history)? Baseline it once so Prisma treats the initial migration
+> as already applied, instead of trying to re-create existing tables:
+>
+> ```bash
+> npx prisma migrate resolve --applied 0_init
+> ```
 
 ### 5. Start Development Server
 
@@ -281,12 +296,14 @@ Tests cover core business logic including XP calculation, topic strength scoring
 
 ## 🔁 CI/CD
 
-The project uses GitHub Actions for automated quality checks on every push and pull request to `main`:
+The project uses [GitHub Actions](.github/workflows/ci.yml) for automated quality checks on every push and pull request to `main`:
 
-1. **Type Check** — `tsc --noEmit`
-2. **Lint** — `eslint src/`
-3. **Test** — `vitest run`
-4. **Deploy** — Vercel (on `main` branch only)
+1. **Generate** — `prisma generate` (required before type-checking)
+2. **Type Check** — `tsc --noEmit` *(blocking)*
+3. **Test** — `vitest run` *(blocking)*
+4. **Lint** — `npm run lint` *(advisory — reported but non-blocking while a pre-existing lint backlog is cleared)*
+
+Deployment is handled by **Vercel's Git integration** (production deploys on `main`, preview deploys on pull requests) rather than the CI workflow.
 
 ---
 
