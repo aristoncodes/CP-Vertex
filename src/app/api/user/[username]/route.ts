@@ -31,10 +31,6 @@ export async function GET(
         streakCurrent: true,
         streakLongest: true,
         createdAt: true,
-        badges: {
-          include: { badge: true },
-          orderBy: { earnedAt: "desc" },
-        },
         topicScores: {
           include: { tag: true },
           orderBy: { score: "desc" },
@@ -118,6 +114,34 @@ export async function GET(
     })
     const totalSolved = uniqueSolved.length;
 
+    // ── Badges: earned from PLATFORM activity SINCE JOINING (createdAt) —
+    // not from the user's imported Codeforces history. ──
+    const computedLevel = getLevelFromXP(user.xp)
+    const [solvedSinceJoin, friendsCount, duelWins] = await Promise.all([
+      prisma.submission
+        .findMany({
+          where: { userId: user.id, verdict: "OK", submittedAt: { gte: user.createdAt } },
+          select: { problemId: true },
+          distinct: ["problemId"],
+        })
+        .then((r) => r.length),
+      prisma.friendship.count({
+        where: { status: "accepted", OR: [{ senderId: user.id }, { receiverId: user.id }] },
+      }),
+      prisma.duel.count({ where: { winnerId: user.id } }),
+    ])
+
+    const earnedBadgeSlugs: string[] = []
+    if (solvedSinceJoin >= 1) earnedBadgeSlugs.push("first_solve")
+    if (solvedSinceJoin >= 100) earnedBadgeSlugs.push("hundred_solves")
+    if (user.streakLongest >= 7) earnedBadgeSlugs.push("streak_7")
+    if (user.streakLongest >= 30) earnedBadgeSlugs.push("streak_30")
+    if (computedLevel >= 10) earnedBadgeSlugs.push("level_10")
+    if (computedLevel >= 25) earnedBadgeSlugs.push("level_25")
+    if (friendsCount >= 10) earnedBadgeSlugs.push("social")
+    if (duelWins >= 5) earnedBadgeSlugs.push("duel_winner")
+    // boss_slayer / blitz_master need per-session counters that aren't tracked yet.
+
     // Extract active weekly target
     let weeklyTarget = null;
     if (user.roadmaps.length > 0) {
@@ -174,12 +198,7 @@ export async function GET(
       totalSolved,
       weeklyTarget,
       friendshipStatus,
-      badges: user.badges.map((ub) => ({
-        slug: ub.badge.slug,
-        name: ub.badge.name,
-        iconEmoji: ub.badge.iconEmoji,
-        earnedAt: ub.earnedAt,
-      })),
+      badges: earnedBadgeSlugs.map((slug) => ({ slug })),
       topicScores: user.topicScores.map((ts) => ({
         tag: ts.tag.name,
         score: ts.score,
