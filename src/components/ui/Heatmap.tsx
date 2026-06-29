@@ -30,6 +30,12 @@ const CF_GREENS = ["#9be9a8", "#40c463", "#30a14e", "#216e39"];
 const EMPTY = "var(--surface-high)";
 const DAY_LABELS = ["", "Mon", "", "Wed", "", "Fri", ""];
 
+// Local-time YYYY-MM-DD (matches the IST-derived keys the API emits far better
+// than UTC toISOString, which shifts late-night solves to the wrong day).
+function dayKey(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 function buildWeeks(data: HeatmapEntry[]): { weeks: CellData[][]; monthLabels: { label: string; weekIndex: number }[] } {
   const map = new Map<string, { count: number; maxRating: number }>();
   data.forEach((d) => map.set(d.date, { count: d.count, maxRating: d.maxRating || 0 }));
@@ -46,10 +52,13 @@ function buildWeeks(data: HeatmapEntry[]): { weeks: CellData[][]; monthLabels: {
   const cursor = new Date(startDate);
   let weekIdx = 0;
 
-  while (cursor <= today || weeks.length < 53) {
+  // Build one week at a time as long as the week's first day is on/before today.
+  // This stops exactly at the week containing today — no trailing empty column,
+  // and the current week fills in as each day arrives.
+  while (cursor <= today) {
     const week: CellData[] = [];
     for (let d = 0; d < 7; d++) {
-      const dateStr = cursor.toISOString().split("T")[0];
+      const dateStr = dayKey(cursor);
       const isFuture = cursor > today;
       const entry = map.get(dateStr);
       if (!isFuture && d === 0) {
@@ -64,7 +73,6 @@ function buildWeeks(data: HeatmapEntry[]): { weeks: CellData[][]; monthLabels: {
     }
     weeks.push(week);
     weekIdx++;
-    if (cursor > today && weeks.length >= 52) break;
   }
   return { weeks, monthLabels };
 }
