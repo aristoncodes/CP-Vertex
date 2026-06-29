@@ -128,7 +128,7 @@ export function DuelHistory() {
             >
               <div style={{ display: "flex", gap: 16 }}>
                 <div style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: 20, fontWeight: 800, color: "#10b981", letterSpacing: "-0.02em" }}>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: "#10b981", letterSpacing: "-0.02em" }}>
                     {stats.wins}
                   </div>
                   <div style={{ fontSize: 10, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
@@ -136,7 +136,7 @@ export function DuelHistory() {
                   </div>
                 </div>
                 <div style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: 20, fontWeight: 800, color: "#ef4444", letterSpacing: "-0.02em" }}>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: "#ef4444", letterSpacing: "-0.02em" }}>
                     {stats.losses}
                   </div>
                   <div style={{ fontSize: 10, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
@@ -144,7 +144,7 @@ export function DuelHistory() {
                   </div>
                 </div>
                 <div style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: 20, fontWeight: 800, color: "#6b7280", letterSpacing: "-0.02em" }}>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: "#6b7280", letterSpacing: "-0.02em" }}>
                     {stats.draws}
                   </div>
                   <div style={{ fontSize: 10, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
@@ -177,7 +177,7 @@ export function DuelHistory() {
                     alignItems: "center",
                     justifyContent: "center",
                     fontSize: 12,
-                    fontWeight: 800,
+                    fontWeight: 700,
                     color: winRate >= 50 ? "#10b981" : "#ef4444",
                   }}
                 >
@@ -217,7 +217,7 @@ export function DuelHistory() {
                       alignItems: "center",
                       justifyContent: "center",
                       fontSize: 11,
-                      fontWeight: 800,
+                      fontWeight: 700,
                       color: cfg.color,
                       cursor: "pointer",
                       transition: "transform 0.15s",

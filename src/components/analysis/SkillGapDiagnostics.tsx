@@ -146,7 +146,7 @@ export function SkillGapDiagnostics({ tagStats, paceHeatmap, loading }: Props) {
   return (
     <div>
       <h2 style={{ fontSize: 16, fontWeight: 500, color: "var(--text-primary)", marginBottom: 16 }}>
-        <span className="material-symbols-outlined" style={{ fontSize: 18, verticalAlign: "middle", marginRight: 8, color: "#5B4FD4", fontVariationSettings: "'FILL' 1" }}>psychology</span>
+        <span className="material-symbols-outlined" style={{ fontSize: 18, verticalAlign: "middle", marginRight: 8, color: "var(--primary)", fontVariationSettings: "'FILL' 1" }}>psychology</span>
         Skill Gap Diagnostics
       </h2>
 

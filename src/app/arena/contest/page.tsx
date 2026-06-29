@@ -83,14 +83,14 @@ export default function ContestSimPage() {
           <h1 style={{ fontSize: "var(--text-2xl)", fontWeight: 700, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>Contest Simulation</h1>
           <p style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 4 }}>Codeforces Div.2 Virtual Round</p>
         </div>
-        <div style={{ fontSize: 32, fontWeight: 800, color: timerColor, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums" }}>
+        <div style={{ fontSize: 32, fontWeight: 700, color: timerColor, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums" }}>
           {formatTime(timeLeft)}
         </div>
       </div>
 
       {!started ? (
         <div className="n-card" style={{ padding: "48px 32px", textAlign: "center" }}>
-          <div style={{ fontSize: 28, fontWeight: 800, color: "var(--text-primary)", marginBottom: 16 }}>Ready to begin?</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: "var(--text-primary)", marginBottom: 16 }}>Ready to begin?</div>
           <p style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 12 }}>
             {problems.length} problems will be revealed. You have 2 hours.
           </p>
@@ -103,7 +103,7 @@ export default function ContestSimPage() {
         </div>
       ) : timeLeft === 0 ? (
         <div className="n-card" style={{ padding: "48px 32px", textAlign: "center", borderColor: solved.size >= 3 ? "var(--success)" : "var(--danger)" }}>
-          <div style={{ fontSize: 32, fontWeight: 800, color: solved.size >= 3 ? "var(--success)" : "var(--danger)" }}>
+          <div style={{ fontSize: 32, fontWeight: 700, color: solved.size >= 3 ? "var(--success)" : "var(--danger)" }}>
             {solved.size >= 3 ? "Round Passed!" : "Round Failed"}
           </div>
           <p style={{ fontSize: 16, color: "var(--text-muted)", marginTop: 12 }}>{solved.size}/{problems.length} problems verified</p>
@@ -129,7 +129,7 @@ export default function ContestSimPage() {
                       {isSolved ? (
                         <span className="material-symbols-outlined" style={{ fontSize: 24, color: "var(--success)", fontVariationSettings: "'FILL' 1" }}>check_circle</span>
                       ) : (
-                        <span style={{ fontSize: 22, fontWeight: 800, color: "var(--text-primary)" }}>{labels[i] || String(i + 1)}</span>
+                        <span style={{ fontSize: 22, fontWeight: 700, color: "var(--text-primary)" }}>{labels[i] || String(i + 1)}</span>
                       )}
                     </div>
                     <div>

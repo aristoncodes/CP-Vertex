@@ -106,7 +106,7 @@ export function LinkCFPrompt() {
         <h2
           style={{
             fontSize: 20,
-            fontWeight: 800,
+            fontWeight: 700,
             color: "var(--text-primary)",
             letterSpacing: "-0.02em",
             margin: "0 0 8px",

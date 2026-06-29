@@ -239,7 +239,7 @@ function SessionContent() {
                           check_circle
                         </span>
                       ) : (
-                        <span style={{ fontSize: 18, fontWeight: 800, color: config.color, fontVariantNumeric: "tabular-nums" }}>
+                        <span style={{ fontSize: 18, fontWeight: 700, color: config.color, fontVariantNumeric: "tabular-nums" }}>
                           {String(i + 1).padStart(2, "0")}
                         </span>
                       )}
@@ -345,7 +345,7 @@ function SessionContent() {
       {allDone && (
         <div className="n-card level-up-glow" style={{ padding: "28px 24px", textAlign: "center", borderColor: config.color }}>
           <div style={{ fontSize: 48, marginBottom: 8 }}>🎉</div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: config.color }}>Session Complete!</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: config.color }}>Session Complete!</div>
           <p style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 8, marginBottom: 20 }}>
             All {problems.length} problems verified on Codeforces. Great work!
           </p>

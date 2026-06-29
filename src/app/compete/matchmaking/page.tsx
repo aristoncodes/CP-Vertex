@@ -254,7 +254,7 @@ export default function MatchmakingPage() {
                 <span className="material-symbols-outlined" style={{ fontSize: 24, color: "white", fontVariationSettings: "'FILL' 1" }}>swords</span>
               </div>
               <div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: "var(--text-primary)" }}>Configure Duel</div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>Configure Duel</div>
                 <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 2 }}>
                   vs <strong>{selectedOpponent.name || selectedOpponent.cfHandle}</strong>
                   {selectedOpponent.cfRating ? ` · ${selectedOpponent.cfRating}` : ""}

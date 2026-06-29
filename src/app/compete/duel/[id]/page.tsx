@@ -292,7 +292,7 @@ export default function DuelCombatPage() {
         {/* VS */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 22, fontWeight: 800, color: "var(--primary)" }}>{duel.player1.name}</div>
+            <div style={{ fontSize: 22, fontWeight: 700, color: "var(--primary)" }}>{duel.player1.name}</div>
             <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>{duel.player1.cfHandle}</div>
             <div style={{ display: "flex", gap: 16, marginTop: 8 }}>
               <div style={{ fontSize: 12, color: "var(--danger)", fontWeight: 600 }}>{duel.p1WaCount} wrong attempts</div>
@@ -302,13 +302,13 @@ export default function DuelCombatPage() {
             </div>
           </div>
           <div style={{
-            fontSize: 36, fontWeight: 900, color: "var(--text-muted)", padding: "0 24px",
+            fontSize: 36, fontWeight: 700, color: "var(--text-muted)", padding: "0 24px",
             background: "linear-gradient(135deg, var(--primary-light), var(--danger-light))",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
           }}>VS</div>
           <div style={{ flex: 1, textAlign: "right" }}>
-            <div style={{ fontSize: 22, fontWeight: 800, color: "var(--warning)" }}>{duel.player2.name}</div>
+            <div style={{ fontSize: 22, fontWeight: 700, color: "var(--warning)" }}>{duel.player2.name}</div>
             <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>{duel.player2.cfHandle}</div>
             <div style={{ display: "flex", gap: 16, marginTop: 8, justifyContent: "flex-end" }}>
               {duel.questionCount > 1 && (
@@ -426,7 +426,7 @@ export default function DuelCombatPage() {
               </div>
               
               {myProgress >= duel.questionCount ? (
-                 <div style={{ fontSize: 20, fontWeight: 800, color: "var(--success)", margin: "12px 0" }}>
+                 <div style={{ fontSize: 20, fontWeight: 700, color: "var(--success)", margin: "12px 0" }}>
                    You have solved all questions! Waiting for duel to conclude...
                  </div>
               ) : currentProblem ? (
@@ -466,7 +466,7 @@ export default function DuelCombatPage() {
                     {duel.winnerId === userId ? "emoji_events" : "sentiment_dissatisfied"}
                   </span>
                   <div style={{
-                    fontSize: 18, fontWeight: 800, marginTop: 4,
+                    fontSize: 18, fontWeight: 700, marginTop: 4,
                     color: duel.winnerId === userId ? "var(--success)" : "var(--danger)",
                   }}>
                     {duel.winnerId === userId ? "Victory!" : "Defeat"}
@@ -488,7 +488,7 @@ export default function DuelCombatPage() {
                     balance
                   </span>
                   <div style={{
-                    fontSize: 18, fontWeight: 800, marginTop: 4,
+                    fontSize: 18, fontWeight: 700, marginTop: 4,
                     color: "var(--warning)",
                   }}>
                     Draw!

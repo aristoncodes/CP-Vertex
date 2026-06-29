@@ -13,7 +13,7 @@ export function StreakDisplay({ count }: { count: number }) {
     }}>
       <span style={{ fontSize: 20 }}>🔥</span>
       <div>
-        <div style={{ fontSize: 18, fontWeight: 800, color: "var(--warning)", letterSpacing: "-0.02em" }}>{count}</div>
+        <div style={{ fontSize: 18, fontWeight: 700, color: "var(--warning)", letterSpacing: "-0.02em" }}>{count}</div>
         <div style={{ fontSize: 10, fontWeight: 600, color: "var(--text-muted)", letterSpacing: "0.05em", textTransform: "uppercase" }}>Day streak</div>
       </div>
     </div>

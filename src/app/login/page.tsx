@@ -110,7 +110,7 @@ export default function LoginPage() {
               justifyContent: "center",
               color: "white",
               fontSize: 14,
-              fontWeight: 800,
+              fontWeight: 700,
             }}
           >
             CA

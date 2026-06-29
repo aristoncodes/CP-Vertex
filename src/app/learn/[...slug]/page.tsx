@@ -144,7 +144,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                 gap: 8,
               }}>
                 <span className="material-symbols-outlined" style={{ color: "var(--primary)", fontSize: 24 }}>menu_book</span>
-                <span style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-0.03em" }}>Library</span>
+                <span style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.03em" }}>Library</span>
               </Link>
             </div>
             <Link href="/learn" style={{
@@ -199,7 +199,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             {/* Article Title */}
             <h1 style={{
               fontSize: 40,
-              fontWeight: 800,
+              fontWeight: 700,
               letterSpacing: "-0.03em",
               lineHeight: 1.15,
               color: "var(--text-primary)",
@@ -277,7 +277,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                 components={{
                   h1: ({node, ...props}) => (
                     <h1 style={{
-                      fontSize: 32, fontWeight: 800, color: "var(--text-primary)",
+                      fontSize: 32, fontWeight: 700, color: "var(--text-primary)",
                       marginTop: 48, marginBottom: 20, letterSpacing: "-0.02em", lineHeight: 1.2,
                     }} {...props} />
                   ),

@@ -53,7 +53,7 @@ export default function LiveContestPage() {
     return (
       <DashboardLayout>
         <div style={{ textAlign: "center", padding: "60px 0" }}>
-          <h1 style={{ fontSize: 32, fontWeight: 900, color: "var(--success)" }}>Contest Finished!</h1>
+          <h1 style={{ fontSize: 32, fontWeight: 700, color: "var(--success)" }}>Contest Finished!</h1>
           <p style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 12 }}>Your virtual performance has been recorded</p>
           <div style={{ display: "flex", justifyContent: "center", gap: 20, marginTop: 40 }}>
             {[
@@ -63,7 +63,7 @@ export default function LiveContestPage() {
             ].map(s => (
               <div key={s.label} className="n-card" style={{ padding: "24px 32px", textAlign: "center", minWidth: 150 }}>
                 <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 8, fontWeight: 600 }}>{s.label}</div>
-                <div style={{ fontSize: 36, fontWeight: 800, color: s.color }}>{s.value}</div>
+                <div style={{ fontSize: 36, fontWeight: 700, color: s.color }}>{s.value}</div>
               </div>
             ))}
           </div>
@@ -88,7 +88,7 @@ export default function LiveContestPage() {
         </div>
         <div style={{ textAlign: "right" }}>
           <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", marginBottom: 4 }}>Time Remaining</div>
-          <div style={{ fontSize: 32, fontWeight: 800, color: timeLeft < 300 ? "var(--danger)" : "var(--text-primary)", fontVariantNumeric: "tabular-nums" }}>{formatTime(timeLeft)}</div>
+          <div style={{ fontSize: 32, fontWeight: 700, color: timeLeft < 300 ? "var(--danger)" : "var(--text-primary)", fontVariantNumeric: "tabular-nums" }}>{formatTime(timeLeft)}</div>
         </div>
       </div>
 

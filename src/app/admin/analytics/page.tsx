@@ -215,7 +215,7 @@ export default function AdminAnalyticsPage() {
             <span className="material-symbols-outlined" style={{ fontSize: 28, color: "var(--primary)", fontVariationSettings: "'FILL' 1" }}>
               admin_panel_settings
             </span>
-            <h1 style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text-primary)" }}>
+            <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.03em", color: "var(--text-primary)" }}>
               Admin <span style={{ color: "var(--primary)" }}>Analytics</span>
             </h1>
           </div>
@@ -271,7 +271,7 @@ export default function AdminAnalyticsPage() {
                   {stat.label}
                 </span>
               </div>
-              <div style={{ fontSize: 32, fontWeight: 800, color: stat.color, letterSpacing: "-0.02em" }}>
+              <div style={{ fontSize: 32, fontWeight: 700, color: stat.color, letterSpacing: "-0.02em" }}>
                 {stat.value}
               </div>
               <div style={{
@@ -451,7 +451,7 @@ export default function AdminAnalyticsPage() {
                   width: 26, height: 26, borderRadius: "50%",
                   background: i === 0 ? "linear-gradient(135deg, #f59e0b, #fbbf24)" : i === 1 ? "linear-gradient(135deg, #94a3b8, #cbd5e1)" : i === 2 ? "linear-gradient(135deg, #d97706, #f59e0b)" : "var(--surface-high)",
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 11, fontWeight: 800, color: i < 3 ? "#fff" : "var(--text-muted)",
+                  fontSize: 11, fontWeight: 700, color: i < 3 ? "#fff" : "var(--text-muted)",
                 }}>
                   {i + 1}
                 </div>
@@ -472,7 +472,7 @@ export default function AdminAnalyticsPage() {
                     Lv.{u.level} · {u.cfRating ? `CF ${u.cfRating}` : "—"}
                   </div>
                 </div>
-                <div style={{ fontSize: 14, fontWeight: 800, color: "var(--warning)" }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "var(--warning)" }}>
                   {u.xp.toLocaleString()} XP
                 </div>
               </div>
@@ -506,7 +506,7 @@ export default function AdminAnalyticsPage() {
                     <span className="material-symbols-outlined" style={{ fontSize: 18, color: stat.color, fontVariationSettings: "'FILL' 1" }}>{stat.icon}</span>
                     <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>{stat.label}</span>
                   </div>
-                  <div style={{ fontSize: 28, fontWeight: 800, color: stat.color, letterSpacing: "-0.02em" }}>{stat.value}</div>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: stat.color, letterSpacing: "-0.02em" }}>{stat.value}</div>
                   <div style={{ fontSize: 11, fontWeight: 600, marginTop: 6, color: "var(--text-muted)" }}>
                     {bugStats.overview.totalBugs} total · +{bugStats.overview.bugsThisWeek} this week
                   </div>

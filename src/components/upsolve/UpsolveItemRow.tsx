@@ -140,7 +140,7 @@ export function UpsolveItemRow({ item, showContest, onSkip, highlight, minimal }
       <div style={{ display: "flex", flexDirection: minimal ? "row" : "column", alignItems: minimal ? "center" : "flex-end", gap: minimal ? 12 : 4, flexShrink: 0 }}>
         <span className="n-badge" style={{
           fontSize: 13,
-          fontWeight: 800,
+          fontWeight: 700,
           background: `${ratingColor(item.problem.rating)}12`,
           color: ratingColor(item.problem.rating),
         }}>

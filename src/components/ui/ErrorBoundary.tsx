@@ -38,7 +38,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
           >
             error
           </span>
-          <h2 style={{ fontSize: 20, fontWeight: 800, color: "var(--danger)", marginBottom: 8 }}>
+          <h2 style={{ fontSize: 20, fontWeight: 700, color: "var(--danger)", marginBottom: 8 }}>
             Something went wrong
           </h2>
           <p style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 20, maxWidth: 400, margin: "0 auto 20px" }}>

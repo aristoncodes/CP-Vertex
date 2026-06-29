@@ -115,7 +115,7 @@ function UpsolveRow({ problem }: { problem: UpsolveProblem }) {
         <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
           <a href={`https://codeforces.com/contest/${problem.contestId}/problem/${problem.index}`} target="_blank" rel="noopener noreferrer"
             style={{ color: "inherit", textDecoration: "none" }}
-            onMouseEnter={e => (e.currentTarget.style.color = "#5B4FD4")}
+            onMouseEnter={e => (e.currentTarget.style.color = "var(--primary)")}
             onMouseLeave={e => (e.currentTarget.style.color = "var(--text-primary)")}
           >{problem.name}</a>
         </div>
@@ -155,7 +155,7 @@ export function ContestStrategy({ whatIf, upsolvePriority, loading }: Props) {
   return (
     <div>
       <h2 style={{ fontSize: 16, fontWeight: 500, color: "var(--text-primary)", marginBottom: 16 }}>
-        <span className="material-symbols-outlined" style={{ fontSize: 18, verticalAlign: "middle", marginRight: 8, color: "#5B4FD4", fontVariationSettings: "'FILL' 1" }}>strategy</span>
+        <span className="material-symbols-outlined" style={{ fontSize: 18, verticalAlign: "middle", marginRight: 8, color: "var(--primary)", fontVariationSettings: "'FILL' 1" }}>strategy</span>
         Contest Strategy
       </h2>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>

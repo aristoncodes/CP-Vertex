@@ -35,7 +35,7 @@ export default function AnalysisLandingPage() {
         {/* Icon */}
         <div style={{
           width: 72, height: 72, borderRadius: 20,
-          background: "linear-gradient(135deg, #5B4FD4, #7c6ff7)",
+          background: "linear-gradient(135deg, var(--primary), var(--primary-hover))",
           display: "flex", alignItems: "center", justifyContent: "center",
           boxShadow: "0 12px 32px rgba(91,79,212,0.25)",
         }}>
@@ -91,7 +91,7 @@ export default function AnalysisLandingPage() {
                 fontSize: 12, fontWeight: 500, cursor: "pointer", fontFamily: "'Inter', sans-serif",
                 transition: "all 0.15s",
               }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = "#5B4FD4"; e.currentTarget.style.color = "#5B4FD4"; }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--primary)"; e.currentTarget.style.color = "var(--primary)"; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--text-muted)"; }}
             >
               {h}

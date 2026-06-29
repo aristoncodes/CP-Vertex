@@ -26,7 +26,7 @@ function RivalryRow({ rival, rank, onRemove }: { rival: RivalEntry; rank: number
       <span style={{ fontSize: 13, fontWeight: 500, color: "var(--text-faint)", width: 20, textAlign: "center" }}>{rank}</span>
       <div style={{
         width: 32, height: 32, borderRadius: "50%",
-        background: "linear-gradient(135deg, #5B4FD4, #7c6ff7)",
+        background: "linear-gradient(135deg, var(--primary), var(--primary-hover))",
         display: "flex", alignItems: "center", justifyContent: "center",
         fontSize: 12, fontWeight: 500, color: "#fff", flexShrink: 0,
       }}>{rival.initials}</div>
@@ -34,7 +34,7 @@ function RivalryRow({ rival, rank, onRemove }: { rival: RivalEntry; rank: number
         <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)" }}>
           <a href={`https://codeforces.com/profile/${rival.handle}`} target="_blank" rel="noopener noreferrer"
             style={{ color: "inherit", textDecoration: "none" }}
-            onMouseEnter={e => (e.currentTarget.style.color = "#5B4FD4")}
+            onMouseEnter={e => (e.currentTarget.style.color = "var(--primary)")}
             onMouseLeave={e => (e.currentTarget.style.color = "var(--text-primary)")}
           >{rival.handle}</a>
         </div>
@@ -69,7 +69,7 @@ function ContestRow({ entry }: { entry: RatingEntry }) {
       <div style={{ flex: 1, fontSize: 13, color: "var(--text-primary)", fontWeight: 400, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
         <a href={`https://codeforces.com/contest/${entry.contestId}`} target="_blank" rel="noopener noreferrer"
           style={{ color: "inherit", textDecoration: "none" }}
-          onMouseEnter={e => (e.currentTarget.style.color = "#5B4FD4")}
+          onMouseEnter={e => (e.currentTarget.style.color = "var(--primary)")}
           onMouseLeave={e => (e.currentTarget.style.color = "var(--text-primary)")}
         >{entry.contestName.length > 30 ? entry.contestName.slice(0, 28) + "…" : entry.contestName}</a>
       </div>
@@ -119,7 +119,7 @@ export function RivalryBoard({ handle, rivals, ratingHistory, loading, rivalHand
   return (
     <div>
       <h2 style={{ fontSize: 16, fontWeight: 500, color: "var(--text-primary)", marginBottom: 16 }}>
-        <span className="material-symbols-outlined" style={{ fontSize: 18, verticalAlign: "middle", marginRight: 8, color: "#5B4FD4", fontVariationSettings: "'FILL' 1" }}>groups</span>
+        <span className="material-symbols-outlined" style={{ fontSize: 18, verticalAlign: "middle", marginRight: 8, color: "var(--primary)", fontVariationSettings: "'FILL' 1" }}>groups</span>
         Rivalry Board
       </h2>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>

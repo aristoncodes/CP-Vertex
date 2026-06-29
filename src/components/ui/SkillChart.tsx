@@ -62,7 +62,7 @@ export function SkillChart({ topics = [] }: { topics?: Topic[] }) {
           boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
           minWidth: "150px"
         }}>
-          <div style={{ fontWeight: 800, marginBottom: "8px", textTransform: "capitalize" }}>{d.tag}</div>
+          <div style={{ fontWeight: 700, marginBottom: "8px", textTransform: "capitalize" }}>{d.tag}</div>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
             <span style={{ color: "var(--text-muted)" }}>Solved</span>
             <span style={{ fontWeight: 600 }}>{d.solved} / {d.attempted}</span>

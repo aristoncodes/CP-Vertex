@@ -106,9 +106,9 @@ export default function OnboardingPage() {
               width: 72, height: 72, borderRadius: 20,
               background: "linear-gradient(135deg, var(--primary-hover), var(--primary))",
               display: "flex", alignItems: "center", justifyContent: "center",
-              margin: "0 auto 24px", fontSize: 32, color: "white", fontWeight: 800,
+              margin: "0 auto 24px", fontSize: 32, color: "white", fontWeight: 700,
             }}>CV</div>
-            <h1 style={{ fontSize: 32, fontWeight: 900, letterSpacing: "-0.03em", color: "var(--text-primary)", marginBottom: 12 }}>
+            <h1 style={{ fontSize: 32, fontWeight: 700, letterSpacing: "-0.03em", color: "var(--text-primary)", marginBottom: 12 }}>
               Welcome to CP Vertex
             </h1>
             <p style={{ fontSize: 16, color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: 32, maxWidth: 440, margin: "0 auto 32px" }}>

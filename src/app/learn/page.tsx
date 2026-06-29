@@ -137,7 +137,7 @@ export default function LearnPage() {
               textDecoration: "none", color: "var(--text-primary)",
             }}>
               <span className="material-symbols-outlined" style={{ color: "var(--primary)", fontSize: 26 }}>menu_book</span>
-              <span style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.03em" }}>Library</span>
+              <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.03em" }}>Library</span>
             </Link>
 
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
@@ -171,7 +171,7 @@ export default function LearnPage() {
 
           {/* Hero */}
           <div style={{ marginBottom: 48 }}>
-            <h1 style={{ fontSize: 42, fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 1.1, color: "var(--text-primary)", margin: 0 }}>
+            <h1 style={{ fontSize: 42, fontWeight: 700, letterSpacing: "-0.04em", lineHeight: 1.1, color: "var(--text-primary)", margin: 0 }}>
               Algorithmic Library
             </h1>
             <p style={{ fontSize: 17, lineHeight: 1.6, color: "var(--text-secondary)", marginTop: 14, maxWidth: 600 }}>
@@ -306,7 +306,7 @@ export default function LearnPage() {
                   }}>{(CATEGORY_META[expandedCategory] || DEFAULT_META).icon}</span>
                 </div>
                 <div>
-                  <h2 style={{ fontSize: 30, fontWeight: 800, letterSpacing: "-0.03em", margin: 0, color: "var(--text-primary)" }}>
+                  <h2 style={{ fontSize: 30, fontWeight: 700, letterSpacing: "-0.03em", margin: 0, color: "var(--text-primary)" }}>
                     {expandedCategory}
                   </h2>
                   <p style={{ fontSize: 14, color: "var(--text-muted)", margin: "4px 0 0 0", fontWeight: 500 }}>

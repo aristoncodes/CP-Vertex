@@ -112,7 +112,7 @@ export default function FriendsPage() {
     width: 44, height: 44, borderRadius: 12,
     background: "linear-gradient(135deg, var(--primary), #60a5fa)",
     display: "flex", alignItems: "center", justifyContent: "center",
-    fontSize: 18, fontWeight: 800, color: "white", flexShrink: 0,
+    fontSize: 18, fontWeight: 700, color: "white", flexShrink: 0,
     overflow: "hidden",
   });
 
@@ -154,7 +154,7 @@ export default function FriendsPage() {
       <div style={{ maxWidth: 760, margin: "0 auto" }}>
         {/* Page header */}
         <div style={{ marginBottom: 20 }}>
-          <h1 style={{ fontSize: 22, fontWeight: 800, color: "var(--text-primary)", marginBottom: 2 }}>Friends</h1>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: "var(--text-primary)", marginBottom: 2 }}>Friends</h1>
           <div style={{ color: "var(--text-muted)", fontSize: 13 }}>Connect with other competitive programmers</div>
         </div>
 

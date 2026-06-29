@@ -306,7 +306,7 @@ export default function CompetePage() {
                         background: `linear-gradient(180deg, ${r.color}18, var(--surface-card))`,
                         border: `1px solid ${r.color}30`, borderBottom: "none",
                         display: "flex", alignItems: "center", justifyContent: "center",
-                        fontSize: 28, fontWeight: 800, color: r.color,
+                        fontSize: 28, fontWeight: 700, color: r.color,
                       }}>
                         #{r.rank}
                       </div>

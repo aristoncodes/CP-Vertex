@@ -204,7 +204,7 @@ export function ContestPrepCard() {
                   border: "1px solid var(--border)",
                 }}
               >
-                <span style={{ fontSize: 13, fontWeight: 800, color: "var(--primary)" }}>{problem}</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: "var(--primary)" }}>{problem}</span>
                 <span style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 500 }}>{time}</span>
               </div>
             ))}

@@ -59,7 +59,7 @@ interface MetricRowProps {
 export function MetricRow(props: MetricRowProps) {
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }} className="stats-grid-4">
-      <MetricCard label="Current Rating" value={props.loading ? "—" : props.rating} delta={props.ratingDelta} icon="trending_up" color="#5B4FD4" loading={props.loading} info="Your current official Codeforces rating." />
+      <MetricCard label="Current Rating" value={props.loading ? "—" : props.rating} delta={props.ratingDelta} icon="trending_up" color="var(--primary)" loading={props.loading} info="Your current official Codeforces rating." />
       <MetricCard label="Solve Rate (60d)" value={props.loading ? "—" : `${props.solveRate}%`} delta={props.solveRateDelta} icon="check_circle" color="#3B6D11" loading={props.loading} info="Percentage of attempted problems that you successfully solved in the last 60 days." />
       <MetricCard label="Avg Penalty" value={props.loading ? "—" : `${props.avgPenalty} min`} delta={props.avgPenaltyDelta} icon="timer" color="#BA7517" loading={props.loading} invertDelta info="Average time penalty incurred from wrong answers and slow solves during your recent contests." />
       <MetricCard label="Upsolve Backlog" value={props.loading ? "—" : props.upsolveBacklog} delta={props.upsolveBacklogDelta} icon="assignment_late" color="#A32D2D" loading={props.loading} invertDelta info="Number of problems from your recent rated contests that you failed to solve and haven't upsolved yet." />

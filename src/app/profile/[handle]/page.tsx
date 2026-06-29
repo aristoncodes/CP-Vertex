@@ -100,7 +100,7 @@ export default function ProfilePage() {
               width: 80, height: 80, borderRadius: 20,
               background: `linear-gradient(135deg, ${rank.color}, ${rank.color}90)`,
               display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 32, fontWeight: 800, color: "white", flexShrink: 0,
+              fontSize: 32, fontWeight: 700, color: "white", flexShrink: 0,
               border: "4px solid var(--surface-card)",
               boxShadow: `0 4px 16px ${rank.color}25`,
               overflow: "hidden",

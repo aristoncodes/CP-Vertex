@@ -60,7 +60,7 @@ export function ExtendedInsights({ handle, refreshKey }: { handle: string; refre
                 contentStyle={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}
                 labelStyle={{ color: "var(--text-muted)", marginBottom: 4 }}
               />
-              <Line type="monotone" dataKey="rating" stroke="#5B4FD4" strokeWidth={3} dot={{ r: 3, fill: "#5B4FD4" }} activeDot={{ r: 5 }} />
+              <Line type="monotone" dataKey="rating" stroke="var(--primary)" strokeWidth={3} dot={{ r: 3, fill: "var(--primary)" }} activeDot={{ r: 5 }} />
               <Line type="monotone" dataKey="expectedRating" stroke="var(--text-muted)" strokeWidth={2} dot={false} strokeDasharray="5 5" />
             </LineChart>
           </ResponsiveContainer>
@@ -101,7 +101,7 @@ export function ExtendedInsights({ handle, refreshKey }: { handle: string; refre
                 <span style={{ color: "var(--text-muted)" }}>{lang.percentage}% ({lang.count} AC)</span>
               </div>
               <div style={{ width: "100%", height: 6, background: "var(--surface-low)", borderRadius: 3, overflow: "hidden" }}>
-                <div style={{ width: `${lang.percentage}%`, height: "100%", background: "#5B4FD4" }} />
+                <div style={{ width: `${lang.percentage}%`, height: "100%", background: "var(--primary)" }} />
               </div>
             </div>
           ))}
@@ -122,7 +122,7 @@ export function ExtendedInsights({ handle, refreshKey }: { handle: string; refre
                 <XAxis dataKey="label" stroke="var(--text-muted)" fontSize={11} tickLine={false} axisLine={false} />
                 <YAxis stroke="var(--text-muted)" fontSize={11} tickLine={false} axisLine={false} />
                 <Tooltip cursor={{ fill: "var(--surface-low)" }} contentStyle={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }} />
-                <Bar dataKey="count" fill="#5B4FD4" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="count" fill="var(--primary)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

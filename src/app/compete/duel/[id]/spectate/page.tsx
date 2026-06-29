@@ -93,7 +93,7 @@ export default function DuelSpectatePage() {
             width: 56, height: 56, borderRadius: 16,
             background: "linear-gradient(135deg, var(--primary-hover), var(--primary))",
             display: "flex", alignItems: "center", justifyContent: "center",
-            margin: "0 auto 12px", fontSize: 22, fontWeight: 800, color: "white",
+            margin: "0 auto 12px", fontSize: 22, fontWeight: 700, color: "white",
           }}>
             {duel.challenger.name?.charAt(0).toUpperCase() || "?"}
           </div>
@@ -101,7 +101,7 @@ export default function DuelSpectatePage() {
             {duel.challenger.name || duel.challenger.cfHandle}
           </div>
           <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>Level {duel.challenger.level}</div>
-          <div style={{ fontSize: 36, fontWeight: 900, color: "var(--primary)", marginTop: 12, fontVariantNumeric: "tabular-nums" }}>
+          <div style={{ fontSize: 36, fontWeight: 700, color: "var(--primary)", marginTop: 12, fontVariantNumeric: "tabular-nums" }}>
             {duel.challenger.solves}
           </div>
           <div style={{ fontSize: 11, color: "var(--text-muted)", textTransform: "uppercase", fontWeight: 600 }}>Solves</div>
@@ -112,7 +112,7 @@ export default function DuelSpectatePage() {
           width: 48, height: 48, borderRadius: "50%",
           background: "var(--surface-card)", border: "2px solid var(--border)",
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 14, fontWeight: 800, color: "var(--text-muted)",
+          fontSize: 14, fontWeight: 700, color: "var(--text-muted)",
         }}>VS</div>
 
         {/* Opponent */}
@@ -123,7 +123,7 @@ export default function DuelSpectatePage() {
                 width: 56, height: 56, borderRadius: 16,
                 background: "linear-gradient(135deg, var(--danger), #f59e0b)",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                margin: "0 auto 12px", fontSize: 22, fontWeight: 800, color: "white",
+                margin: "0 auto 12px", fontSize: 22, fontWeight: 700, color: "white",
               }}>
                 {duel.opponent.name?.charAt(0).toUpperCase() || "?"}
               </div>
@@ -131,7 +131,7 @@ export default function DuelSpectatePage() {
                 {duel.opponent.name || duel.opponent.cfHandle}
               </div>
               <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>Level {duel.opponent.level}</div>
-              <div style={{ fontSize: 36, fontWeight: 900, color: "var(--danger)", marginTop: 12, fontVariantNumeric: "tabular-nums" }}>
+              <div style={{ fontSize: 36, fontWeight: 700, color: "var(--danger)", marginTop: 12, fontVariantNumeric: "tabular-nums" }}>
                 {duel.opponent.solves}
               </div>
               <div style={{ fontSize: 11, color: "var(--text-muted)", textTransform: "uppercase", fontWeight: 600 }}>Solves</div>

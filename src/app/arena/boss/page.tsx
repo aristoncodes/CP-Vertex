@@ -128,18 +128,18 @@ export default function BossFightPage() {
           {bossState === "defeated" ? "✓ Threat Eliminated" : "⚠ High-Level Threat Detected"}
         </div>
 
-        <h1 style={{ fontSize: "clamp(36px, 6vw, 64px)", fontWeight: 900, color: "var(--text-primary)", textAlign: "center", letterSpacing: "-0.03em", maxWidth: 700, textDecoration: bossState === "defeated" ? "line-through" : "none", opacity: bossState === "defeated" ? 0.6 : 1 }}>
+        <h1 style={{ fontSize: "clamp(36px, 6vw, 64px)", fontWeight: 700, color: "var(--text-primary)", textAlign: "center", letterSpacing: "-0.03em", maxWidth: 700, textDecoration: bossState === "defeated" ? "line-through" : "none", opacity: bossState === "defeated" ? 0.6 : 1 }}>
           {boss.title}
         </h1>
 
         <div style={{ display: "flex", gap: 40, marginTop: 32 }}>
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)", marginBottom: 4 }}>Rating</div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: "var(--danger)" }}>{boss.rating}</div>
+            <div style={{ fontSize: 28, fontWeight: 700, color: "var(--danger)" }}>{boss.rating}</div>
           </div>
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)", marginBottom: 4 }}>XP Reward</div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: "var(--warning)" }}>500</div>
+            <div style={{ fontSize: 28, fontWeight: 700, color: "var(--warning)" }}>500</div>
           </div>
         </div>
 
