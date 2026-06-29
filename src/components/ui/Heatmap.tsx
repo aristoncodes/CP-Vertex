@@ -1,7 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { getRatingColor, getRatingTierName } from "@/lib/colors";
+import { getRatingTierName } from "@/lib/colors";
+
+/**
+ * Soft pastel rating colors for the heatmap — the official CF tier colors
+ * (pure #0000ff blue, #ff0000 red) look harsh as filled cells on a light
+ * background, so this is a gentler, more legible palette in the same tier order.
+ */
+function heatRatingColor(rating: number): string {
+  if (rating >= 2400) return "#e57e7e"; // GM — soft red
+  if (rating >= 2100) return "#efb066"; // Master — soft orange
+  if (rating >= 1900) return "#d68ad0"; // Candidate Master — soft magenta
+  if (rating >= 1600) return "#9b9be6"; // Expert — lavender
+  if (rating >= 1400) return "#73cdb8"; // Specialist — mint/teal
+  if (rating >= 1200) return "#a6d97a"; // Pupil — soft green
+  return "#bcc2cb";                      // Newbie — light gray
+}
 
 interface HeatmapEntry {
   date: string;
@@ -157,14 +172,18 @@ function Stat({ value, label }: { value: number | string; label: string }) {
 export function Heatmap({ data = [], stats }: { data?: HeatmapEntry[]; stats?: HeatmapStats }) {
   const { weeks, monthLabels } = buildWeeks(data);
 
+  // Future days are not rendered as cells at all (transparent), so the grid
+  // visually ends on today instead of showing blank squares for days to come.
   const greenColor = (c: CellData): string => {
-    if (c.isFuture || c.count === 0) return EMPTY;
+    if (c.isFuture) return "transparent";
+    if (c.count === 0) return EMPTY;
     const tier = c.count >= 7 ? 3 : c.count >= 4 ? 2 : c.count >= 2 ? 1 : 0;
     return CF_GREENS[tier];
   };
   const ratingColor = (c: CellData): string => {
-    if (c.isFuture || c.count === 0 || c.maxRating === 0) return EMPTY;
-    return getRatingColor(c.maxRating);
+    if (c.isFuture) return "transparent";
+    if (c.count === 0 || c.maxRating === 0) return EMPTY;
+    return heatRatingColor(c.maxRating);
   };
 
   return (
