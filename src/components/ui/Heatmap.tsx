@@ -29,15 +29,6 @@ interface HeatmapEntry {
   maxRating?: number;
 }
 
-interface HeatmapStats {
-  solvedAllTime: number;
-  solvedLastYear: number;
-  solvedLastMonth: number;
-  streakMax: number;
-  streakLastYear: number;
-  streakLastMonth: number;
-}
-
 interface CellData {
   date: string;
   count: number;
@@ -164,16 +155,7 @@ function HeatGrid({
   );
 }
 
-function Stat({ value, label }: { value: number | string; label: string }) {
-  return (
-    <div>
-      <div style={{ fontSize: "var(--text-2xl)", fontWeight: 700, color: "var(--text-primary)", letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums" }}>{value}</div>
-      <div style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)", marginTop: 2 }}>{label}</div>
-    </div>
-  );
-}
-
-export function Heatmap({ data = [], stats }: { data?: HeatmapEntry[]; stats?: HeatmapStats }) {
+export function Heatmap({ data = [] }: { data?: HeatmapEntry[] }) {
   const { weeks, monthLabels } = buildWeeks(data);
 
   // Future days are not rendered as cells at all (transparent), so the grid
@@ -206,17 +188,6 @@ export function Heatmap({ data = [], stats }: { data?: HeatmapEntry[]; stats?: H
           {CF_GREENS.map((c, i) => <div key={i} style={{ width: 10, height: 10, borderRadius: 2, background: c }} />)}
           <span style={{ fontSize: 10, color: "var(--text-muted)", marginLeft: 4 }}>More</span>
         </div>
-
-        {stats && (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginTop: 18, paddingTop: 18, borderTop: "1px solid var(--border)" }}>
-            <Stat value={stats.solvedAllTime.toLocaleString()} label="solved all time" />
-            <Stat value={stats.solvedLastYear.toLocaleString()} label="solved last year" />
-            <Stat value={stats.solvedLastMonth.toLocaleString()} label="solved last month" />
-            <Stat value={`${stats.streakMax}d`} label="longest streak ever" />
-            <Stat value={`${stats.streakLastYear}d`} label="longest streak, year" />
-            <Stat value={`${stats.streakLastMonth}d`} label="longest streak, month" />
-          </div>
-        )}
       </div>
 
       {/* Rating-based heatmap */}

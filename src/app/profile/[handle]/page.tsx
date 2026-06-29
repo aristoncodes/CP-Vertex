@@ -160,7 +160,7 @@ export default function ProfilePage() {
 
       {/* ── Activity Heatmap (belongs on profile) ── */}
       <div style={{ position: "relative" }}>
-        <Heatmap data={profile.heatmap || []} stats={profile.heatmapStats} />
+        <Heatmap data={profile.heatmap || []} />
       </div>
 
       {/* ── Badge Showcase ── */}
