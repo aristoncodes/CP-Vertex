@@ -216,11 +216,30 @@ export function useUserStats(handle: string, refreshKey: number = 0): UserStatsR
               cells[idx] = { time: null, waCount: 0, tleCount: 0 };
               continue;
             }
-            const firstAC = probSubs.find((s: any) => s.verdict === "OK");
+            // Pace = time of the FIRST accepted submission (earliest by contest
+            // time), matching the time shown in Codeforces standings. CF returns
+            // submissions newest-first, so take the minimum, not the first found.
+            const acTimes = probSubs
+              .filter((s: any) => s.verdict === "OK")
+              .map((s: any) => s.relativeTimeSeconds);
+            const firstAcTime = acTimes.length ? Math.min(...acTimes) : null;
+
+            // Wrong attempts that count like CF's penalty: rejected submissions
+            // made BEFORE the first AC (or all attempts if never solved).
+            // Compilation errors and skipped/testing are not penalized by CF.
+            const cutoff = firstAcTime ?? Infinity;
+            const rejectedBefore = probSubs.filter(
+              (s: any) =>
+                s.verdict !== "OK" &&
+                s.verdict !== "COMPILATION_ERROR" &&
+                s.verdict !== "SKIPPED" &&
+                s.verdict !== "TESTING" &&
+                s.relativeTimeSeconds < cutoff
+            );
             cells[idx] = {
-              time: firstAC ? Math.floor(firstAC.relativeTimeSeconds / 60) : null,
-              waCount: probSubs.filter((s: any) => s.verdict === "WRONG_ANSWER").length,
-              tleCount: probSubs.filter((s: any) => s.verdict === "TIME_LIMIT_EXCEEDED").length,
+              time: firstAcTime !== null ? Math.floor(firstAcTime / 60) : null,
+              waCount: rejectedBefore.filter((s: any) => s.verdict === "WRONG_ANSWER").length,
+              tleCount: rejectedBefore.filter((s: any) => s.verdict === "TIME_LIMIT_EXCEEDED").length,
             };
           }
 

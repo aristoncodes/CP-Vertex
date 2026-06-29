@@ -18,13 +18,19 @@ export async function GET() {
         verdict: "OK",
         submittedAt: { gte: oneYearAgo },
       },
-      select: { submittedAt: true, xpAwarded: true },
+      select: { submittedAt: true, xpAwarded: true, problemId: true },
       orderBy: { submittedAt: "asc" },
     })
 
-    // Group by date
+    // Group by date — count DISTINCT problems solved (each problem once, on the
+    // day of its first accepted submission). Counting raw AC submissions would
+    // double-count re-submissions and not match the unique problem count on
+    // Codeforces.
     const heatmap: Record<string, { count: number; xpCount: number }> = {}
+    const seenProblems = new Set<string>()
     for (const sub of submissions) {
+      if (seenProblems.has(sub.problemId)) continue
+      seenProblems.add(sub.problemId)
       // Adjust to IST (UTC+5:30) to align with streak calculation
       const istTime = new Date(sub.submittedAt.getTime() + 330 * 60000)
       const dateKey = istTime.toISOString().split("T")[0]

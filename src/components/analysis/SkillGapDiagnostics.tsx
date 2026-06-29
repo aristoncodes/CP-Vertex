@@ -173,7 +173,7 @@ export function SkillGapDiagnostics({ tagStats, paceHeatmap, loading }: Props) {
         <div className="n-card" style={{ padding: "20px 24px" }}>
           <div style={{ fontSize: 11, fontWeight: 500, color: "var(--text-muted)", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.06em", display: "flex", alignItems: "center" }}>
             Pace & Accuracy
-            <InfoTooltip info="Average minutes to solve problems (A-F) in recent rated contests, and count of Wrong Answers (WA) / Time Limit Exceeded (TLE) verdicts. Red indicates slow pace or high penalty." align="left" />
+            <InfoTooltip info="For your last 5 rated contests: A–F show minutes from contest start to your FIRST accepted solution (lower is faster). WA / TLE count rejected submissions made BEFORE you solved each problem — the same attempts Codeforces penalizes. Green = fast/clean, amber = some friction, red = slow or many failed attempts." align="left" />
           </div>
           {paceHeatmap.length === 0 ? (
             <div style={{ fontSize: 13, color: "var(--text-muted)", textAlign: "center", padding: "24px 0" }}>
@@ -201,6 +201,16 @@ export function SkillGapDiagnostics({ tagStats, paceHeatmap, loading }: Props) {
                   ))}
                 </tbody>
               </table>
+              {/* Legend — make the meaning explicit */}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 12, fontSize: 11, color: "var(--text-muted)" }}>
+                <span><strong style={{ color: "var(--text-secondary)" }}>A–F</strong> = minutes to first solve</span>
+                <span><strong style={{ color: "var(--text-secondary)" }}>WA / TLE</strong> = wrong / TLE attempts before solving</span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                  <span style={{ width: 10, height: 10, borderRadius: 3, background: "#EAF3DE", display: "inline-block" }} /> fast/clean
+                  <span style={{ width: 10, height: 10, borderRadius: 3, background: "#FAEEDA", display: "inline-block", marginLeft: 6 }} /> some
+                  <span style={{ width: 10, height: 10, borderRadius: 3, background: "#FCEBEB", display: "inline-block", marginLeft: 6 }} /> slow/many
+                </span>
+              </div>
               {waWarning && <WarningBox>{waWarning}</WarningBox>}
             </>
           )}
