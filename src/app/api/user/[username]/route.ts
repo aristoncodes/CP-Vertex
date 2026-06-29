@@ -58,6 +58,9 @@ export async function GET(
     // Heatmap: last 365 days (full year like Codeforces)
     const oneYearAgo = new Date()
     oneYearAgo.setDate(oneYearAgo.getDate() - 365)
+    const oneMonthAgo = new Date()
+    oneMonthAgo.setDate(oneMonthAgo.getDate() - 30)
+    const oneMonthAgoTime = oneMonthAgo.getTime()
 
     const submissions = await prisma.submission.findMany({
       where: {
@@ -65,19 +68,48 @@ export async function GET(
         verdict: "OK",
         submittedAt: { gte: oneYearAgo },
       },
-      select: { submittedAt: true, xpAwarded: true },
+      select: { submittedAt: true, xpAwarded: true, problemId: true, problem: { select: { rating: true } } },
+      orderBy: { submittedAt: "asc" },
     })
 
-    const heatmap: Record<string, { count: number; xpCount: number }> = {}
+    // IST date key (aligns with streak calculation)
+    const istKey = (d: Date) => new Date(d.getTime() + 330 * 60000).toISOString().split("T")[0]
+
+    // Per-day: distinct problems solved that day, + the hardest rating solved.
+    const heatmap: Record<string, { count: number; xpCount: number; maxRating: number; pids: Set<string> }> = {}
+    const yearProblems = new Set<string>()
+    const monthProblems = new Set<string>()
     for (const sub of submissions) {
-      // Adjust to IST (UTC+5:30) to align with streak calculation
-      const istTime = new Date(sub.submittedAt.getTime() + 330 * 60000)
-      const dateKey = istTime.toISOString().split("T")[0]
-      if (!heatmap[dateKey]) heatmap[dateKey] = { count: 0, xpCount: 0 }
-      heatmap[dateKey].count += 1
-      // xpAwarded > 0 means it was solved on CodeArena (not just CF sync)
-      if (sub.xpAwarded > 0) heatmap[dateKey].xpCount += 1
+      yearProblems.add(sub.problemId)
+      if (sub.submittedAt.getTime() >= oneMonthAgoTime) monthProblems.add(sub.problemId)
+      const dateKey = istKey(sub.submittedAt)
+      const cell = heatmap[dateKey] ?? (heatmap[dateKey] = { count: 0, xpCount: 0, maxRating: 0, pids: new Set() })
+      if (!cell.pids.has(sub.problemId)) {
+        cell.pids.add(sub.problemId)
+        cell.count += 1
+        if (sub.xpAwarded > 0) cell.xpCount += 1
+      }
+      const r = sub.problem?.rating ?? 0
+      if (r > cell.maxRating) cell.maxRating = r
     }
+
+    // Longest consecutive-day streak within a set of active days.
+    const longestStreak = (dates: string[]): number => {
+      const days = [...new Set(dates)]
+        .map((d) => Math.floor(new Date(d + "T00:00:00Z").getTime() / 86400000))
+        .sort((a, b) => a - b)
+      let best = 0, cur = 0, prev: number | null = null
+      for (const d of days) {
+        cur = prev !== null && d === prev + 1 ? cur + 1 : 1
+        if (cur > best) best = cur
+        prev = d
+      }
+      return best
+    }
+    const activeDays = Object.keys(heatmap)
+    const monthAgoKey = istKey(oneMonthAgo)
+    const streakLastYear = longestStreak(activeDays)
+    const streakLastMonth = longestStreak(activeDays.filter((d) => d >= monthAgoKey))
 
     const uniqueSolved = await prisma.submission.findMany({
       where: { userId: user.id, verdict: "OK" },
@@ -155,7 +187,15 @@ export async function GET(
         solved: ts.acCount,
         attempted: ts.totalAttempts,
       })),
-      heatmap: Object.entries(heatmap).map(([date, { count, xpCount }]) => ({ date, count, xpCount })),
+      heatmap: Object.entries(heatmap).map(([date, c]) => ({ date, count: c.count, xpCount: c.xpCount, maxRating: c.maxRating })),
+      heatmapStats: {
+        solvedAllTime: totalSolved,
+        solvedLastYear: yearProblems.size,
+        solvedLastMonth: monthProblems.size,
+        streakMax: user.streakLongest,
+        streakLastYear,
+        streakLastMonth,
+      },
       ratingHistory: user.cfHandle ? await getCFRatingHistory(user.cfHandle).catch(() => []) : [],
     })
   } catch (error) {
