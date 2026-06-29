@@ -3,6 +3,7 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { getSeriousPref, setSeriousPref, SERIOUS_AUTO_RATING, type SeriousPref } from "@/hooks/useSeriousMode";
 
 type SettingKey = "smoothScroll" | "notifDuels" | "notifStreak" | "focusMode" | "autoStartTimer" | "strictMode";
 
@@ -44,6 +45,7 @@ export default function SettingsPage() {
   const [notifDuels, setNotifDuels] = useState(true);
   const [notifStreak, setNotifStreak] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
+  const [seriousPref, setSeriousPrefState] = useState<SeriousPref>("auto");
 
   useEffect(() => {
     fetch("/api/user/me").then(r => r.json()).then(d => {
@@ -55,6 +57,7 @@ export default function SettingsPage() {
     setSmoothScroll(getStoredSetting("smoothScroll"));
     setNotifDuels(getStoredSetting("notifDuels"));
     setNotifStreak(getStoredSetting("notifStreak"));
+    setSeriousPrefState(getSeriousPref());
     // Dark mode
     const theme = localStorage.getItem("cp-vertex:theme");
     setDarkMode(theme === "dark" || (!theme && window.matchMedia("(prefers-color-scheme: dark)").matches));
@@ -341,17 +344,47 @@ export default function SettingsPage() {
               enabled={smoothScroll} 
               onToggle={() => toggle("smoothScroll", smoothScroll, setSmoothScroll)} 
             />
-            <SettingRow 
-              label="Focus Mode" 
-              desc="Hide ratings and stats to reduce anxiety" 
-              enabled={getStoredSetting("focusMode", false)} 
+            <SettingRow
+              label="Focus Mode"
+              desc="Hide ratings and stats to reduce anxiety"
+              enabled={getStoredSetting("focusMode", false)}
               onToggle={() => {
                 const current = getStoredSetting("focusMode", false);
                 setStoredSetting("focusMode", !current);
                 // force re-render
-                setHandle(h => h); 
-              }} 
+                setHandle(h => h);
+              }}
             />
+
+            {/* Serious mode — tri-state (Auto / On / Off) */}
+            <div style={{ padding: "4px 0" }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>Serious Mode</div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2, marginBottom: 10 }}>
+                Tone down XP fanfare, confetti, and game-y labels.
+                Auto enables it for Expert+ ({SERIOUS_AUTO_RATING}+).
+              </div>
+              <div style={{
+                display: "inline-flex", background: "var(--surface-low)", borderRadius: 10,
+                padding: 3, border: "0.5px solid var(--border)", gap: 2,
+              }}>
+                {(["auto", "off", "on"] as SeriousPref[]).map((opt) => (
+                  <button
+                    key={opt}
+                    onClick={() => { setSeriousPref(opt); setSeriousPrefState(opt); }}
+                    style={{
+                      padding: "6px 16px", borderRadius: 8, border: "none", cursor: "pointer",
+                      fontSize: 13, fontWeight: 500, fontFamily: "'Inter', sans-serif",
+                      textTransform: "capitalize", transition: "all 0.15s",
+                      background: seriousPref === opt ? "var(--surface-card)" : "transparent",
+                      color: seriousPref === opt ? "var(--text-primary)" : "var(--text-muted)",
+                      boxShadow: seriousPref === opt ? "var(--shadow-sm)" : "none",
+                    }}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 

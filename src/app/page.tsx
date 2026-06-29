@@ -56,7 +56,14 @@ const comparisonRows = [
 export default function LandingPage() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
+  const [handleInput, setHandleInput] = useState("");
   const { data: session, status } = useSession();
+
+  const analyzeHandle = (e: React.FormEvent) => {
+    e.preventDefault();
+    const h = handleInput.trim();
+    if (h) router.push(`/u/${encodeURIComponent(h)}`);
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -141,7 +148,34 @@ export default function LandingPage() {
           journey. Solve problems, earn XP, climb ranks, and compete against the best.
         </p>
 
-        <div style={{ display: "flex", gap: 12, marginTop: 40 }}>
+        {/* Instant-value: analyze any Codeforces handle, no login */}
+        <form onSubmit={analyzeHandle} className="hero-analyze" style={{
+          display: "flex", gap: 10, marginTop: 40, width: "100%", maxWidth: 480,
+        }}>
+          <input
+            value={handleInput}
+            onChange={(e) => setHandleInput(e.target.value)}
+            placeholder="Analyze any Codeforces handle — e.g. tourist"
+            aria-label="Codeforces handle"
+            autoComplete="off"
+            spellCheck={false}
+            style={{
+              flex: 1, minWidth: 0, padding: "14px 18px", fontSize: 15,
+              borderRadius: 10, border: "1px solid var(--border, rgba(194,198,214,0.4))",
+              background: "var(--surface-card, #fff)", color: "var(--text-primary, #181c1f)",
+              fontFamily: "'Inter', sans-serif", outline: "none",
+            }}
+          />
+          <button type="submit" className="n-btn-primary" style={{ padding: "14px 28px", fontSize: 15, whiteSpace: "nowrap" }}>
+            Analyze
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
+          </button>
+        </form>
+        <p style={{ fontSize: 13, color: "var(--text-muted, #727785)", marginTop: 12 }}>
+          No sign-up required. Instant topic-strength, rating, and contest analysis.
+        </p>
+
+        <div className="hero-cta" style={{ display: "flex", gap: 12, marginTop: 28 }}>
           <button onClick={() => router.push("/login")} className="n-btn-primary" style={{ padding: "14px 32px", fontSize: 15 }}>
             Enter the Arena
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>

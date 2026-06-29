@@ -2,6 +2,7 @@
 
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useState, useRef, useEffect } from "react";
+import { getRatingColor } from "@/lib/colors";
 
 const CF_TAGS = [
   "2-sat", "binary search", "bitmasks", "brute force", "chinese theorem",
@@ -22,24 +23,9 @@ interface Problem {
   tags: string[];
 }
 
-function getRatingColor(rating: number) {
-  if (rating < 1200) return "var(--text-muted)";
-  if (rating < 1400) return "var(--success)";
-  if (rating < 1600) return "var(--info)";
-  if (rating < 1900) return "var(--primary)";
-  if (rating < 2100) return "#a78bfa";
-  if (rating < 2400) return "var(--warning)";
-  return "var(--danger)";
-}
-
+/** Translucent background derived from the canonical tier color. */
 function getRatingBg(rating: number) {
-  if (rating < 1200) return "var(--surface-high)";
-  if (rating < 1400) return "var(--success-light)";
-  if (rating < 1600) return "var(--info-light)";
-  if (rating < 1900) return "var(--primary-light)";
-  if (rating < 2100) return "rgba(167, 139, 250, 0.10)";
-  if (rating < 2400) return "var(--warning-light)";
-  return "var(--danger-light)";
+  return `color-mix(in srgb, ${getRatingColor(rating)} 12%, transparent)`;
 }
 
 export default function GymFinderPage() {

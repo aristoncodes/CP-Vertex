@@ -10,6 +10,7 @@ import {
   Area,
   AreaChart,
 } from "recharts";
+import { getRatingColor as getRankColor } from "@/lib/colors";
 
 interface CFRatingChange {
   contestId: number;
@@ -21,25 +22,16 @@ interface CFRatingChange {
   newRating: number;
 }
 
-/* CF rating band thresholds */
+/* CF rating band thresholds — colors resolve from the canonical palette
+   (theme-aware via CSS vars; SVG resolves var() references). */
 const BANDS = [
-  { value: 1200, label: "Pupil", color: "#22c55e" },
-  { value: 1400, label: "Specialist", color: "#06b6d4" },
-  { value: 1600, label: "Expert", color: "#3b82f6" },
-  { value: 1900, label: "CM", color: "#a855f7" },
-  { value: 2100, label: "Master", color: "#FF8C00" },
-  { value: 2400, label: "GM", color: "#dc2626" },
+  { value: 1200, label: "Pupil",      color: "var(--rating-pupil)" },
+  { value: 1400, label: "Specialist", color: "var(--rating-specialist)" },
+  { value: 1600, label: "Expert",     color: "var(--rating-expert)" },
+  { value: 1900, label: "CM",         color: "var(--rating-cm)" },
+  { value: 2100, label: "Master",     color: "var(--rating-master)" },
+  { value: 2400, label: "GM",         color: "var(--rating-gm)" },
 ];
-
-function getRankColor(rating: number): string {
-  if (rating >= 2400) return "#dc2626";  // GM — red
-  if (rating >= 2100) return "#FF8C00";  // Master — orange
-  if (rating >= 1900) return "#a855f7";  // CM — purple
-  if (rating >= 1600) return "#3b82f6";  // Expert — blue
-  if (rating >= 1400) return "#06b6d4";  // Specialist — cyan
-  if (rating >= 1200) return "#22c55e";  // Pupil — green
-  return "#6b7280";                       // Newbie — grey
-}
 
 export function RatingChart({ data = [] }: { data?: CFRatingChange[] }) {
   if (!data || data.length === 0) {

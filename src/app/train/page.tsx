@@ -4,6 +4,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useStore } from "@/store/useStore";
 import { useEffect, useState, useCallback, Suspense } from "react";
+import { getRatingColor as ratingColor } from "@/lib/colors";
 
 /* ─────────────── Training Modes (from old Practice page) ─────────────── */
 
@@ -66,15 +67,6 @@ interface PickedProblem {
   title: string;
   tags: string[];
   solvedCount: number;
-}
-
-function ratingColor(r: number) {
-  if (r >= 2400) return "var(--danger)";
-  if (r >= 2100) return "#7c3aed";
-  if (r >= 1900) return "var(--info)";
-  if (r >= 1600) return "var(--success)";
-  if (r >= 1200) return "var(--warning)";
-  return "var(--text-muted)";
 }
 
 function ProblemBrowser() {

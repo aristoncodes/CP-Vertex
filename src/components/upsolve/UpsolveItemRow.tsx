@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation"
 import { CountdownTimer } from "./CountdownTimer"
 import { XPMultiplierBadge } from "./XPMultiplierBadge"
+import { getRatingColor } from "@/lib/colors"
 
 interface UpsolveItemProps {
   item: {
@@ -33,15 +34,7 @@ interface UpsolveItemProps {
   minimal?: boolean
 }
 
-function ratingColor(rating: number): string {
-  if (rating >= 2400) return "var(--danger)"
-  if (rating >= 2100) return "#7c3aed"
-  if (rating >= 1900) return "var(--info)"
-  if (rating >= 1600) return "var(--success)"
-  if (rating >= 1400) return "var(--primary)"
-  if (rating >= 1200) return "var(--warning)"
-  return "var(--text-muted)"
-}
+const ratingColor = getRatingColor
 
 function verdictChip(type: string, lastVerdict: string | null, attemptCount: number) {
   if (type === "never_attempted") {

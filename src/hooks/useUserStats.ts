@@ -89,7 +89,14 @@ export function useUserStats(handle: string, refreshKey: number = 0): UserStatsR
         const totalLast30 = new Set<string>();
         const totalPrev30 = new Set<string>();
 
-        for (const s of submissions) {
+        // Exclude TEAM submissions (more than one author) — those solves are
+        // not solely attributable to this user and would inflate their stats.
+        // Practice/virtual/contestant solves by the user alone are all kept.
+        const personalSubs = submissions.filter(
+          (s: any) => (s.author?.members?.length ?? 1) <= 1
+        );
+
+        for (const s of personalSubs) {
           const pid = `${s.problem.contestId}-${s.problem.index}`;
           if (s.creationTimeSeconds >= thirtyDaysAgo) {
             totalLast30.add(pid);
@@ -105,7 +112,7 @@ export function useUserStats(handle: string, refreshKey: number = 0): UserStatsR
         const solveRateDelta = solveRate - solveRatePrev;
 
         // --- Filter to only CONTESTANT submissions for contest metrics ---
-        const contestantSubs = submissions.filter(
+        const contestantSubs = personalSubs.filter(
           (s: any) => s.author?.participantType === "CONTESTANT"
         );
 
@@ -140,7 +147,7 @@ export function useUserStats(handle: string, refreshKey: number = 0): UserStatsR
         const ratedContestIds = new Set(ratingHistory.map((r: any) => r.contestId));
         const solvedIds = new Set<string>();
         const attemptedIds = new Set<string>();
-        for (const s of submissions) {
+        for (const s of personalSubs) {
           const pid = `${s.problem.contestId}-${s.problem.index}`;
           if (s.verdict === "OK") solvedIds.add(pid);
           if (ratedContestIds.has(s.contestId)) attemptedIds.add(pid);
@@ -149,7 +156,7 @@ export function useUserStats(handle: string, refreshKey: number = 0): UserStatsR
 
         // --- Tag Stats ---
         const tagMap: Record<string, { total: number; ac: number; totalLower: number; acLower: number }> = {};
-        for (const s of submissions) {
+        for (const s of personalSubs) {
           const pr = s.problem?.rating || 0;
           const isCurrentBand = pr >= bandLow && pr < bandHigh;
           const isLowerBand = pr >= lowerBandLow && pr < lowerBandHigh;

@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useCallback, useRef } from "react";
+import { useSeriousMode } from "@/hooks/useSeriousMode";
 
 interface Toast {
   id: string;
@@ -29,6 +30,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [confetti, setConfetti] = useState(false);
   const idCounter = useRef(0);
+  // Serious mode tones down celebratory fanfare (confetti, "Level Up!" emoji).
+  const serious = useSeriousMode();
 
   const removeToast = useCallback((id: string) => {
     setToasts((prev) => prev.map((t) => (t.id === id ? { ...t, exiting: true } : t)));
@@ -55,17 +58,23 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
   const showLevelUp = useCallback(
     (level: number) => {
+      if (serious) {
+        // Quiet, no confetti, no emoji fanfare.
+        addToast(`Level ${level} reached`, "info", "trending_up");
+        return;
+      }
       addToast(`🎉 Level Up! You're now Level ${level}!`, "levelup", "military_tech");
       setConfetti(true);
       setTimeout(() => setConfetti(false), 3000);
     },
-    [addToast]
+    [addToast, serious]
   );
 
   const triggerConfetti = useCallback(() => {
+    if (serious) return; // no celebratory confetti in serious mode
     setConfetti(true);
     setTimeout(() => setConfetti(false), 3000);
-  }, []);
+  }, [serious]);
 
   const typeStyles: Record<string, { bg: string; border: string; color: string }> = {
     success: { bg: "var(--success-light)", border: "var(--success)", color: "var(--success)" },

@@ -2,7 +2,7 @@
 
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
 interface Stats {
@@ -87,18 +87,7 @@ export default function AdminAnalyticsPage() {
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
   const [updatingBugId, setUpdatingBugId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login");
-      return;
-    }
-    if (status === "authenticated") {
-      fetchStats();
-      fetchBugStats();
-    }
-  }, [status]);
-
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -117,9 +106,9 @@ export default function AdminAnalyticsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchBugStats = async () => {
+  const fetchBugStats = useCallback(async () => {
     try {
       const res = await fetch("/api/admin/bug-reports");
       if (res.ok) {
@@ -129,7 +118,18 @@ export default function AdminAnalyticsPage() {
     } catch {
       console.error("Failed to fetch bug reports");
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+      return;
+    }
+    if (status === "authenticated") {
+      fetchStats();
+      fetchBugStats();
+    }
+  }, [status, router, fetchStats, fetchBugStats]);
 
   const updateBugStatus = async (bugId: string, newStatus: string) => {
     setUpdatingBugId(bugId);

@@ -20,11 +20,23 @@
   --text-muted: #727785;
   --text-faint: #9ca3af;
 
-  /* Primary accent — Academic Blue */
-  --primary: #0366d6;
-  --primary-hover: #004fa8;
-  --primary-light: rgba(3, 102, 214, 0.08);
-  --primary-lighter: rgba(3, 102, 214, 0.04);
+  /* Primary accent — Codeforces Blue */
+  --primary: #0b69c7;
+  --primary-hover: #08529e;
+  --primary-light: rgba(11, 105, 199, 0.08);
+  --primary-lighter: rgba(11, 105, 199, 0.04);
+
+  /* Codeforces rating-tier colors (official light-mode values) */
+  --rating-newbie:    #808080;
+  --rating-pupil:     #008000;
+  --rating-specialist:#03a89e;
+  --rating-expert:    #0000ff;
+  --rating-cm:        #aa00aa;
+  --rating-master:    #ff8c00;
+  --rating-im:        #ff8c00;
+  --rating-gm:        #ff0000;
+  --rating-igm:       #ff0000;
+  --rating-lgm:       #ff0000;
 
   /* Functional colors */
   --success: #059669;
@@ -87,11 +99,23 @@
   --text-muted:     #6b7a91;
   --text-faint:     #404d5e;
 
-  /* ── Primary accent: electric cerulean ── */
-  --primary:        #4d9fff;
-  --primary-hover:  #7dbeff;
-  --primary-light:  rgba(77, 159, 255, 0.12);
-  --primary-lighter: rgba(77, 159, 255, 0.06);
+  /* ── Primary accent: Codeforces blue, dark-readable ── */
+  --primary:        #58a6ff;
+  --primary-hover:  #79c0ff;
+  --primary-light:  rgba(88, 166, 255, 0.12);
+  --primary-lighter: rgba(88, 166, 255, 0.06);
+
+  /* ── Rating tiers: brightened for dark backgrounds ── */
+  --rating-newbie:    #9aa0a6;
+  --rating-pupil:     #3ecf5a;
+  --rating-specialist:#2bd4c4;
+  --rating-expert:    #4d8eff;
+  --rating-cm:        #d24dd2;
+  --rating-master:    #ffa733;
+  --rating-im:        #ffb84d;
+  --rating-gm:        #ff4d4d;
+  --rating-igm:       #ff3333;
+  --rating-lgm:       #ff1a1a;
 
   /* ── Functional colors: dark-tuned ── */
   --success:        #34d399;
@@ -1164,5 +1188,64 @@ a { text-decoration: none; color: inherit; }
 @media (max-width: 768px) {
   .analysis-two-col {
     grid-template-columns: 1fr !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   RESPONSIVE — data-heavy pages & the public analyzer
+   (CF post links get heavy mobile traffic; the analyzer is shared most)
+════════════════════════════════════════════════════════════════ */
+
+/* Two-column section that collapses to one column on narrow screens. */
+.grid-2-collapse {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+/* Wrap wide tables/rows in this to get horizontal scroll instead of overflow. */
+.scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+  .grid-2-collapse {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  /* Analyzer tab bar: let it scroll horizontally rather than overflow. */
+  .analyzer-tabs {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Landing hero: stack the analyze input + button, full width. */
+  .hero-analyze {
+    flex-direction: column;
+  }
+  .hero-analyze button {
+    width: 100%;
+    justify-content: center;
+  }
+  .hero-cta {
+    flex-direction: column;
+    width: 100%;
+    max-width: 480px;
+  }
+  .hero-cta button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Leaderboard / contest / problem tables: never force page-wide overflow. */
+  table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
   }
 }

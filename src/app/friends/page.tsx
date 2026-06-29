@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { FriendButton } from "@/components/ui/FriendButton";
 import { getLevelFromXP } from "@/lib/xp-math";
+import { getRatingColor } from "@/lib/colors";
 
 type Tab = "friends" | "requests" | "find";
 
@@ -128,15 +129,8 @@ export default function FriendsPage() {
     </div>
   );
 
-  const ratingColor = (r: number | null) => {
-    if (!r) return "var(--text-muted)";
-    if (r >= 2400) return "#FF0000";
-    if (r >= 1900) return "#FF8C00";
-    if (r >= 1600) return "#AA00AA";
-    if (r >= 1400) return "#0000FF";
-    if (r >= 1200) return "#008080";
-    return "#808080";
-  };
+  const ratingColor = (r: number | null) =>
+    r ? getRatingColor(r) : "var(--text-muted)";
 
   const timeAgo = (dateStr: string | null) => {
     if (!dateStr) return "unknown";

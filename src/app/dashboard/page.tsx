@@ -9,6 +9,7 @@ import { StreakDisplay } from "@/components/ui/StreakDisplay";
 import { useStore } from "@/store/useStore";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useSeriousMode } from "@/hooks/useSeriousMode";
 import { UpsolveWidget } from "@/components/upsolve/UpsolveWidget";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
 import { DuelHistory } from "@/components/dashboard/DuelHistory";
@@ -55,7 +56,15 @@ const quickPlayModes = [
 function DashboardMain({ profile }: { profile: any }) {
   const { data: session } = useSession();
   const router = useRouter();
+  const serious = useSeriousMode();
   const [pendingDuels, setPendingDuels] = useState(0);
+
+  // Neutral labels for the "boss" mode when serious mode is on.
+  const modes = serious
+    ? quickPlayModes.map((m) =>
+        m.key === "boss" ? { ...m, label: "Hard Set", desc: "Daily hard problem" } : m
+      )
+    : quickPlayModes;
 
   useEffect(() => {
     fetch("/api/duels?status=pending").then(r => r.json()).then(d => {
@@ -106,7 +115,7 @@ function DashboardMain({ profile }: { profile: any }) {
           <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Jump straight into training</span>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
-          {quickPlayModes.map((mode) => (
+          {modes.map((mode) => (
             <button
               key={mode.key}
               onClick={() => router.push(mode.href)}

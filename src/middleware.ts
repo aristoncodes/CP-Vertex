@@ -23,7 +23,8 @@ export function middleware(request: NextRequest) {
     request.cookies.get("authjs.session-token")
 
   const isAuthenticated = !!sessionToken
-  const isPublic = PUBLIC.includes(pathname)
+  // Public pages: exact matches plus the no-login handle analyzer (/u/<handle>).
+  const isPublic = PUBLIC.includes(pathname) || pathname.startsWith("/u/")
 
   // Redirect unauthenticated users from protected routes
   if (!isAuthenticated && !isPublic) {

@@ -150,7 +150,7 @@ export function SkillGapDiagnostics({ tagStats, paceHeatmap, loading }: Props) {
         Skill Gap Diagnostics
       </h2>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+      <div className="grid-2-collapse">
         {/* Left — Tag Success Rate */}
         <div className="n-card" style={{ padding: "20px 24px" }}>
           <div style={{ fontSize: 11, fontWeight: 500, color: "var(--text-muted)", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.06em", display: "flex", alignItems: "center" }}>
