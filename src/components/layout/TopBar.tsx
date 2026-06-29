@@ -1,20 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
-
-const navItems = [
-  { label: "Dashboard", href: "/dashboard", icon: "space_dashboard" },
-  { label: "Train", href: "/train", icon: "fitness_center" },
-  { label: "Compete", href: "/compete", icon: "swords" },
-  { label: "Analysis", href: "/analysis", icon: "analytics" },
-  { label: "Library", href: "/learn", icon: "menu_book" },
-  { label: "Contests", href: "/contests", icon: "emoji_events" },
-  { label: "Friends", href: "/friends", icon: "group" },
-];
+import { useUIStore } from "@/store/useUIStore";
 
 interface Notification {
   id: string;
@@ -58,8 +49,8 @@ function getNotifColor(type: string) {
 }
 
 export function TopBar() {
-  const pathname = usePathname();
   const router = useRouter();
+  const setSidebarOpen = useUIStore((s) => s.setSidebarOpen);
   const { data: session } = useSession();
   const userHandle = session?.user?.cfHandle || session?.user?.name || "user";
   const displayHandle = session?.user?.name || "Guest";
@@ -153,61 +144,35 @@ export function TopBar() {
     <header
       className="n-glass"
       style={{
-        position: "relative",
-        zIndex: 100,
+        position: "sticky",
+        top: 0,
+        zIndex: 30,
       }}
     >
-      {/* Row 1: Logo + User */}
+      {/* Row 1: hamburger (mobile) + actions */}
       <div
         className="topbar-row1"
         style={{
-          maxWidth: 1200,
-          margin: "0 auto",
-          padding: "12px 32px",
+          padding: "10px 24px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
         }}
       >
-        {/* Logo */}
-        <Link
-          href="/dashboard"
+        {/* Mobile hamburger — opens the left rail drawer */}
+        <button
+          className="sidebar-toggle"
+          aria-label="Open navigation"
+          onClick={() => setSidebarOpen(true)}
           style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            textDecoration: "none",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            width: 36, height: 36, borderRadius: "var(--radius-sm)",
+            border: "1px solid var(--border)", background: "var(--surface-card)",
+            color: "var(--text-secondary)", cursor: "pointer",
           }}
         >
-          <div
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: 10,
-              background: "linear-gradient(135deg, var(--primary-hover), var(--primary))",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "white",
-              fontSize: 14,
-              fontWeight: 800,
-              letterSpacing: "-0.02em",
-            }}
-          >
-            CV
-          </div>
-          <span
-            className="topbar-logo-text"
-            style={{
-              fontSize: 20,
-              fontWeight: 800,
-              color: "var(--text-primary)",
-              letterSpacing: "-0.03em",
-            }}
-          >
-            CP <span style={{ color: "var(--primary)" }}>Vertex</span>
-          </span>
-        </Link>
+          <span className="material-symbols-outlined" style={{ fontSize: 20 }}>menu</span>
+        </button>
 
         {/* Right: Notifications + User info */}
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -583,61 +548,6 @@ export function TopBar() {
         </div>
       </div>
 
-      {/* Row 2: Nav tabs */}
-      <nav
-        style={{
-          borderTop: "1px solid var(--border)",
-          background: "var(--surface-card)",
-        }}
-      >
-        <div
-          className="topbar-nav-scroll"
-          style={{
-            maxWidth: 1200,
-            margin: "0 auto",
-            padding: "0 24px",
-            display: "flex",
-            alignItems: "center",
-            gap: 4,
-            overflowX: "auto",
-          }}
-        >
-          {navItems.map((item) => {
-            const isActive =
-              pathname === item.href ||
-              (item.href !== "/dashboard" && pathname.startsWith(item.href));
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  padding: "10px 14px",
-                  fontSize: 13,
-                  fontWeight: isActive ? 600 : 500,
-                  color: isActive ? "var(--primary)" : "var(--text-muted)",
-                  borderBottom: isActive ? "2px solid var(--primary)" : "2px solid transparent",
-                  transition: "color 0.15s",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                <span
-                  className="material-symbols-outlined"
-                  style={{
-                    fontSize: 18,
-                    fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0",
-                  }}
-                >
-                {item.icon}
-                </span>
-                <span className="nav-label">{item.label}</span>
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
     </header>
   );
 }

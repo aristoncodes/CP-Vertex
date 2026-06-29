@@ -2,6 +2,7 @@
 
 import { TopBar } from "./TopBar";
 import { Footer } from "./Footer";
+import { AppSidebar } from "./AppSidebar";
 import { useEffect } from "react";
 import { useAutoSync } from "@/hooks/useAutoSync";
 import { LinkCFPrompt } from "@/components/ui/LinkCFPrompt";
@@ -27,58 +28,60 @@ export function DashboardLayout({
   }, []);
 
   return (
-    <div style={{ background: "var(--surface)", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-      <TopBar />
-      <LinkCFPrompt />
+    <div style={{ background: "var(--surface)", minHeight: "100vh", display: "flex" }}>
+      {/* Single left navigation rail (fixed on desktop, drawer on mobile) */}
+      <AppSidebar />
 
-      {/* Centered content wrapper */}
-      <div
-        className="layout-wrapper"
-        style={{
-          maxWidth: 1200,
-          margin: "0 auto",
-          paddingTop: 0, // TopBar is now relative, no clearance needed
-          display: "flex",
-          gap: 32,
-          position: "relative",
-          flex: 1,
-          width: "100%",
-        }}
-      >
-        {/* Main content area */}
-        <main
-          className="layout-main"
+      {/* Content column */}
+      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
+        <TopBar />
+        <LinkCFPrompt />
+
+        <div
+          className="layout-wrapper"
           style={{
-            flex: 1,
-            minWidth: 0,
-            padding: "32px 32px 80px",
+            maxWidth: 1180,
+            margin: "0 auto",
+            width: "100%",
             display: "flex",
-            flexDirection: "column" as const,
-            gap: 24,
+            gap: 28,
+            position: "relative",
+            flex: 1,
           }}
         >
-          {children}
-        </main>
-
-        {/* Right panel */}
-        {rightPanel && (
-          <aside
-            className="layout-aside"
+          <main
+            className="layout-main"
             style={{
+              flex: 1,
+              minWidth: 0,
+              padding: "28px 28px 80px",
               display: "flex",
               flexDirection: "column",
               gap: 20,
-              padding: "32px 32px 80px 0",
-              width: 300,
-              flexShrink: 0,
             }}
           >
-            {rightPanel}
-          </aside>
-        )}
-      </div>
+            {children}
+          </main>
 
-      <Footer />
+          {rightPanel && (
+            <aside
+              className="layout-aside"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 16,
+                padding: "28px 28px 80px 0",
+                width: 300,
+                flexShrink: 0,
+              }}
+            >
+              {rightPanel}
+            </aside>
+          )}
+        </div>
+
+        <Footer />
+      </div>
     </div>
   );
 }

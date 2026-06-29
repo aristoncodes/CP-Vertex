@@ -5,6 +5,9 @@ interface UIStore {
   setBossHP: (hp: number) => void
   showPostMortem: boolean
   setShowPostMortem: (show: boolean) => void
+  // Mobile nav drawer (left rail) open state
+  sidebarOpen: boolean
+  setSidebarOpen: (open: boolean) => void
 }
 
 export const useUIStore = create<UIStore>((set) => ({
@@ -12,4 +15,6 @@ export const useUIStore = create<UIStore>((set) => ({
   setBossHP: (hp) => set({ bossHP: hp }),
   showPostMortem: false,
   setShowPostMortem: (show) => set({ showPostMortem: show }),
+  sidebarOpen: false,
+  setSidebarOpen: (open) => set({ sidebarOpen: open }),
 }))
