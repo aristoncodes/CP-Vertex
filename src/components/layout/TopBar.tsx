@@ -174,8 +174,10 @@ export function TopBar() {
           <span className="material-symbols-outlined" style={{ fontSize: 20 }}>menu</span>
         </button>
 
-        {/* Right: Notifications + User info */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        {/* Right: Notifications + User info — always pushed to the right
+            (hamburger is hidden on desktop, so margin-left:auto keeps this
+            cluster on the right edge instead of collapsing left). */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "auto" }}>
           {/* Notification Bell */}
           <div ref={notifRef} style={{ position: "relative" }}>
             <button
