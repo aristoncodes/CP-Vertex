@@ -114,10 +114,11 @@ export function AppSidebar() {
           ))}
         </nav>
 
-        {/* Footer: profile / settings / theme */}
+        {/* Footer: profile / settings / report bug / theme */}
         <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 2, paddingTop: 12 }}>
           <NavLink href={`/profile/${userHandle}`} icon="person" label="Profile" active={pathname.startsWith("/profile")} onClick={close} />
           <NavLink href="/settings" icon="settings" label="Settings" active={isActivePath(pathname, "/settings")} onClick={close} />
+          <NavLink href="/report-bug" icon="bug_report" label="Report Bug" active={isActivePath(pathname, "/report-bug")} onClick={close} />
           <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 12px" }}>
             <ThemeToggle />
             <span style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)" }}>Theme</span>

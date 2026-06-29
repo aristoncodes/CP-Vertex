@@ -51,7 +51,6 @@ function DashboardMain({ profile }: { profile: any }) {
     totalSolved: profile?.totalSolved || 0,
   };
   const xpProg = getXPToNextLevel(xp);
-  const xpPct = xpProg.needed > 0 ? Math.min(100, (xpProg.current / xpProg.needed) * 100) : 100;
 
   const hour = new Date().getHours();
   const greeting =
@@ -78,30 +77,22 @@ function DashboardMain({ profile }: { profile: any }) {
   }, [gainXP]);
 
   const stats = [
-    { label: "CF Rating", value: user.rating > 0 ? user.rating.toLocaleString() : "—", icon: "trending_up" },
-    { label: "Solved", value: user.totalSolved.toLocaleString(), icon: "check_circle" },
-    { label: "Level", value: String(user.level), icon: "military_tech" },
-    { label: "Streak", value: user.streak > 0 ? `${user.streak}d` : "—", icon: "local_fire_department" },
+    { label: "CF Rating", value: user.rating > 0 ? user.rating.toLocaleString() : "—", icon: "trending_up", color: "var(--info)" },
+    { label: "Solved", value: user.totalSolved.toLocaleString(), icon: "check_circle", color: "var(--success)" },
+    { label: "Level", value: String(user.level), icon: "military_tech", color: "var(--primary)" },
+    { label: "Streak", value: user.streak > 0 ? `${user.streak}d` : "—", icon: "local_fire_department", color: "var(--warning)" },
   ];
 
   return (
     <>
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
-        <div>
-          <h1 style={{ fontSize: "var(--text-2xl)", fontWeight: 700, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
-            {greeting}, {user.name}
-          </h1>
-          <p style={{ fontSize: "var(--text-md)", color: "var(--text-muted)", marginTop: 4 }}>
-            Level {user.level} · {xpProg.current.toLocaleString()} / {xpProg.needed > 0 ? xpProg.needed.toLocaleString() : "MAX"} XP to next
-          </p>
-        </div>
-        {/* Level progress ring-ish bar */}
-        <div style={{ minWidth: 180, flex: "0 0 auto" }}>
-          <div className="n-progress-track" style={{ height: 6 }}>
-            <div className="n-progress-fill" style={{ width: `${xpPct}%` }} />
-          </div>
-        </div>
+      <div>
+        <h1 style={{ fontSize: "var(--text-2xl)", fontWeight: 700, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
+          {greeting}, {user.name}
+        </h1>
+        <p style={{ fontSize: "var(--text-md)", color: "var(--text-muted)", marginTop: 4 }}>
+          Level {user.level} · {xpProg.needed > 0 ? `${xpProg.current.toLocaleString()} / ${xpProg.needed.toLocaleString()} XP to next level` : "Max level"}
+        </p>
       </div>
 
       {/* Hero — primary action driven by the weekly roadmap target */}
@@ -156,15 +147,21 @@ function DashboardMain({ profile }: { profile: any }) {
       {/* Stat cards */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }} className="dash-stats">
         {stats.map((s) => (
-          <div key={s.label} className="n-card n-card--pad-sm">
-            <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 10 }}>
-              <span className="material-symbols-outlined" style={{ fontSize: 16, color: "var(--text-muted)" }}>{s.icon}</span>
-              <span style={{ fontSize: "var(--text-xs)", fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                {s.label}
-              </span>
+          <div key={s.label} className="n-card" style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{
+              width: 38, height: 38, borderRadius: "var(--radius-sm)", flexShrink: 0,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              background: `color-mix(in srgb, ${s.color} 14%, transparent)`,
+            }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 20, color: s.color, fontVariationSettings: "'FILL' 1" }}>{s.icon}</span>
             </div>
-            <div style={{ fontSize: "var(--text-2xl)", fontWeight: 700, color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
-              {s.value}
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: "var(--text-xs)", fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                {s.label}
+              </div>
+              <div style={{ fontSize: "var(--text-xl)", fontWeight: 700, color: "var(--text-primary)", letterSpacing: "-0.02em", marginTop: 2 }}>
+                {s.value}
+              </div>
             </div>
           </div>
         ))}
