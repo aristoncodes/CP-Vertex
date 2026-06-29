@@ -4,18 +4,22 @@ import { useState } from "react";
 import { getRatingTierName } from "@/lib/colors";
 
 /**
- * Soft pastel rating colors for the heatmap — the official CF tier colors
- * (pure #0000ff blue, #ff0000 red) look harsh as filled cells on a light
- * background, so this is a gentler, more legible palette in the same tier order.
+ * Rating-based heatmap colors, matching the Codeforces Rating-Based Heatmap
+ * extension's palette (color = the hardest problem solved that day). Softer
+ * than the official tier colors, which look harsh as filled cells.
+ * https://github.com/gopikrishna000/Codeforces-Rating-Based-Heatmap-Extension
  */
 function heatRatingColor(rating: number): string {
-  if (rating >= 2400) return "#e57e7e"; // GM — soft red
-  if (rating >= 2100) return "#efb066"; // Master — soft orange
-  if (rating >= 1900) return "#d68ad0"; // Candidate Master — soft magenta
-  if (rating >= 1600) return "#9b9be6"; // Expert — lavender
-  if (rating >= 1400) return "#73cdb8"; // Specialist — mint/teal
-  if (rating >= 1200) return "#a6d97a"; // Pupil — soft green
-  return "#bcc2cb";                      // Newbie — light gray
+  if (rating >= 3000) return "#AA0000"; // dark red
+  if (rating >= 2600) return "#FF0000"; // bright red
+  if (rating >= 2400) return "#FF6464"; // light red
+  if (rating >= 2300) return "#FFBB55"; // orange
+  if (rating >= 2100) return "#FFCC88"; // light orange
+  if (rating >= 1900) return "#FF55FF"; // purple/magenta
+  if (rating >= 1600) return "#AAAAFF"; // light blue
+  if (rating >= 1400) return "#77DDBB"; // aqua green
+  if (rating >= 1200) return "#77FF77"; // green
+  return "#CCCCCC";                      // gray
 }
 
 interface HeatmapEntry {
