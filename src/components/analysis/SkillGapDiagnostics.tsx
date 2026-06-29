@@ -7,12 +7,12 @@ import { InfoTooltip } from "@/components/ui/InfoTooltip";
 export function InsightBox({ children }: { children: React.ReactNode }) {
   return (
     <div style={{
-      background: "#E6F1FB", border: "0.5px solid rgba(24,95,165,0.25)",
+      background: "var(--info-light)", border: "0.5px solid rgba(24,95,165,0.25)",
       borderRadius: 10, padding: "12px 14px", display: "flex", gap: 10,
       alignItems: "flex-start", marginTop: 12,
     }}>
-      <span className="material-symbols-outlined" style={{ fontSize: 18, color: "#185FA5", flexShrink: 0, marginTop: 1, fontVariationSettings: "'FILL' 1" }}>info</span>
-      <span style={{ fontSize: 13, fontWeight: 400, color: "#185FA5", lineHeight: 1.5 }}>{children}</span>
+      <span className="material-symbols-outlined" style={{ fontSize: 18, color: "var(--info)", flexShrink: 0, marginTop: 1, fontVariationSettings: "'FILL' 1" }}>info</span>
+      <span style={{ fontSize: 13, fontWeight: 400, color: "var(--info)", lineHeight: 1.5 }}>{children}</span>
     </div>
   );
 }
@@ -20,12 +20,12 @@ export function InsightBox({ children }: { children: React.ReactNode }) {
 export function WarningBox({ children }: { children: React.ReactNode }) {
   return (
     <div style={{
-      background: "#FAEEDA", border: "0.5px solid rgba(186,117,23,0.25)",
+      background: "var(--warning-light)", border: "0.5px solid rgba(186,117,23,0.25)",
       borderRadius: 10, padding: "12px 14px", display: "flex", gap: 10,
       alignItems: "flex-start", marginTop: 12,
     }}>
-      <span className="material-symbols-outlined" style={{ fontSize: 18, color: "#BA7517", flexShrink: 0, marginTop: 1, fontVariationSettings: "'FILL' 1" }}>warning</span>
-      <span style={{ fontSize: 13, fontWeight: 400, color: "#BA7517", lineHeight: 1.5 }}>{children}</span>
+      <span className="material-symbols-outlined" style={{ fontSize: 18, color: "var(--warning)", flexShrink: 0, marginTop: 1, fontVariationSettings: "'FILL' 1" }}>warning</span>
+      <span style={{ fontSize: 13, fontWeight: 400, color: "var(--warning)", lineHeight: 1.5 }}>{children}</span>
     </div>
   );
 }
@@ -40,9 +40,9 @@ interface TagStat {
 }
 
 function TagBar({ stat }: { stat: TagStat }) {
-  const barColor = stat.successRate >= 70 ? "#3B6D11" : stat.successRate >= 40 ? "#BA7517" : "#A32D2D";
-  const badgeColor = stat.badge === "strong" ? "#EAF3DE" : stat.badge === "ok" ? "#FAEEDA" : "#FCEBEB";
-  const badgeText = stat.badge === "strong" ? "#3B6D11" : stat.badge === "ok" ? "#BA7517" : "#A32D2D";
+  const barColor = stat.successRate >= 70 ? "var(--success)" : stat.successRate >= 40 ? "var(--warning)" : "var(--danger)";
+  const badgeColor = stat.badge === "strong" ? "var(--success-light)" : stat.badge === "ok" ? "var(--warning-light)" : "var(--danger-light)";
+  const badgeText = stat.badge === "strong" ? "var(--success)" : stat.badge === "ok" ? "var(--warning)" : "var(--danger)";
 
   return (
     <div style={{ marginBottom: 14 }}>
@@ -80,13 +80,13 @@ function HeatCell({ value, isCount }: { value: number | null; isCount?: boolean 
       background: "var(--surface-high)", borderRadius: 4,
     }}>—</td>
   );
-  let bg = "#EAF3DE", color = "#3B6D11"; // green
+  let bg = "var(--success-light)", color = "var(--success)"; // green
   if (isCount) {
-    bg = value > 2 ? "#FCEBEB" : value > 0 ? "#FAEEDA" : "#EAF3DE";
-    color = value > 2 ? "#A32D2D" : value > 0 ? "#BA7517" : "#3B6D11";
+    bg = value > 2 ? "var(--danger-light)" : value > 0 ? "var(--warning-light)" : "var(--success-light)";
+    color = value > 2 ? "var(--danger)" : value > 0 ? "var(--warning)" : "var(--success)";
   } else {
-    if (value > 45) { bg = "#FCEBEB"; color = "#A32D2D"; }
-    else if (value > 20) { bg = "#FAEEDA"; color = "#BA7517"; }
+    if (value > 45) { bg = "var(--danger-light)"; color = "var(--danger)"; }
+    else if (value > 20) { bg = "var(--warning-light)"; color = "var(--warning)"; }
   }
   return (
     <td style={{
@@ -186,7 +186,7 @@ export function SkillGapDiagnostics({ tagStats, paceHeatmap, loading }: Props) {
                   <tr>
                     <th style={{ fontSize: 11, fontWeight: 500, color: "var(--text-faint)", textAlign: "left", padding: "4px 8px" }}>Contest</th>
                     {COLS.map(c => (
-                      <th key={c} style={{ fontSize: 11, fontWeight: 500, color: c === "WA" || c === "TLE" ? "#A32D2D" : "var(--text-faint)", textAlign: "center", padding: "4px 0", width: 48 }}>{c}</th>
+                      <th key={c} style={{ fontSize: 11, fontWeight: 500, color: c === "WA" || c === "TLE" ? "var(--danger)" : "var(--text-faint)", textAlign: "center", padding: "4px 0", width: 48 }}>{c}</th>
                     ))}
                   </tr>
                 </thead>
@@ -206,9 +206,9 @@ export function SkillGapDiagnostics({ tagStats, paceHeatmap, loading }: Props) {
                 <span><strong style={{ color: "var(--text-secondary)" }}>A–F</strong> = minutes to first solve</span>
                 <span><strong style={{ color: "var(--text-secondary)" }}>WA / TLE</strong> = wrong / TLE attempts before solving</span>
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                  <span style={{ width: 10, height: 10, borderRadius: 3, background: "#EAF3DE", display: "inline-block" }} /> fast/clean
-                  <span style={{ width: 10, height: 10, borderRadius: 3, background: "#FAEEDA", display: "inline-block", marginLeft: 6 }} /> some
-                  <span style={{ width: 10, height: 10, borderRadius: 3, background: "#FCEBEB", display: "inline-block", marginLeft: 6 }} /> slow/many
+                  <span style={{ width: 10, height: 10, borderRadius: 3, background: "var(--success-light)", display: "inline-block" }} /> fast/clean
+                  <span style={{ width: 10, height: 10, borderRadius: 3, background: "var(--warning-light)", display: "inline-block", marginLeft: 6 }} /> some
+                  <span style={{ width: 10, height: 10, borderRadius: 3, background: "var(--danger-light)", display: "inline-block", marginLeft: 6 }} /> slow/many
                 </span>
               </div>
               {waWarning && <WarningBox>{waWarning}</WarningBox>}
