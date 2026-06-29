@@ -19,53 +19,50 @@
 
 ## 🧠 What is CP-Vertex?
 
-**CP-Vertex** is a full-stack competitive programming training platform built for serious competitive programmers. It connects directly to your **Codeforces** profile and transforms raw submission data into a rich, RPG-like experience — complete with XP, levels, duels, missions, and an AI coach that actually understands where you're weak.
+**CP-Vertex** turns your **Codeforces** history into something actionable: it reads your public submission data and shows you exactly where you're weak, then gives you ways to train it.
 
-Think of it as a gym tracker for CP. You train every day. CP-Vertex measures your progress, identifies your weaknesses, and keeps you coming back.
+Two things make it worth a look:
+
+1. **A no-login analyzer** — paste *any* CF handle and instantly see topic strengths, a rating-based heatmap, contest pace/accuracy, and what to upsolve. No account required.
+2. **Real-time 1v1 duels** — challenge anyone to a head-to-head problem-solving battle, verified through the Codeforces API.
+
+Everything analytical is computed from the **official CF problem ratings** — no hidden Elo, team submissions excluded — so the numbers are honest and defensible.
+
+> 🔗 **Try the analyzer on any handle:** `/u/<handle>` (e.g. `/u/tourist`) · **Compare two:** `/u/<you>/vs/<rival>`
 
 ---
 
 ## ✨ Features
 
-### 🎮 Gamification Engine
-- **XP & Leveling** — Earn XP for every accepted solution. Difficulty, accuracy, and topic bonus modifiers make every solve feel meaningful.
-- **Daily Missions** — A fresh set of challenges every day to build consistency.
-- **Boss Fights** — Special hard problems with HP mechanics. Whittle down the boss to earn bonus XP.
-- **Badges** — Unlock milestone badges for streaks, ratings, topics, and more.
-- **Streak System** — Maintain daily streaks with freeze protection.
+### 📊 Public Analyzer (no login)
+- **Topic strength breakdown** — per-tag success rate counted *at your rating band*, so it isn't padded by easy problems.
+- **Rating-based heatmap** — each day colored by the hardest problem you solved that day (CF tier palette).
+- **Pace & accuracy** — minutes-to-solve and pre-AC wrong attempts for your last 5 rated contests.
+- **Contest what-if & upsolve priority** — rank/rating you'd have gained with zero WAs, plus a ranked upsolve list.
+- **Handle comparison** — two users side by side on rating, solve rate, and topic strengths.
+- Works for **any** handle, live from the public CF API — no account needed.
 
-### ⚔️ Arena (1v1 Duels)
-- **Matchmaking** — Challenge any CP-Vertex user to a real-time 1v1 duel.
-- **Custom Problem Sets** — Duels auto-select problems near both players' average ratings.
-- **Live State Machine** — Duel transitions (`pending → active → completed`) are validated server-side to prevent illegal state changes.
-- **Verification** — Solve completion is verified in real-time via the Codeforces API.
+### ⚔️ 1v1 Duels
+- **Matchmaking** — challenge any user to a real-time head-to-head, or quick-match an opponent.
+- **Fair problem sets** — problems auto-selected near both players' ratings.
+- **Spectator mode** — watch live duels in progress.
+- **Server-validated state machine** (`pending → active → completed`) and **CF-API solve verification** to prevent cheating.
 
-### 📊 Deep Analytics
-- **Topic Strength Scores** — Per-tag accuracy, recency-weighted scoring, and WA penalty analysis across 50+ CF problem tags.
-- **Rating History** — Full Codeforces rating chart over time.
-- **Submission Heatmap** — GitHub-style activity heatmap for solve frequency.
-- **Mistake Analysis** — Tracks your most common wrong-answer patterns.
+### 🏋️ Training Modes
+- **Drill** — curated sets targeting your weakest tags.
+- **Blitz** — timed speed sessions · **Warmup** — quick at-level problems · **Boss** — one hard problem above your rating.
+- **Upsolve tracker** — automatically queues contest problems you didn't solve, with deadlines.
+- **Virtual contests** — simulate past Codeforces rounds.
 
-### 🤖 AI Coach
-- **Personalized Insights** — Powered by Google Gemini. The AI coach reads your actual performance data and tells you exactly which topics to focus on.
-- **Problem Recommendations** — Smart suggestions based on your current level and topic gaps.
-- **Weekly Digest** — A weekly email summarizing your performance, streaks, and next targets.
+### 🎮 Progression (optional, toned-down for strong users)
+- **XP, levels, streaks, and badges** that track your activity **on the platform** (from the day you join — not your imported CF history).
+- **Serious Mode** — auto-enabled for Expert+ players; dials down the game-y framing so it stays an analytics tool.
 
-### 🏋️ Practice Modes
-- **Blitz Mode** — Timed solving sessions for speed training.
-- **Arena Mode** — Pick-your-difficulty freeform practice.
-- **Recovery Mode** — Drill your weakest topics with curated problem sets.
-- **Virtual Contests** — Simulate past Codeforces contests from any era.
+### 🏆 Social
+- **Global leaderboard**, **friends**, and **shareable public profiles** with a Codeforces-style activity + rating heatmap.
 
-### 🏆 Social & Leaderboard
-- **Global Rankings** — Compete with all CP-Vertex users by XP, rating, or streak.
-- **Friend System** — Add friends, track their activity, and compare topic scores.
-- **Public Profiles** — Share your CP-Vertex profile page.
-
-### 📚 Intel Database
-- **Algorithm Library** — A searchable knowledge base of CP algorithms and data structures with theory articles.
-- **LaTeX Rendering** — Articles render with full mathematical notation support.
-- **Practice Problem Links** — Each topic links directly to curated Codeforces problem sets.
+### 📚 Algorithm Library
+- 160+ algorithm/data-structure articles with **LaTeX rendering** and curated practice problem links.
 
 ---
 
@@ -137,8 +134,8 @@ Think of it as a gym tracker for CP. You train every day. CP-Vertex measures you
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/cp-vertex.git
-cd cp-vertex
+git clone https://github.com/aristoncodes/CP-Vertex.git
+cd CP-Vertex
 ```
 
 ### 2. Install Dependencies
@@ -175,7 +172,7 @@ disabled). See [`.env.example`](.env.example) for the full annotated list.
 | `SUPABASE_SERVICE_KEY` | | Supabase service role key |
 | `NEXT_PUBLIC_SUPABASE_URL` | | Supabase URL exposed to the browser |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | | Supabase anon key exposed to the browser |
-| `GEMINI_API_KEY` | | Google Gemini API key for the AI coach |
+| `GEMINI_API_KEY` | | Google Gemini API key (backend insight generation; not currently surfaced in the UI) |
 | `RESEND_API_KEY` | | Resend API key for email delivery |
 | `RESEND_FROM` | | Sender email address |
 | `CRON_SECRET` | | Bearer secret protecting `/api/cron/*` endpoints |
@@ -348,6 +345,6 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 Built with ❤️ for competitive programmers who want to level up.
 
-**[Live Demo](https://cp-vertex.vercel.app)** · **[Report Bug](https://github.com/your-username/cp-vertex/issues)** · **[Request Feature](https://github.com/your-username/cp-vertex/issues)**
+**[Live Demo](https://cpvertex.vercel.app)** · **[Analyze a handle](https://cpvertex.vercel.app/u/tourist)** · **[Report Bug](https://github.com/aristoncodes/CP-Vertex/issues)**
 
 </div>
