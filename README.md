@@ -93,9 +93,10 @@ Everything analytical is computed from the **official CF problem ratings** — n
 - **Decorator Pattern** — `withAuth()` higher-order function centralizes auth across all routes.
 - **State Machine** — `duelStateMachine.ts` validates all duel state transitions server-side.
 - **Circuit Breaker** — Protects the system from Codeforces API outages (3 failures → 60s cooldown).
-- **Command Pattern** — `AwardXPCommand` / `GrantBadgeCommand` encapsulate side effects.
+- **Command Pattern** — `AwardXPCommand` encapsulates XP/level side effects.
+- **Computed Badges** — earned badges are derived from a user's post-join stats at read time (no separate granting job).
 - **Redis Caching** — CF API responses are cached with stale-fallback to survive API downtime.
-- **BullMQ Workers** — Background jobs for CF sync, AI insight generation, and weekly digests.
+- **BullMQ Workers** — Background jobs for CF sync and weekly digests.
 
 ---
 
