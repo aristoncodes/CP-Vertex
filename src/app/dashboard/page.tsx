@@ -95,10 +95,10 @@ function DashboardMain({ profile }: { profile: any }) {
       {/* ── Greeting + Streak ── */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
         <div>
-          <h1 style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text-primary)" }}>
-            {greeting}, <span style={{ color: "var(--primary)" }}>{user.name}</span>
+          <h1 style={{ fontSize: "var(--text-2xl)", fontWeight: 700, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
+            {greeting}, {user.name}
           </h1>
-          <p style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 6, fontWeight: 500 }}>
+          <p style={{ fontSize: "var(--text-md)", color: "var(--text-muted)", marginTop: 6, fontWeight: 500 }}>
             Level {user.level} · {user.totalSolved} problems solved · {user.rating > 0 ? `CF ${user.rating}` : "No CF rating yet"}
           </p>
         </div>
@@ -119,22 +119,11 @@ function DashboardMain({ profile }: { profile: any }) {
             <button
               key={mode.key}
               onClick={() => router.push(mode.href)}
+              className="n-card n-card--interactive"
               style={{
                 display: "flex", flexDirection: "column", alignItems: "flex-start",
-                padding: "20px 18px", borderRadius: 14, border: "1px solid var(--border)",
-                background: "var(--surface-card)", cursor: "pointer",
-                transition: "all 0.2s", fontFamily: "'Inter', sans-serif",
-                position: "relative", overflow: "hidden",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = mode.color;
-                e.currentTarget.style.transform = "translateY(-2px)";
-                e.currentTarget.style.boxShadow = `0 8px 24px ${mode.color}18`;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = "var(--border)";
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.boxShadow = "none";
+                cursor: "pointer", fontFamily: "'Inter', sans-serif",
+                textAlign: "left",
               }}
             >
               {/* Icon */}
@@ -164,16 +153,16 @@ function DashboardMain({ profile }: { profile: any }) {
             { label: "Total XP", value: (user.xp / 1000).toFixed(1) + "K", color: "var(--warning)", icon: "star" },
             { label: "Level", value: String(user.level), color: "var(--primary)", icon: "military_tech" },
           ].map((stat) => (
-            <div key={stat.label} className="n-card" style={{ padding: "16px 18px" }}>
+            <div key={stat.label} className="n-card n-card--pad-sm">
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 18, color: stat.color, fontVariationSettings: "'FILL' 1" }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 16, color: "var(--text-muted)" }}>
                   {stat.icon}
                 </span>
-                <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                <span style={{ fontSize: "var(--text-xs)", fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
                   {stat.label}
                 </span>
               </div>
-              <div style={{ fontSize: 24, fontWeight: 800, color: stat.color, letterSpacing: "-0.02em" }}>
+              <div style={{ fontSize: "var(--text-2xl)", fontWeight: 700, color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
                 {stat.value}
               </div>
             </div>
