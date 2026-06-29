@@ -77,6 +77,23 @@
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-full: 9999px;
+
+  /* Type scale — single source of truth for font sizes */
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-base: 13px;
+  --text-md: 14px;
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 30px;
+
+  /* Single accent alias (some components reference var(--accent)) */
+  --accent: var(--primary);
+  --accent-hover: var(--primary-hover);
+
+  /* Card defaults */
+  --card-pad: 18px 20px;
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -141,19 +158,15 @@
   --border-hover:  rgba(77, 159, 255, 0.30);
   --border-strong: rgba(77, 159, 255, 0.14);
 
-  /* ── Shadows: deep with colored bloom ── */
-  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.50),
-               0 0 0 1px rgba(77, 159, 255, 0.04);
-  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.60),
-               0 0 40px rgba(77, 159, 255, 0.04);
-  --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.70),
-               0 0 80px rgba(77, 159, 255, 0.06);
+  /* ── Shadows: deep but neutral (no colored bloom — calmer) ── */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.45);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.55);
 
-  /* ── Glow: ambient accent bloom (dark-only) ── */
-  --glow-primary: 0 0 20px rgba(77, 159, 255, 0.20),
-                  0 0 60px rgba(77, 159, 255, 0.08);
-  --glow-success: 0 0 20px rgba(52, 211, 153, 0.20);
-  --glow-danger:  0 0 20px rgba(248, 113, 113, 0.20);
+  /* ── Glow: minimal hairline ring, used sparingly for emphasis only ── */
+  --glow-primary: 0 0 0 1px rgba(88, 159, 255, 0.18);
+  --glow-success: 0 0 0 1px rgba(52, 211, 153, 0.18);
+  --glow-danger:  0 0 0 1px rgba(248, 113, 113, 0.18);
 }
 
 /* ── Dark body with subtle noise texture ── */
@@ -238,60 +251,92 @@ a { text-decoration: none; color: inherit; }
 .n-card {
   background: var(--surface-card);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  border-radius: var(--radius-md);
+  padding: var(--card-pad);
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
-.n-card:hover {
+/* Calm by default: cards no longer lift or glow on hover. Opt in with
+   .n-card--interactive for clickable cards. */
+.n-card--interactive { cursor: pointer; }
+.n-card--interactive:hover {
   border-color: var(--border-hover);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
 }
+/* Padding variants + edge-to-edge for cards wrapping tables/lists. */
+.n-card--pad-sm { padding: 12px 14px; }
+.n-card--pad-lg { padding: 24px 28px; }
+.n-card--flush  { padding: 0; }
 
 /* ════════════════════════════════════════════════════════════════
    05. BUTTON SYSTEM
 ════════════════════════════════════════════════════════════════ */
-.n-btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px 24px;
-  background: linear-gradient(135deg, var(--primary-hover), var(--primary));
-  color: white;
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
-  box-shadow: 0 2px 8px rgba(3, 102, 214, 0.25);
-}
-.n-btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(3, 102, 214, 0.35);
-  filter: brightness(1.05);
-}
-
+/* Shared button base — calm, flat, consistent sizing. */
+.n-btn,
+.n-btn-primary,
 .n-btn-secondary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px 24px;
-  background: transparent;
-  color: var(--primary);
+  padding: 9px 18px;
   font-family: 'Inter', sans-serif;
-  font-size: 14px;
+  font-size: var(--text-md);
   font-weight: 600;
-  border: 1px solid var(--border);
+  border: 1px solid transparent;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  white-space: nowrap;
 }
+
+/* Primary — solid accent, no gradient, no lift. */
+.n-btn--primary,
+.n-btn-primary {
+  background: var(--primary);
+  color: #fff;
+}
+.n-btn--primary:hover,
+.n-btn-primary:hover {
+  background: var(--primary-hover);
+}
+
+/* Secondary — quiet outline. */
+.n-btn--secondary,
+.n-btn-secondary {
+  background: var(--surface-card);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+.n-btn--secondary:hover,
 .n-btn-secondary:hover {
   border-color: var(--primary);
-  background: var(--primary-light);
+  color: var(--primary);
 }
+
+/* Ghost — text-only until hover. */
+.n-btn--ghost {
+  background: transparent;
+  color: var(--text-secondary);
+}
+.n-btn--ghost:hover {
+  background: var(--surface-high);
+  color: var(--text-primary);
+}
+
+/* Danger. */
+.n-btn--danger {
+  background: var(--danger);
+  color: #fff;
+}
+.n-btn--danger:hover { filter: brightness(0.95); }
+
+/* Sizes. */
+.n-btn--sm { padding: 6px 12px; font-size: var(--text-sm); }
+.n-btn--lg { padding: 12px 24px; font-size: var(--text-lg); }
+
+.n-btn:disabled,
+.n-btn-primary:disabled,
+.n-btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* ════════════════════════════════════════════════════════════════
    06. TABLE SYSTEM
