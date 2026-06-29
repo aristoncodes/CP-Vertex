@@ -80,7 +80,7 @@ export default function ContestSimPage() {
     <DashboardLayout>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 800, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>Contest Simulation</h1>
+          <h1 style={{ fontSize: "var(--text-2xl)", fontWeight: 700, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>Contest Simulation</h1>
           <p style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 4 }}>Codeforces Div.2 Virtual Round</p>
         </div>
         <div style={{ fontSize: 32, fontWeight: 800, color: timerColor, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums" }}>

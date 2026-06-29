@@ -347,7 +347,7 @@ function TrainContent() {
   return (
     <>
       <div>
-        <h1 style={{ fontSize: 24, fontWeight: 800, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>Train</h1>
+        <h1 style={{ fontSize: "var(--text-2xl)", fontWeight: 700, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>Train</h1>
         <p style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 4, fontWeight: 500 }}>All solo practice in one place</p>
       </div>
 

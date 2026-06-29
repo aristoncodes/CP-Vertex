@@ -115,7 +115,7 @@ export default function LoginPage() {
           >
             CA
           </div>
-          <span style={{ fontSize: 24, fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.03em" }}>
+          <span style={{ fontSize: "var(--text-2xl)", fontWeight: 700, color: "var(--text-primary)", letterSpacing: "-0.03em" }}>
             Code<span style={{ color: "var(--primary)" }}>Arena</span>
           </span>
         </Link>

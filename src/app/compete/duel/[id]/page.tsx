@@ -244,7 +244,7 @@ export default function DuelCombatPage() {
         >
           <span className="material-symbols-outlined" style={{ fontSize: 20 }}>arrow_back</span>
         </button>
-        <h1 style={{ fontSize: 24, fontWeight: 800, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
+        <h1 style={{ fontSize: "var(--text-2xl)", fontWeight: 700, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
           1v1 Duel
         </h1>
         <span style={{
@@ -431,7 +431,7 @@ export default function DuelCombatPage() {
                  </div>
               ) : currentProblem ? (
                 <>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: "var(--text-primary)", margin: "12px 0" }}>{currentProblem.title}</div>
+                  <div style={{ fontSize: "var(--text-2xl)", fontWeight: 700, color: "var(--text-primary)", margin: "12px 0" }}>{currentProblem.title}</div>
                   <div style={{ display: "flex", justifyContent: "center", gap: 20, fontSize: 14 }}>
                     <span style={{ fontWeight: 600, color: "var(--danger)" }}>Rating: {currentProblem.rating}</span>
                     <a href={currentProblem.cfLink} target="_blank" rel="noreferrer" style={{ color: "var(--primary)", fontWeight: 600, textDecoration: "none" }}>

@@ -62,7 +62,7 @@ export default function ReportBugPage() {
     <DashboardLayout>
       {/* Header */}
       <div>
-        <h1 style={{ fontSize: 24, fontWeight: 800, letterSpacing: "-0.02em", color: "var(--text-primary)", display: "flex", alignItems: "center", gap: 10 }}>
+        <h1 style={{ fontSize: "var(--text-2xl)", fontWeight: 700, letterSpacing: "-0.02em", color: "var(--text-primary)", display: "flex", alignItems: "center", gap: 10 }}>
           <span className="material-symbols-outlined" style={{ fontSize: 28, color: "var(--danger)", fontVariationSettings: "'FILL' 1" }}>bug_report</span>
           Report a Bug
         </h1>

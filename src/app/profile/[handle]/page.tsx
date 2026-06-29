@@ -114,7 +114,7 @@ export default function ProfilePage() {
 
             <div style={{ flex: 1, paddingBottom: 4 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <h1 style={{ fontSize: 24, fontWeight: 800, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
+                <h1 style={{ fontSize: "var(--text-2xl)", fontWeight: 700, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
                   {profile.name || profile.cfHandle}
                 </h1>
                 <span style={{
@@ -142,18 +142,26 @@ export default function ProfilePage() {
       </div>
 
       {/* ── Stats Row ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 14 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 14 }}>
         {[
           { label: "CF Rating", value: (profile.cfRating || 0).toLocaleString(), color: "var(--info)", icon: "trending_up" },
           { label: "Problems", value: (profile.totalSolved || 0).toString(), color: "var(--success)", icon: "check_circle" },
           { label: "Total XP", value: ((profile.xp || 0) / 1000).toFixed(1) + "K", color: "var(--warning)", icon: "star" },
-          { label: "Badges", value: `${earnedCount}/${allBadges.length}`, color: "#d97706", icon: "military_tech" },
+          { label: "Badges", value: `${earnedCount}/${allBadges.length}`, color: "var(--primary)", icon: "military_tech" },
           { label: "Best Streak", value: (profile.streakLongest || 0).toString() + "d", color: "var(--danger)", icon: "local_fire_department" },
         ].map((stat) => (
-          <div key={stat.label} className="n-card" style={{ padding: "16px 18px", textAlign: "center" }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 22, color: stat.color, fontVariationSettings: "'FILL' 1" }}>{stat.icon}</span>
-            <div style={{ fontSize: 24, fontWeight: 800, color: stat.color, marginTop: 8, letterSpacing: "-0.02em" }}>{stat.value}</div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", letterSpacing: "0.05em", textTransform: "uppercase", marginTop: 4 }}>{stat.label}</div>
+          <div key={stat.label} className="n-card" style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{
+              width: 38, height: 38, borderRadius: "var(--radius-sm)", flexShrink: 0,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              background: `color-mix(in srgb, ${stat.color} 14%, transparent)`,
+            }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 20, color: stat.color, fontVariationSettings: "'FILL' 1" }}>{stat.icon}</span>
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: "var(--text-xs)", fontWeight: 600, color: "var(--text-muted)", letterSpacing: "0.05em", textTransform: "uppercase" }}>{stat.label}</div>
+              <div style={{ fontSize: "var(--text-xl)", fontWeight: 700, color: "var(--text-primary)", marginTop: 2, letterSpacing: "-0.02em" }}>{stat.value}</div>
+            </div>
           </div>
         ))}
       </div>

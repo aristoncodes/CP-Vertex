@@ -81,7 +81,7 @@ export default function LiveContestPage() {
     <DashboardLayout>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 800, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
+          <h1 style={{ fontSize: "var(--text-2xl)", fontWeight: 700, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
             {contestData?.name || "Virtual Contest"}
           </h1>
           <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>Simulation Active</p>
@@ -127,7 +127,7 @@ export default function LiveContestPage() {
               background: isSolved ? "var(--success-light)" : "var(--surface-card)",
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                <div style={{ fontSize: 24, fontWeight: 800, color: isSolved ? "var(--success)" : "var(--primary)", width: 32 }}>{p.index}</div>
+                <div style={{ fontSize: "var(--text-2xl)", fontWeight: 700, color: isSolved ? "var(--success)" : "var(--primary)", width: 32 }}>{p.index}</div>
                 <div>
                   <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}>{p.name}</div>
                   <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>Rating {p.rating}</div>

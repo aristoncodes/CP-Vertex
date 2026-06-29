@@ -174,7 +174,7 @@ export default function AdminAnalyticsPage() {
           <span className="material-symbols-outlined" style={{ fontSize: 64, color: "var(--danger)", fontVariationSettings: "'FILL' 1" }}>
             shield_lock
           </span>
-          <h1 style={{ fontSize: 24, fontWeight: 800, color: "var(--text-primary)" }}>Access Restricted</h1>
+          <h1 style={{ fontSize: "var(--text-2xl)", fontWeight: 700, color: "var(--text-primary)" }}>Access Restricted</h1>
           <p style={{ fontSize: 14, color: "var(--text-muted)", maxWidth: 400, textAlign: "center" }}>
             {error}
           </p>

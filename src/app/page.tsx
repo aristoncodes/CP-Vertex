@@ -196,7 +196,7 @@ export default function LandingPage() {
           ].map((stat) => (
             <div key={stat.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
               <span className="material-symbols-outlined" style={{ fontSize: 28, color: "#0366d6", fontVariationSettings: "'FILL' 1" }}>{stat.icon}</span>
-              <strong style={{ fontSize: 24, fontWeight: 800, color: "var(--text-primary, #181c1f)", letterSpacing: "-0.02em" }}>{stat.value}</strong>
+              <strong style={{ fontSize: "var(--text-2xl)", fontWeight: 700, color: "var(--text-primary, #181c1f)", letterSpacing: "-0.02em" }}>{stat.value}</strong>
               <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted, #727785)", letterSpacing: "0.05em", textTransform: "uppercase" }}>{stat.label}</span>
             </div>
           ))}

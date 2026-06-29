@@ -124,7 +124,7 @@ export default function OnboardingPage() {
         {/* ─── Step 2: Link Codeforces ─── */}
         {step === "link-cf" && (
           <div className="onboarding-step">
-            <h2 style={{ fontSize: 24, fontWeight: 800, color: "var(--text-primary)", marginBottom: 8 }}>
+            <h2 style={{ fontSize: "var(--text-2xl)", fontWeight: 700, color: "var(--text-primary)", marginBottom: 8 }}>
               Link Your Codeforces Handle
             </h2>
             <p style={{ fontSize: 14, color: "var(--text-muted)", marginBottom: 24 }}>
@@ -195,7 +195,7 @@ export default function OnboardingPage() {
         {/* ─── Step 3: Pick First Mode ─── */}
         {step === "pick-mode" && (
           <div className="onboarding-step">
-            <h2 style={{ fontSize: 24, fontWeight: 800, color: "var(--text-primary)", marginBottom: 8 }}>
+            <h2 style={{ fontSize: "var(--text-2xl)", fontWeight: 700, color: "var(--text-primary)", marginBottom: 8 }}>
               Choose Your First Training
             </h2>
             <p style={{ fontSize: 14, color: "var(--text-muted)", marginBottom: 24 }}>

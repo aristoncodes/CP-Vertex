@@ -170,7 +170,7 @@ function SessionContent() {
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <span className="material-symbols-outlined" style={{ fontSize: 28, color: config.color, fontVariationSettings: "'FILL' 1" }}>{config.icon}</span>
           <div>
-            <h1 style={{ fontSize: 24, fontWeight: 800, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>{config.label}</h1>
+            <h1 style={{ fontSize: "var(--text-2xl)", fontWeight: 700, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>{config.label}</h1>
             <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 2 }}>
               {problems.length} problems · {completed.size}/{problems.length} verified
             </p>

@@ -191,7 +191,7 @@ export default function SettingsPage() {
 
   return (
     <DashboardLayout>
-      <h1 style={{ fontSize: 24, fontWeight: 800, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>Settings</h1>
+      <h1 style={{ fontSize: "var(--text-2xl)", fontWeight: 700, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>Settings</h1>
 
       {/* CF Handle */}
       <div className="n-card" style={{ padding: "24px 28px" }}>
