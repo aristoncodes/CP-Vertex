@@ -40,14 +40,9 @@ export async function POST(
       return Response.json({ error: "Duel is not active" }, { status: 400 })
     }
 
-    // Check if time expired
-    if (new Date() > duel.endsAt) {
-      await prisma.duel.update({
-        where: { id },
-        data: { status: "expired" },
-      })
-      return Response.json({ message: "Duel expired", status: "expired" })
-    }
+    // If the clock ran out, the duel ends now and is decided by score below
+    // (more problems solved wins; equal — including 0–0 — is a draw).
+    const timeUp = new Date() > duel.endsAt;
 
     // Fetch the actual problems to map problemIds to CF IDs
     const problems = await prisma.problem.findMany({
@@ -85,7 +80,7 @@ export async function POST(
     };
 
     const currentIndex = p1Progress + p2Progress;
-    if (currentIndex < duel.questionCount) {
+    if (!timeUp && currentIndex < duel.questionCount) {
       const targetCfId = idToCfId[duel.problemIds[currentIndex]];
       const [p1r, p2r] = await Promise.all([
         scanCurrent(duel.player1.cfHandle, targetCfId),
@@ -107,12 +102,12 @@ export async function POST(
     let newStatus = duel.status;
     const totalClaimed = p1Progress + p2Progress;
     const majority = Math.floor(duel.questionCount / 2) + 1;
-    if (totalClaimed >= duel.questionCount || p1Progress >= majority || p2Progress >= majority) {
+    if (timeUp || totalClaimed >= duel.questionCount || p1Progress >= majority || p2Progress >= majority) {
       newStatus = "completed";
       winnerId =
         p1Progress > p2Progress ? duel.player1Id :
         p2Progress > p1Progress ? duel.player2Id :
-        null;
+        null; // equal score (incl. 0–0) => draw
     }
 
     const updated = await prisma.duel.update({

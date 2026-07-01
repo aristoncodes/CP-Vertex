@@ -455,12 +455,35 @@ export default function DuelCombatPage() {
             This duel was cancelled by the challenger.
           </div>
         ) : duel.status === "expired" ? (
-          <div style={{ textAlign: "center", color: "var(--text-muted)", padding: "24px 0", fontSize: 14 }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 28, display: "block", margin: "0 auto 8px", color: "var(--text-muted)" }}>
-              timer_off
-            </span>
-            This duel expired — opponent didn&apos;t respond in time.
-          </div>
+          (() => {
+            const played = duel.p1Progress + duel.p2Progress > 0;
+            // If the duel actually started, decide by score; otherwise it was
+            // never accepted.
+            if (!played) {
+              return (
+                <div style={{ textAlign: "center", color: "var(--text-muted)", padding: "24px 0", fontSize: 14 }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 28, display: "block", margin: "0 auto 8px", color: "var(--text-muted)" }}>timer_off</span>
+                  This duel expired — opponent didn&apos;t respond in time.
+                </div>
+              );
+            }
+            const winnerId = duel.p1Progress > duel.p2Progress ? duel.player1Id
+              : duel.p2Progress > duel.p1Progress ? duel.player2Id : null;
+            const iWon = winnerId === userId;
+            return (
+              <div style={{ textAlign: "center", padding: "24px 0" }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 28, display: "block", margin: "0 auto 8px", color: "var(--text-muted)" }}>timer_off</span>
+                <div style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 8 }}>Time&apos;s up — decided by problems solved</div>
+                {winnerId === null ? (
+                  <div style={{ fontSize: 20, fontWeight: 700, color: "var(--text-primary)" }}>Draw</div>
+                ) : (
+                  <div style={{ fontSize: 20, fontWeight: 700, color: iWon ? "var(--success)" : "var(--danger)" }}>
+                    {(winnerId === duel.player1Id ? duel.player1.name : duel.player2.name)} wins
+                  </div>
+                )}
+              </div>
+            );
+          })()
         ) : (
           <>
             <div style={{ borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)", padding: "24px 0", textAlign: "center" }}>
