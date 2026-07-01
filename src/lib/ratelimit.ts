@@ -39,6 +39,14 @@ function getRateLimits() {
         limiter: Ratelimit.slidingWindow(10, "24 h"),
         prefix: "rl:duel",
       }),
+      // Duel solve-verification runs repeatedly during an active duel, so it
+      // needs a generous per-minute budget — NOT the 5/hour cfConnect limiter
+      // meant for one-off handle linking.
+      duelVerify: new Ratelimit({
+        redis,
+        limiter: Ratelimit.slidingWindow(40, "1 m"),
+        prefix: "rl:duel-verify",
+      }),
       signup: new Ratelimit({
         redis,
         limiter: Ratelimit.slidingWindow(5, "1 h"),

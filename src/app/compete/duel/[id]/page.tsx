@@ -1,7 +1,7 @@
 "use client";
 
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 
 interface DuelData {
@@ -34,6 +34,8 @@ export default function DuelCombatPage() {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [activeCountdown, setActiveCountdown] = useState<number | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const lastAutoVerifyRef = useRef(0); // throttle background auto-verify
+  const [verifyCooldownUntil, setVerifyCooldownUntil] = useState(0); // manual-verify cooldown
 
   useEffect(() => {
     (async () => {
@@ -48,7 +50,9 @@ export default function DuelCombatPage() {
     })();
   }, [id, router]);
 
-  const handleVerify = async () => {
+  // `silent` = triggered by background polling (no alerts). Only the manual
+  // "Force Verify" button surfaces errors / "no AC yet" messages.
+  const handleVerify = async (silent = false) => {
     setVerifying(true);
     try {
       const res = await fetch(`/api/duels/${id}/verify`, { method: "POST" });
@@ -56,17 +60,16 @@ export default function DuelCombatPage() {
       if (res.ok) {
         setDuel(data.duel);
         if (data.duel.status === "completed") {
-          alert(`Duel concluded! Winner: ${data.duel.winnerId === duel?.player1Id ? duel?.player1.name : duel?.player2.name}`);
+          if (!silent) alert(`Duel concluded! Winner: ${data.duel.winnerId === duel?.player1Id ? duel?.player1.name : duel?.player2.name}`);
         } else if (data.duel.p1Progress > duel!.p1Progress || data.duel.p2Progress > duel!.p2Progress) {
-          // someone advanced but didn't finish yet
-          // no alert needed, UI will update
-        } else {
+          // someone advanced — UI updates, no alert
+        } else if (!silent) {
           alert("No AC verdicts found for the current problem yet.");
         }
-      } else {
+      } else if (!silent) {
         alert("Error: " + data.error);
       }
-    } catch { alert("Verification failed."); }
+    } catch { if (!silent) alert("Verification failed."); }
     finally { setVerifying(false); }
   };
 
@@ -225,8 +228,13 @@ export default function DuelCombatPage() {
             });
 
             if (solved) {
-              handleVerify();
-              return; // Stop polling, let verify update the state
+              // Auto-verify at most once per 8s, silently (no alerts).
+              const now = Date.now();
+              if (now - lastAutoVerifyRef.current > 8000) {
+                lastAutoVerifyRef.current = now;
+                handleVerify(true);
+              }
+              return; // stop this poll cycle; verify will update state
             }
           }
         }
@@ -482,12 +490,21 @@ export default function DuelCombatPage() {
             </div>
             
             <div style={{ display: "flex", justifyContent: "center", gap: 12 }}>
-              {duel.status === "active" && currentIndex < duel.questionCount && (
-                <button className="n-btn-primary" onClick={handleVerify} disabled={verifying} style={{ padding: "12px 32px" }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: 16 }}>verified</span>
-                  {verifying ? "Checking..." : "Force Verify (Auto-polling active)"}
-                </button>
-              )}
+              {duel.status === "active" && currentIndex < duel.questionCount && (() => {
+                const cooldownLeft = Math.max(0, Math.ceil((verifyCooldownUntil - Date.now()) / 1000));
+                const disabled = verifying || cooldownLeft > 0;
+                return (
+                  <button
+                    className="n-btn-primary"
+                    onClick={() => { setVerifyCooldownUntil(Date.now() + 8000); handleVerify(false); }}
+                    disabled={disabled}
+                    style={{ padding: "12px 32px", opacity: disabled ? 0.6 : 1, cursor: disabled ? "not-allowed" : "pointer" }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>verified</span>
+                    {verifying ? "Checking…" : cooldownLeft > 0 ? `Wait ${cooldownLeft}s` : "Check my solve"}
+                  </button>
+                );
+              })()}
               {duel.status === "completed" && duel.winnerId && (
                 <div style={{
                   padding: "16px 28px",

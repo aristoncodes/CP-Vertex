@@ -15,7 +15,7 @@ export async function POST(
       return Response.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const rateLimited = await checkRateLimit(rateLimits.cfConnect, session.user.id);
+    const rateLimited = await checkRateLimit(rateLimits.duelVerify, session.user.id);
     if (rateLimited) return rateLimited;
 
     const { id } = await params
