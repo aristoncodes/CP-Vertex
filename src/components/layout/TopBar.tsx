@@ -123,20 +123,21 @@ export function TopBar() {
       } catch { /* silent */ }
     }
 
-    // Navigate based on notification type
+    // Every notification routes somewhere sensible, so none is a dead click.
+    setShowNotifs(false);
+    const t = notif.type || "";
     if (notif.data?.duelId) {
-      setShowNotifs(false);
       router.push(`/compete/duel/${notif.data.duelId}`);
-    } else if (notif.type.includes("friend")) {
-      setShowNotifs(false);
+    } else if (t.includes("duel")) {
+      router.push("/compete");
+    } else if (t.includes("friend")) {
       router.push("/friends");
-    } else if (notif.type.includes("upsolve")) {
-      setShowNotifs(false);
+    } else if (t.includes("upsolve")) {
       router.push("/upsolve");
+    } else if (t.includes("badge")) {
+      router.push(`/profile/${userHandle}`);
     } else {
-      // For general notifications like badges or xp, we can just close the menu 
-      // or optionally route to profile
-      setShowNotifs(false);
+      router.push("/dashboard");
     }
   };
 
