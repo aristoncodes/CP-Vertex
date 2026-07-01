@@ -316,7 +316,7 @@ function ContestGroup({ participation, items, highlight }: {
 }
 
 // ── Tab ──────────────────────────────────────────────────────────
-type Tab = "active" | "stretch" | "graveyard"
+type Tab = "active" | "stretch"
 
 // ── Main Page ────────────────────────────────────────────────────
 function UpsolveContent() {
@@ -326,28 +326,24 @@ function UpsolveContent() {
   const [tab, setTab] = useState<Tab>("active")
   const [activeItems, setActiveItems] = useState<UpsolveItem[]>([])
   const [stretchItems, setStretchItems] = useState<UpsolveItem[]>([])
-  const [graveyardItems, setGraveyardItems] = useState<UpsolveItem[]>([])
   const [settings, setSettings] = useState<Settings | null>(null)
   const [showSettings, setShowSettings] = useState(false)
   const [loading, setLoading] = useState(true)
 
   const loadData = useCallback(async () => {
     setLoading(true)
-    const [activeRes, stretchRes, graveyardRes, settingsRes] = await Promise.all([
+    const [activeRes, stretchRes, settingsRes] = await Promise.all([
       fetch("/api/upsolve?status=pending&category=target"),
       fetch("/api/upsolve?status=pending&category=stretch"),
-      fetch("/api/upsolve/graveyard"),
       fetch("/api/contest-settings"),
     ])
-    const [activeData, stretchData, graveyardData, settingsData] = await Promise.all([
+    const [activeData, stretchData, settingsData] = await Promise.all([
       activeRes.json(),
       stretchRes.json(),
-      graveyardRes.json(),
       settingsRes.json(),
     ])
     setActiveItems(activeData.items || [])
     setStretchItems(stretchData.items || [])
-    setGraveyardItems(graveyardData.items || [])
     setSettings(settingsData.settings || null)
     setLoading(false)
   }, [])
@@ -376,7 +372,7 @@ function UpsolveContent() {
     fontFamily: "'Inter', sans-serif",
   })
 
-  const items = tab === "active" ? activeItems : tab === "stretch" ? stretchItems : graveyardItems
+  const items = tab === "active" ? activeItems : stretchItems
   const groups = groupByContest(items)
 
   return (
@@ -407,13 +403,10 @@ function UpsolveContent() {
       {/* Tabs */}
       <div style={{ display: "flex", gap: 8, marginBottom: 24, flexWrap: "wrap", alignItems: "center" }}>
         <button style={tabStyle("active")} onClick={() => setTab("active")}>
-          Active Queue ({activeItems.length})
+          Upsolve Queue ({activeItems.length})
         </button>
         <button style={tabStyle("stretch")} onClick={() => setTab("stretch")}>
           Stretch Goals ({stretchItems.length})
-        </button>
-        <button style={tabStyle("graveyard")} onClick={() => setTab("graveyard")}>
-          Graveyard ({graveyardItems.length})
         </button>
       </div>
 
@@ -433,47 +426,23 @@ function UpsolveContent() {
           <div style={{ marginBottom: 12 }}>
             <span className="material-symbols-outlined" style={{
               fontSize: 36,
-              color: tab === "active" ? "var(--warning)" : tab === "stretch" ? "var(--info)" : "var(--text-muted)",
+              color: tab === "active" ? "var(--warning)" : "var(--info)",
               fontVariationSettings: "'FILL' 1",
             }}>
-              {tab === "active" ? "emoji_events" : tab === "stretch" ? "target" : "skull"}
+              {tab === "active" ? "emoji_events" : "target"}
             </span>
           </div>
           <div style={{ fontSize: 15, color: "var(--text-primary)", fontWeight: 600, marginBottom: 8 }}>
-            {tab === "active"
-              ? "Queue is empty"
-              : tab === "stretch"
-              ? "No stretch goals"
-              : "Graveyard is empty"}
+            {tab === "active" ? "Queue is empty" : "No stretch goals"}
           </div>
           <div style={{ fontSize: 13, color: "var(--text-muted)", fontWeight: 500 }}>
             {tab === "active"
               ? "Participate in a rated contest to fill your upsolve queue."
-              : tab === "stretch"
-              ? "Problems above your target will appear here."
-              : "Expired upsolve items will appear here after 14 days."}
+              : "Problems above your target will appear here."}
           </div>
         </div>
       ) : (
         <div>
-          {tab === "graveyard" && (
-            <div
-              className="n-card"
-              style={{
-                padding: "10px 16px",
-                marginBottom: 20,
-                fontSize: 12,
-                color: "var(--text-secondary)",
-                fontWeight: 500,
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: 16, color: "var(--text-muted)" }}>skull</span>
-              These problems expired after 14 days without being solved. They&apos;re still solvable — 0.5× XP applies.
-            </div>
-          )}
           {tab === "stretch" && (
             <div
               className="n-card"
