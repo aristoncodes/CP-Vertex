@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { getRatingColor } from "@/lib/colors";
 
 interface IntelTopic {
   slug: string;
@@ -11,6 +12,36 @@ interface IntelTopic {
   difficulty: number;
   tags: string[];
   problemCount: number;
+}
+
+type SortMode = "default" | "diff-asc" | "diff-desc" | "az";
+
+// Difficulty band label. Colors come from the canonical CF tier palette
+// (getRatingColor) so they match ratings shown elsewhere in the app.
+function difficultyLabel(d: number): string {
+  if (d < 1200) return "Beginner";
+  if (d < 1600) return "Intermediate";
+  if (d < 2000) return "Advanced";
+  if (d < 2400) return "Expert";
+  return "Master";
+}
+
+function DifficultyBadge({ difficulty, showLabel = true }: { difficulty: number; showLabel?: boolean }) {
+  const color = getRatingColor(difficulty);
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 11, fontWeight: 700, whiteSpace: "nowrap" }}>
+      <span style={{ width: 7, height: 7, borderRadius: "50%", background: color, flexShrink: 0 }} />
+      {showLabel && <span style={{ color }}>{difficultyLabel(difficulty)}</span>}
+      <span style={{ color: "var(--text-muted)" }}>{difficulty}</span>
+    </span>
+  );
+}
+
+function sortTopics(topics: IntelTopic[], mode: SortMode): IntelTopic[] {
+  if (mode === "default") return topics;
+  const t = [...topics];
+  if (mode === "az") return t.sort((a, b) => a.title.localeCompare(b.title));
+  return t.sort((a, b) => (mode === "diff-asc" ? a.difficulty - b.difficulty : b.difficulty - a.difficulty));
 }
 
 const CATEGORY_META: Record<string, { icon: string; summary: string; color: string }> = {
@@ -78,6 +109,7 @@ export default function LearnPage() {
   const [topics, setTopics] = useState<IntelTopic[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [sortMode, setSortMode] = useState<SortMode>("default");
 
   useEffect(() => {
     fetch("/api/intel")
@@ -192,8 +224,62 @@ export default function LearnPage() {
             </div>
           )}
 
+          {/* ─── Search Results (flat list of matching articles) ─── */}
+          {!loading && search && (
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-muted)", marginBottom: 20 }}>
+                {filtered.length} result{filtered.length !== 1 ? "s" : ""} for &ldquo;{search}&rdquo;
+              </div>
+              <div style={{
+                background: "var(--surface-card)", borderRadius: 14,
+                border: "1px solid var(--border)", overflow: "hidden",
+              }}>
+                {sortTopics(filtered, "diff-asc").map((topic, i) => (
+                  <Link
+                    key={topic.slug}
+                    href={`/learn/${topic.slug}`}
+                    style={{
+                      display: "flex", alignItems: "center", justifyContent: "space-between",
+                      padding: "14px 20px", textDecoration: "none",
+                      borderTop: i === 0 ? "none" : "1px solid var(--border)",
+                      transition: "background 0.15s",
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = "var(--surface-high)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                  >
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: 15, fontWeight: 500, color: "var(--text-primary)", lineHeight: 1.35 }}>
+                        {topic.title.replace(/\$/g, "")}
+                      </div>
+                      <div style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 500, marginTop: 3 }}>
+                        {topic.category} · {topic.subcategory}
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 14, flexShrink: 0, marginLeft: 16 }}>
+                      {topic.problemCount > 0 && (
+                        <span style={{
+                          fontSize: 11, fontWeight: 700, color: "var(--primary)",
+                          background: "rgba(3,102,214,0.08)", padding: "2px 8px", borderRadius: 6,
+                        }}>
+                          {topic.problemCount} practice
+                        </span>
+                      )}
+                      <DifficultyBadge difficulty={topic.difficulty} />
+                      <span className="material-symbols-outlined" style={{ fontSize: 16, opacity: 0.3 }}>chevron_right</span>
+                    </div>
+                  </Link>
+                ))}
+                {filtered.length === 0 && (
+                  <div style={{ padding: "40px 20px", textAlign: "center", color: "var(--text-muted)", fontSize: 14 }}>
+                    No articles match your search.
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* ─── Category Cards Grid ─── */}
-          {!loading && !expandedCategory && (
+          {!loading && !expandedCategory && !search && (
             <div style={{
               display: "grid",
               gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
@@ -315,9 +401,38 @@ export default function LearnPage() {
                 </div>
               </div>
 
-              <p style={{ fontSize: 15, lineHeight: 1.6, color: "var(--text-secondary)", marginBottom: 36, maxWidth: 600 }}>
+              <p style={{ fontSize: 15, lineHeight: 1.6, color: "var(--text-secondary)", marginBottom: 24, maxWidth: 600 }}>
                 {(CATEGORY_META[expandedCategory] || DEFAULT_META).summary}
               </p>
+
+              {/* Sort control */}
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 28 }}>
+                <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)", marginRight: 2 }}>Sort</span>
+                {([
+                  ["default", "Curated"],
+                  ["diff-asc", "Difficulty ↑"],
+                  ["diff-desc", "Difficulty ↓"],
+                  ["az", "A–Z"],
+                ] as [SortMode, string][]).map(([mode, label]) => {
+                  const active = sortMode === mode;
+                  return (
+                    <button
+                      key={mode}
+                      onClick={() => setSortMode(mode)}
+                      style={{
+                        fontSize: 12, fontWeight: 600, padding: "5px 12px", borderRadius: 8, cursor: "pointer",
+                        fontFamily: "'Inter', sans-serif",
+                        border: `1px solid ${active ? "var(--primary)" : "var(--border)"}`,
+                        background: active ? "var(--primary-light)" : "var(--surface-card)",
+                        color: active ? "var(--primary)" : "var(--text-secondary)",
+                        transition: "border-color 0.15s, color 0.15s, background 0.15s",
+                      }}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
 
               {/* Subcategory sections */}
               <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
@@ -336,7 +451,7 @@ export default function LearnPage() {
                     </h3>
 
                     <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                      {grouped[expandedCategory][sub].map((topic) => (
+                      {sortTopics(grouped[expandedCategory][sub], sortMode).map((topic) => (
                         <Link
                           key={topic.slug}
                           href={`/learn/${topic.slug}`}
@@ -366,16 +481,7 @@ export default function LearnPage() {
                                 {topic.problemCount} practice
                               </span>
                             )}
-                            <span style={{
-                              fontSize: 12, fontWeight: 700,
-                              color: topic.difficulty >= 2400 ? "#dc2626"
-                                : topic.difficulty >= 1900 ? "#7c3aed"
-                                : topic.difficulty >= 1600 ? "#0891b2"
-                                : "#059669",
-                              minWidth: 28, textAlign: "right",
-                            }}>
-                              {topic.difficulty}
-                            </span>
+                            <DifficultyBadge difficulty={topic.difficulty} />
                             <span className="material-symbols-outlined" style={{ fontSize: 16, opacity: 0.3 }}>chevron_right</span>
                           </div>
                         </Link>
