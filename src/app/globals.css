@@ -465,8 +465,10 @@ a { text-decoration: none; color: inherit; }
   }
 }
 @media (min-width: 1024px) {
-  /* Hamburger only matters on mobile */
+  /* Hamburger + mobile drawer scrim never apply on desktop — and must never
+     linger as an invisible full-screen layer that eats clicks. */
   .sidebar-toggle { display: none !important; }
+  .sidebar-overlay { display: none !important; }
 }
 
 /* ════════════════════════════════════════════════════════════════
