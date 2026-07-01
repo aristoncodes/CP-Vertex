@@ -221,14 +221,6 @@ export async function detectUpsolveItems(
   const settings = await getUserContestSettings(userId)
   const division = detectDivisionFromName(contestName)
 
-  let allProblems: CFProblem[]
-  try {
-    allProblems = await getContestProblems(contestId)
-  } catch {
-    console.warn(`Could not fetch problems for contest ${contestId}`)
-    return []
-  }
-
   // Only submissions made DURING the contest (participantType=CONTESTANT)
   // Used to determine attempt type and count
   const contestSubs = newSubs.filter(
@@ -242,6 +234,35 @@ export async function detectUpsolveItems(
   const allContestSubs = newSubs.filter(
     (s) => s.contestId === contestId
   )
+
+  let allProblems: CFProblem[] = []
+  try {
+    allProblems = await getContestProblems(contestId)
+  } catch {
+    console.warn(`Could not fetch problems for contest ${contestId}`)
+  }
+
+  // Fallback: if the official problem list is unavailable (e.g. a very recent
+  // contest, or CF rate-limiting), use the problems the user actually
+  // submitted to during the contest — so the contest still shows up in the
+  // upsolve queue instead of vanishing entirely.
+  if (allProblems.length === 0) {
+    const seen = new Set<string>()
+    allProblems = contestSubs
+      .filter((s) => {
+        if (seen.has(s.problem.index)) return false
+        seen.add(s.problem.index)
+        return true
+      })
+      .map((s) => ({
+        contestId,
+        index: s.problem.index,
+        name: s.problem.name,
+        rating: s.problem.rating || 0,
+        type: "PROGRAMMING",
+        tags: s.problem.tags || [],
+      } as CFProblem))
+  }
 
   const getIndex = (cfId: string) => cfId.replace(String(contestId), "")
 
