@@ -69,7 +69,8 @@ export async function POST(
       let bestAc = Infinity;
       let wa = 0;
       if (!handle) return { bestAc, wa };
-      const subs = await getCFSubmissions(handle, 1, 20);
+      // Live duel: need fresh submissions, not a 5-min-cached list.
+      const subs = await getCFSubmissions(handle, 1, 20, { bypassCache: true, cacheTtlSec: 10 });
       for (const sub of subs) {
         if (sub.creationTimeSeconds * 1000 < startMs) continue;
         if (`${sub.problem.contestId}${sub.problem.index}` !== targetCfId) continue;

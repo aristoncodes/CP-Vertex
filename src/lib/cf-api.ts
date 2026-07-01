@@ -7,7 +7,9 @@ const CF_BASE = "https://codeforces.com/api"
 // swap this for a Redis-based distributed lock (e.g., Redlock).
 
 let lastRequestTime = 0
-const MIN_INTERVAL_MS = 1100 // slightly over 1 second to be safe
+// Codeforces allows ~1 request every 2 seconds per IP; go slightly over that
+// so the whole server stays under "Call limit exceeded".
+const MIN_INTERVAL_MS = 2100
 const MAX_RETRIES = 3
 const BASE_BACKOFF_MS = 2000
 
@@ -58,18 +60,23 @@ interface CFAPIResponse {
  */
 async function cfGet<T = unknown>(
   method: string,
-  params: Record<string, string>
+  params: Record<string, string>,
+  opts: { bypassCache?: boolean; cacheTtlSec?: number } = {}
 ): Promise<T> {
+  const { bypassCache = false, cacheTtlSec = 300 } = opts
   const url = new URL(`${CF_BASE}/${method}`)
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v))
 
   const cacheKey = `cf:${method}:${JSON.stringify(params)}`
   const staleKey = `cf:stale:${method}:${JSON.stringify(params)}`
 
-  // 1. Check fresh cache first
-  const cached = await redis.get(cacheKey)
-  if (cached) {
-    return (typeof cached === "string" ? JSON.parse(cached) : cached) as T
+  // 1. Check fresh cache first (skipped when the caller needs live data,
+  //    e.g. duel verification, where a stale solve list would miss a solve).
+  if (!bypassCache) {
+    const cached = await redis.get(cacheKey)
+    if (cached) {
+      return (typeof cached === "string" ? JSON.parse(cached) : cached) as T
+    }
   }
 
   // 2. Rate-limited fetch with exponential backoff
@@ -107,8 +114,8 @@ async function cfGet<T = unknown>(
         throw new Error(`CF API error: ${data.comment}`)
       }
 
-      // Cache for 5 minutes, stale backup for 1 hour
-      await redis.setex(cacheKey, 300, JSON.stringify(data.result))
+      // Cache for the requested TTL (default 5 min), stale backup for 1 hour
+      await redis.setex(cacheKey, cacheTtlSec, JSON.stringify(data.result))
       await redis.setex(staleKey, 3600, JSON.stringify(data.result))
 
       return data.result as T
@@ -214,13 +221,14 @@ export const getCFRatingHistory = (handle: string): Promise<CFRatingChange[]> =>
 export const getCFSubmissions = (
   handle: string,
   from = 1,
-  count = 100
+  count = 100,
+  opts?: { bypassCache?: boolean; cacheTtlSec?: number }
 ): Promise<CFSubmission[]> =>
   cfGet<CFSubmission[]>("user.status", {
     handle,
     from: String(from),
     count: String(count),
-  })
+  }, opts)
 
 export const getCFProblems = (): Promise<{
   problems: CFProblem[]
