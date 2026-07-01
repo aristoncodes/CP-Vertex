@@ -63,73 +63,56 @@ export async function POST(
     let p2Wa = duel.p2WaCount;
     let p1Progress = duel.p1Progress;
     let p2Progress = duel.p2Progress;
-    let advanced = false;
-    
-    let p1WinTime = Infinity;
-    let p2WinTime = Infinity;
 
-    // Fetch submissions for Player 1 since duel start
-    if (duel.player1.cfHandle && p1Progress < duel.questionCount) {
-      const p1Subs = await getCFSubmissions(duel.player1.cfHandle, 1, 20);
-      const currentProblemId = duel.problemIds[p1Progress];
-      const targetCfId = idToCfId[currentProblemId];
-      
-      for (const sub of p1Subs) {
-        if (new Date(sub.creationTimeSeconds * 1000) >= duel.startedAt) {
-          if (`${sub.problem.contestId}${sub.problem.index}` === targetCfId) {
-            if (sub.verdict === "OK") {
-              p1Progress++;
-              advanced = true;
-              p1WinTime = Math.min(p1WinTime, sub.creationTimeSeconds);
-              break; // they solved it! move to next round immediately. (Only 1 round per poll realistically)
-            } else if (sub.verdict !== "OK") {
-              p1Wa++;
-            }
-          }
-        }
+    // SHARED-CLAIM model: both players race the SAME current problem
+    // (problems are claimed in order, so the current one sits at index
+    // p1Progress + p2Progress). Whoever gets the first AC claims it and
+    // scores the point; both then advance to the next problem — so the
+    // loser of that problem can't also score it.
+    const startMs = duel.startedAt.getTime();
+    const scanCurrent = async (handle: string | null, targetCfId: string) => {
+      let bestAc = Infinity;
+      let wa = 0;
+      if (!handle) return { bestAc, wa };
+      const subs = await getCFSubmissions(handle, 1, 20);
+      for (const sub of subs) {
+        if (sub.creationTimeSeconds * 1000 < startMs) continue;
+        if (`${sub.problem.contestId}${sub.problem.index}` !== targetCfId) continue;
+        if (sub.verdict === "OK") bestAc = Math.min(bestAc, sub.creationTimeSeconds);
+        else wa++;
+      }
+      return { bestAc, wa };
+    };
+
+    const currentIndex = p1Progress + p2Progress;
+    if (currentIndex < duel.questionCount) {
+      const targetCfId = idToCfId[duel.problemIds[currentIndex]];
+      const [p1r, p2r] = await Promise.all([
+        scanCurrent(duel.player1.cfHandle, targetCfId),
+        scanCurrent(duel.player2.cfHandle, targetCfId),
+      ]);
+      p1Wa += p1r.wa;
+      p2Wa += p2r.wa;
+
+      if (p1r.bestAc !== Infinity || p2r.bestAc !== Infinity) {
+        // Earliest accepted submission claims the shared problem.
+        if (p1r.bestAc <= p2r.bestAc) p1Progress++;
+        else p2Progress++;
       }
     }
 
-    // Fetch submissions for Player 2 since duel start
-    if (duel.player2.cfHandle && p2Progress < duel.questionCount) {
-      const p2Subs = await getCFSubmissions(duel.player2.cfHandle, 1, 20);
-      const currentProblemId = duel.problemIds[p2Progress];
-      const targetCfId = idToCfId[currentProblemId];
-      
-      for (const sub of p2Subs) {
-        if (new Date(sub.creationTimeSeconds * 1000) >= duel.startedAt) {
-          if (`${sub.problem.contestId}${sub.problem.index}` === targetCfId) {
-            if (sub.verdict === "OK") {
-              p2Progress++;
-              advanced = true;
-              p2WinTime = Math.min(p2WinTime, sub.creationTimeSeconds);
-              break;
-            } else if (sub.verdict !== "OK") {
-              p2Wa++;
-            }
-          }
-        }
-      }
-    }
-
-    let winnerId = null;
+    // Complete when every problem is claimed, or one player has an
+    // unbeatable majority of the points.
+    let winnerId: string | null = null;
     let newStatus = duel.status;
-
-    if (p1Progress >= duel.questionCount || p2Progress >= duel.questionCount) {
+    const totalClaimed = p1Progress + p2Progress;
+    const majority = Math.floor(duel.questionCount / 2) + 1;
+    if (totalClaimed >= duel.questionCount || p1Progress >= majority || p2Progress >= majority) {
       newStatus = "completed";
-      if (p1Progress >= duel.questionCount && p2Progress >= duel.questionCount) {
-        if (p1WinTime < p2WinTime) {
-          winnerId = duel.player1Id;
-        } else if (p2WinTime < p1WinTime) {
-          winnerId = duel.player2Id;
-        } else {
-          winnerId = null; // Exact same second draw
-        }
-      } else if (p1Progress >= duel.questionCount) {
-        winnerId = duel.player1Id;
-      } else {
-        winnerId = duel.player2Id;
-      }
+      winnerId =
+        p1Progress > p2Progress ? duel.player1Id :
+        p2Progress > p1Progress ? duel.player2Id :
+        null;
     }
 
     const updated = await prisma.duel.update({

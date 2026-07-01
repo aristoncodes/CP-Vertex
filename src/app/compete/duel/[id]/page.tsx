@@ -135,6 +135,22 @@ export default function DuelCombatPage() {
     return () => clearInterval(timer);
   }, [duel?.status, duel?.startedAt, id]);
 
+  // While pending, poll the duel status so the challenger auto-starts the
+  // moment the opponent accepts (no manual refresh needed).
+  useEffect(() => {
+    if (!duel || duel.status !== "pending") return;
+    const poll = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/duels/${id}`);
+        if (res.ok) {
+          const d = await res.json();
+          if (d.duel && d.duel.status !== "pending") setDuel(d.duel);
+        }
+      } catch { /* ignore */ }
+    }, 4000);
+    return () => clearInterval(poll);
+  }, [duel?.status, id]);
+
   // Active combat countdown timer
   useEffect(() => {
     if (!duel || duel.status !== "active") {
@@ -161,17 +177,35 @@ export default function DuelCombatPage() {
     return () => clearInterval(timer);
   }, [duel?.status, duel?.endsAt, id]);
 
-  // Client-side polling for AC submissions
+  // Keep both players' views in sync during an active duel, so when the
+  // opponent claims the shared current problem, this player's board advances
+  // to the next problem (instead of still showing the claimed one).
+  useEffect(() => {
+    if (!duel || duel.status !== "active") return;
+    const sync = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/duels/${id}`);
+        if (res.ok) {
+          const d = await res.json();
+          if (d.duel) setDuel(d.duel);
+        }
+      } catch { /* ignore */ }
+    }, 5000);
+    return () => clearInterval(sync);
+  }, [duel?.status, id]);
+
+  // Client-side polling for AC submissions on the SHARED current problem.
   useEffect(() => {
     if (!duel || duel.status !== "active" || !userId) return;
     const isPlayer2 = userId === duel.player2Id;
-    const myProgress = isPlayer2 ? duel.p2Progress : duel.p1Progress;
-    
-    if (myProgress >= duel.questionCount) return;
+
+    // Shared pointer: current problem is at (p1Progress + p2Progress).
+    const currentIndex = duel.p1Progress + duel.p2Progress;
+    if (currentIndex >= duel.questionCount) return;
     if (verifying) return; // Pause polling during server verification
 
     const myCfHandle = isPlayer2 ? duel.player2.cfHandle : duel.player1.cfHandle;
-    const currentProblem = duel.problems[myProgress];
+    const currentProblem = duel.problems[currentIndex];
     if (!myCfHandle || !currentProblem?.cfId) return;
 
     let timeoutId: NodeJS.Timeout;
@@ -226,11 +260,14 @@ export default function DuelCombatPage() {
   };
   const statusStyle = getStatusStyle(duel.status);
 
-  // Determine current problem for this user
+  // Shared-claim scoring: myProgress / opponentProgress are POINTS (problems
+  // each has claimed). The current contested problem is shared by both players
+  // and sits at the total-claimed index.
   const isPlayer2 = userId === duel.player2Id;
   const myProgress = isPlayer2 ? duel.p2Progress : duel.p1Progress;
   const opponentProgress = isPlayer2 ? duel.p1Progress : duel.p2Progress;
-  const currentProblem = duel.problems[Math.min(myProgress, duel.problems.length - 1)];
+  const currentIndex = duel.p1Progress + duel.p2Progress;
+  const currentProblem = duel.problems[Math.min(currentIndex, duel.problems.length - 1)];
 
   return (
     <DashboardLayout>
@@ -420,14 +457,14 @@ export default function DuelCombatPage() {
           <>
             <div style={{ borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)", padding: "24px 0", textAlign: "center" }}>
               <div className="n-section-label" style={{ justifyContent: "center" }}>
-                {duel.questionCount > 1 && myProgress < duel.questionCount 
-                  ? `Problem ${myProgress + 1} of ${duel.questionCount}` 
+                {duel.questionCount > 1 && currentIndex < duel.questionCount
+                  ? `Problem ${currentIndex + 1} of ${duel.questionCount} · you ${myProgress} – ${opponentProgress} opp`
                   : "Problem"}
               </div>
-              
-              {myProgress >= duel.questionCount ? (
+
+              {currentIndex >= duel.questionCount ? (
                  <div style={{ fontSize: 20, fontWeight: 700, color: "var(--success)", margin: "12px 0" }}>
-                   You have solved all questions! Waiting for duel to conclude...
+                   All problems claimed — concluding the duel…
                  </div>
               ) : currentProblem ? (
                 <>
@@ -445,7 +482,7 @@ export default function DuelCombatPage() {
             </div>
             
             <div style={{ display: "flex", justifyContent: "center", gap: 12 }}>
-              {duel.status === "active" && myProgress < duel.questionCount && (
+              {duel.status === "active" && currentIndex < duel.questionCount && (
                 <button className="n-btn-primary" onClick={handleVerify} disabled={verifying} style={{ padding: "12px 32px" }}>
                   <span className="material-symbols-outlined" style={{ fontSize: 16 }}>verified</span>
                   {verifying ? "Checking..." : "Force Verify (Auto-polling active)"}

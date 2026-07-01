@@ -40,16 +40,27 @@ export class DuelService {
       finalMax = avgRating + 100
     }
 
-    const problems = await prisma.problem.findMany({
+    // Exclude problems EITHER player has already solved — a duel should be
+    // a fair race on problems that are new to both.
+    const solvedRows = await prisma.submission.findMany({
+      where: { userId: { in: [userId, opponentId] }, verdict: "OK" },
+      select: { problemId: true },
+      distinct: ["problemId"],
+    })
+    const solvedByEither = new Set(solvedRows.map((s) => s.problemId))
+
+    const candidatePool = await prisma.problem.findMany({
       where: {
         rating: { gte: finalMin, lte: finalMax },
+        id: { notIn: [...solvedByEither] },
       },
-      take: 200,
+      take: 400,
       orderBy: { solvedCount: "desc" },
     })
+    const problems = candidatePool.filter((p) => !solvedByEither.has(p.id))
 
     if (problems.length < questionCount) {
-      throw new Error(`Not enough problems found in rating range. Found ${problems.length}, needed ${questionCount}.`)
+      throw new Error(`Not enough unsolved problems in this rating range for both players. Found ${problems.length}, needed ${questionCount}. Try a wider rating range.`)
     }
 
     const selectedProblems: string[] = [];
