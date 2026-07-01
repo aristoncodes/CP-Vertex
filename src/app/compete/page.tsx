@@ -2,7 +2,9 @@
 
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useEffect, useState } from "react";
+import { getRatingColor } from "@/lib/colors";
 
 interface OnlineUser {
   id: string;
@@ -208,12 +210,15 @@ export default function CompetePage() {
                         }} />
                       </div>
                       <div>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)" }}>
+                        <Link
+                          href={`/profile/${u.cfHandle || u.name || u.id}`}
+                          style={{ fontSize: 13, fontWeight: 700, color: getRatingColor(u.cfRating || 0), textDecoration: "none" }}
+                        >
                           {u.name || u.cfHandle || "Unknown"}
-                        </div>
+                        </Link>
                         <div style={{ fontSize: 11, color: "var(--text-muted)", display: "flex", gap: 8 }}>
                           {u.cfHandle && <span>@{u.cfHandle}</span>}
-                          <span style={{ color: "var(--info)" }}>{u.cfRating || "?"}</span>
+                          <span style={{ color: getRatingColor(u.cfRating || 0), fontWeight: 600 }}>{u.cfRating || "?"}</span>
                           <span style={{ color: "var(--warning)" }}>Lv{u.level}</span>
                         </div>
                       </div>

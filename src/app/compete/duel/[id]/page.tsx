@@ -3,6 +3,8 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { getRatingColor } from "@/lib/colors";
 
 interface DuelData {
   id: string;
@@ -11,8 +13,8 @@ interface DuelData {
   startedAt: string;
   endsAt: string;
   questionCount: number;
-  player1: { name: string; cfHandle: string };
-  player2: { name: string; cfHandle: string };
+  player1: { name: string; cfHandle: string; cfRating?: number };
+  player2: { name: string; cfHandle: string; cfRating?: number };
   problems: { id: string; title: string; rating: number; cfLink: string; cfId?: string }[];
   p1WaCount: number;
   p2WaCount: number;
@@ -337,7 +339,7 @@ export default function DuelCombatPage() {
         {/* VS */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 22, fontWeight: 700, color: "var(--primary)" }}>{duel.player1.name}</div>
+            <Link href={`/profile/${duel.player1.cfHandle || duel.player1.name}`} style={{ fontSize: 22, fontWeight: 700, color: getRatingColor(duel.player1.cfRating ?? 0), textDecoration: "none" }}>{duel.player1.name}</Link>
             <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>{duel.player1.cfHandle}</div>
             <div style={{ display: "flex", gap: 16, marginTop: 8 }}>
               <div style={{ fontSize: 12, color: "var(--danger)", fontWeight: 600 }}>{duel.p1WaCount} wrong attempts</div>
@@ -353,7 +355,7 @@ export default function DuelCombatPage() {
             WebkitTextFillColor: "transparent",
           }}>VS</div>
           <div style={{ flex: 1, textAlign: "right" }}>
-            <div style={{ fontSize: 22, fontWeight: 700, color: "var(--warning)" }}>{duel.player2.name}</div>
+            <Link href={`/profile/${duel.player2.cfHandle || duel.player2.name}`} style={{ fontSize: 22, fontWeight: 700, color: getRatingColor(duel.player2.cfRating ?? 0), textDecoration: "none" }}>{duel.player2.name}</Link>
             <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>{duel.player2.cfHandle}</div>
             <div style={{ display: "flex", gap: 16, marginTop: 8, justifyContent: "flex-end" }}>
               {duel.questionCount > 1 && (

@@ -122,8 +122,8 @@ export async function POST(
         p2Progress,
       },
       include: {
-        player1: { select: { id: true, name: true, cfHandle: true } },
-        player2: { select: { id: true, name: true, cfHandle: true } },
+        player1: { select: { id: true, name: true, cfHandle: true, cfRating: true } },
+        player2: { select: { id: true, name: true, cfHandle: true, cfRating: true } },
       },
     })
 

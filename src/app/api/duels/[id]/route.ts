@@ -18,8 +18,8 @@ export async function GET(
     let duel = await prisma.duel.findUnique({
       where: { id },
       include: {
-        player1: { select: { id: true, name: true, cfHandle: true } },
-        player2: { select: { id: true, name: true, cfHandle: true } },
+        player1: { select: { id: true, name: true, cfHandle: true, cfRating: true } },
+        player2: { select: { id: true, name: true, cfHandle: true, cfRating: true } },
       },
     })
 
@@ -35,8 +35,8 @@ export async function GET(
           where: { id },
           data: { status: "expired" },
           include: {
-            player1: { select: { id: true, name: true, cfHandle: true } },
-            player2: { select: { id: true, name: true, cfHandle: true } },
+            player1: { select: { id: true, name: true, cfHandle: true, cfRating: true } },
+            player2: { select: { id: true, name: true, cfHandle: true, cfRating: true } },
           },
         })
 
