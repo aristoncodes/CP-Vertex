@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { getRatingColor } from "@/lib/colors";
+import { getRatingColor, getRatingTierName } from "@/lib/colors";
 
 interface IntelTopic {
   slug: string;
@@ -16,22 +16,14 @@ interface IntelTopic {
 
 type SortMode = "default" | "diff-asc" | "diff-desc" | "az";
 
-// Difficulty band label. Colors come from the canonical CF tier palette
-// (getRatingColor) so they match ratings shown elsewhere in the app.
-function difficultyLabel(d: number): string {
-  if (d < 1200) return "Beginner";
-  if (d < 1600) return "Intermediate";
-  if (d < 2000) return "Advanced";
-  if (d < 2400) return "Expert";
-  return "Master";
-}
-
+// Difficulty is a Codeforces-style rating, so label + color both come from the
+// canonical CF tier palette — the rank name always matches its color.
 function DifficultyBadge({ difficulty, showLabel = true }: { difficulty: number; showLabel?: boolean }) {
   const color = getRatingColor(difficulty);
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 11, fontWeight: 700, whiteSpace: "nowrap" }}>
       <span style={{ width: 7, height: 7, borderRadius: "50%", background: color, flexShrink: 0 }} />
-      {showLabel && <span style={{ color }}>{difficultyLabel(difficulty)}</span>}
+      {showLabel && <span style={{ color }}>{getRatingTierName(difficulty)}</span>}
       <span style={{ color: "var(--text-muted)" }}>{difficulty}</span>
     </span>
   );
